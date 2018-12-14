@@ -6,6 +6,15 @@
 */
 
 /* 
+
+setup method
+initilize canvas size
+import all images
+
+draw method
+create background
+show character
+
 show main menu 
   get choice from user
     
@@ -50,5 +59,27 @@ method to create level 3
   make 2d array for size of map
   create platforms/boarders
   create enemies
-  
+ 
+ method for keypressed that calls the move method from character  
+ keyPressed (W,A,S,D) for movement  
+keyPressed (space) reverse gravity
+*/
+
+/* Rectangle Class
+Constructor with length, width, x-coordinate, y-coordinate
+*/
+
+/*Character extends rectangle
+move method that is invoked by the keypressd method
+intersection method
+show method
+*/
+
+/*Enemy extends rectangle
+show method
+move method
+*/
+
+/*UAV extends enemies
+import uav image
 */
