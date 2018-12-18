@@ -1,20 +1,43 @@
 /* Names: Safwan Wadud & Hamza Osman
    Course: ICS4U
-   Date: Dec 17, 2018
+   Date: Dec 18, 2018
    Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
    avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
-*/
+*/ 
 
-/* 
+//initialize variables
 
-initialize variables
+void setup(){
+size(1000,800);
+//import all images
+}
 
-setup method
-initilize canvas size
-import all images
+int startScreen(){
+ background(0); 
+// fractal();
+  int choice = 0; 
+  if(mouseX>=25 && mouseX<=75 && mouseY>=25 && mouseX<=75 && mousePressed == true){
+    fill(0);
+    choice =1;
+  }
+  else{
+  fill(255);
+  }
+  rect(25, 25, 50, 50); 
+  
+  return choice; 
+}
 
-draw method
-   call mainmenu method
+void fractal(){
+  //create fractal design
+}
+
+void draw(){
+  startScreen();
+  
+}
+
+/*   call mainmenu method
    If user clicks on singleplayer
       call singleplayer menu method
       depending on selection on menu, call either of the three level methods
