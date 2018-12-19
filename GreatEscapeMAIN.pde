@@ -37,8 +37,8 @@ void draw(){
   
 }
 
-/*   call mainmenu method
-   If user clicks on singleplayer
+/*   call mainmenu method (USE SWITCH CASE)
+   If user clicks on singleplayer 
       call singleplayer menu method
       depending on selection on menu, call either of the three level methods
       start timer
