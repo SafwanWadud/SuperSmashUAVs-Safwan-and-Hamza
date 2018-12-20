@@ -11,23 +11,30 @@ void setup() {
   size(1000, 800);
 
   playerImg = loadImage("Player.png");
-  player = new Player(0, height-80, 80, playerImg);
+  player = new Player(0, height-50, 50, playerImg); //(x,y,width,image)
 }
 
 void draw() {
   background(0);
   player.show();
-  frameRate(60);
+  frameRate(120);
+
+  if (player.inAir)
+  {
+    float y = player.getY();
+    y += 5;
+    player.setY(y);
+  }
 }
 
 void keyPressed() {
   if (keyCode == UP) {
-    player.move(0, -5);
-  } else if (keyCode == DOWN) {
-    player.move(0, 5);
+    if (player.inAir == false)
+    player.jump(-200);
+    player.inAir = true;
   } else if (keyCode == RIGHT) {
-    player.move(5, 0);
+    player.move(20);
   } else if (keyCode == LEFT) {
-    player.move(-5, 0);
+    player.move(-20);
   }
 }
