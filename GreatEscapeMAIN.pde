@@ -12,20 +12,13 @@ size(1000,800);
 //import all images
 }
 
-int startScreen(){
- background(0); 
+void startScreen(){
+ background(255); 
 // fractal();
-  int choice = 0; 
-  if(mouseX>=25 && mouseX<=75 && mouseY>=25 && mouseX<=75 && mousePressed == true){
-    fill(0);
-    choice =1;
-  }
-  else{
-  fill(255);
-  }
-  rect(25, 25, 50, 50); 
-  
-  return choice; 
+ // int choice = 0; 
+  Button start = new Button("START", 100,100,200,80);
+  start.showButton();
+ // return choice; 
 }
 
 void fractal(){
