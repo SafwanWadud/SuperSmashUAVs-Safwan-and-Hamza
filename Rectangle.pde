@@ -8,12 +8,18 @@ class Rectangle {
     this.y = y;
     this.w = w;
     this.h = h; 
-    r1 = random(0,255);
-    g1 = random(0,255);
-    b1 = random(0,255);
-    r2 = random(0,255);
-    g2 = random(0,255);
-    b2 = random(0,255);
+    this.r1 = r1;
+    this.g1 = g1;
+    this.b1 = b1;
+    this.r2 = r2;
+    this.g2 = g2;
+    this.b2 = b2;
+  }
+  
+  void createHiddenRect(){
+     noStroke();
+     noFill();
+     rect(x,y,w,h);
   }
   
   void createRect() {

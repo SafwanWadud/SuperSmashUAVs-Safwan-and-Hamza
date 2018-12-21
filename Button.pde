@@ -7,13 +7,20 @@ class Button extends Rectangle {
   }
   
   void showButton(){
+    createHiddenRect();//creates a rectangle with no fill
+    fill(255);
+    textAlign(CENTER,CENTER);
+    textSize(50);
+    text(label, x+w/2, y+h/2);
+    
     if (isInside()){
-      r2 = 255;//CHanges to light red
+      fill(255,246,0);
+    text(label, x+w/2, y+h/2);
     }
-    createRect();
-    fill(0);
-    textSize(60);
-    text(label, x+ w/3, y + w/3);
+  }
+  
+  boolean isClicked(){
+    return (mouseX >= x && mouseX <= (x+w) && mouseY >= y & mouseY <= y+h && mousePressed == true);
   }
   
   boolean isInside(){//Checks to see if mouse x,y coordinates are within the button
