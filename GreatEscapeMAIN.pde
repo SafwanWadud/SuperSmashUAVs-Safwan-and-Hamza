@@ -1,47 +1,94 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Dec 18, 2018
+ Date: Dec 22, 2018
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
 
 //initialize variables
-PImage background1,background2;
-int screen = 0;
+PImage background1, background2;
+int screen = 1;//variable to represent the different screens/menus; initialized to 1 representing the first screen (startscreen)
+Button start, credits, backB1, backB2;
+
 void setup() {
-  size(1000, 700);
+  size(1000, 600);
+  start = new Button("START", 50, height-130, 180, 60);
+  backB1 = new Button("BACK", -25, height-75, 180, 60);
+  backB2 = new Button("BACK", -25, height-75, 180, 60);
+  credits = new Button("CREDITS", 100, height-200, 180, 60);
+
   //import all images
   background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
   background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for amin menu
 }
 
-boolean startScreen() {
-  background1.resize(width,height);
-  image(background1,0,0);
-  Button start = new Button("START", 50, height-130, 180, 60);
+void startScreen() {
+  background1.resize(width, height);
+  image(background1, 0, 0); 
   start.showButton();
-  return start.isClicked();
-}
-
-void fractal() {
-  //create fractal design
 }
 
 void credits() {
-  background(255); 
+  background(0); 
+  fill(255);
   textSize(60);
-  text("CREDITS", 50, 50);
+  text("CREDITS", 150, 50);
+  Rectangle strip = new Rectangle(0, 100, width, 5);
+  strip.colorRect();
+  backB2.showButton();
+}
+
+void mainMenu() {
+  background2.resize(width, height);
+  image(background2, 0, 0);
+  textSize(60);
+  fill(255);
+  text("MAIN MENU", 200, 50);
+  Rectangle strip = new Rectangle(0, 100, width, 5);
+  strip.colorRect();
+  credits.showButton();
+  backB1.showButton();
+}
+
+void mousePressed() {
+  if (start.isInside() && screen ==1)
+    start.setClick(true); 
+  if (backB1.isInside() && screen ==2)
+    backB1.setClick(true);
+  if (backB2.isInside() && screen ==3)
+    backB2.setClick(true);
+  if (credits.isInside()&&screen ==2)
+    credits.setClick(true);
 }
 
 void draw() {
-  if (screen == 0);{
-    boolean next = startScreen();
-    if (next){
-     screen++; 
+  switch (screen) {
+  case 1:
+    startScreen();
+    if (start.getClick()) {
+      screen=2;
+      start.setClick(false);
     }
+    break;
+  case 2:
+    mainMenu();
+    if (credits.getClick()) {
+      screen=3;
+      credits.setClick(false);
+    }
+    if (backB1.getClick()) {
+      screen=1;
+      backB1.setClick(false);
+    }
+    break;
+  case 3:
+    credits();
+    if (backB2.getClick())
+      screen=2;
+    backB2.setClick(false);
+    break;
   }
-    image(background2,0,0);
-  }
+}
 
 /*   call mainmenu method (USE SWITCH CASE)
  If user clicks on singleplayer 
