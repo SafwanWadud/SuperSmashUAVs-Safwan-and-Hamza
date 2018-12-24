@@ -1,41 +1,127 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Dec 22, 2018
+ Date: Dec 24, 2018
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
 
-//initialize variables
-PImage background1, background2;
-int screen = 1;//variable to represent the different screens/menus; initialized to 1 representing the first screen (startscreen)
-Button start, credits, backB1, backB2;
+//Import Libraries
+import ddf.minim.*;
+import processing.sound.*;
+
+//Declaring variables
+Minim minim;//minim environment; credit: 
+AudioPlayer menuBM, startBM;//background music
+SoundFile sConfirm, sDeny, sStart;//sound effects
+PImage background1, background2;//Background images
+int screen;//variable to represent the different screens/menus
+Button start, credits, quit, backB, yesQ, noQ;
+Rectangle strip;
 
 void setup() {
   size(1000, 600);
-  start = new Button("START", 50, height-130, 180, 60);
-  backB1 = new Button("BACK", -25, height-75, 180, 60);
-  backB2 = new Button("BACK", -25, height-75, 180, 60);
-  credits = new Button("CREDITS", 100, height-200, 180, 60);
+
+  //Initializing variables
+  screen = 1;//initialized to 1 representing the first screen (startscreen)
+
+  //Music
+  minim = new Minim(this);
+  menuBM = minim.loadFile("1-03 Menu 1.mp3");
+  startBM = minim.loadFile("Fortnite-Battle-Royale-OST-Season-2_64kbs.mp3");
+
+  //Sound
+  sConfirm = new SoundFile(this, "220168__gameaudio__button-spacey-confirm.mp3");
+  sDeny = new SoundFile(this, "220167__gameaudio__button-deny-spacey.mp3");
+  sStart = new SoundFile(this, "243020__plasterbrain__game-start.mp3");
+
+  //Buttons
+  textSize(40);
+  start = new Button("START", 40, width/2-(textWidth("START")/2), height/2-20, textWidth("START"), 40);
+  credits = new Button("CREDITS", 40, 50, height-200, textWidth("CREDITS"), 40);
+  quit = new Button("QUIT", 40, 50, height-150, textWidth("QUIT"), 40);
+  yesQ = new Button("YES", 40, width/2-(textWidth("YES")/2), (height/2)+25, textWidth("YES"), 40 );
+  noQ = new Button("NO", 40, width/2-(textWidth("NO")/2), (height/2)+100, textWidth("NO"), 40 );
+  textSize(30);
+  backB = new Button("BACK", 30, 10, height-40, textWidth("BACK"), 30);
+
+  strip = new Rectangle(0, 100, width, 3);
 
   //import all images
   background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
   background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for amin menu
 }
 
-void startScreen() {
-  background1.resize(width, height);
-  image(background1, 0, 0); 
-  start.showButton();
+void draw() {
+  switch (screen) {
+  case 1:
+    menuBM.rewind();
+    if (startBM.isPlaying() == false) {
+      startBM.rewind();
+    }
+    startBM.play();
+    startScreen();
+    if (start.getClick()) {
+      sStart.play();
+      screen=2;
+      start.setClick(false);
+    }
+    break;
+  case 2:
+    startBM.rewind();
+    startBM.pause();
+    if (menuBM.isPlaying() == false) {
+      menuBM.rewind();
+    }
+    menuBM.play();
+    mainMenu();
+    if (credits.getClick()) {
+      sConfirm.play();
+      screen=3;
+      credits.setClick(false);
+    } else if (quit.getClick()) {
+      sConfirm.play();
+      screen = 4;
+      quit.setClick(false);
+    } else if (backB.getClick()) {
+      sDeny.play();
+      screen=1;
+      backB.setClick(false);
+    }
+    break;
+  case 3:
+    credits();
+    if (backB.getClick()) {
+      sDeny.play();
+      screen=2;
+      backB.setClick(false);
+    }
+    break;
+  case 4:
+    quitGame();
+    if (yesQ.getClick()) {
+      exit();
+    } else if (noQ.getClick()) {
+      sDeny.play();
+      screen =2;
+      noQ.setClick(false);
+    }
+    break;
+  }
 }
 
-void credits() {
-  background(0); 
-  fill(255);
-  textSize(60);
-  text("CREDITS", 150, 50);
-  Rectangle strip = new Rectangle(0, 100, width, 5);
-  strip.colorRect();
-  backB2.showButton();
+void mousePressed() {
+  if (start.isInside() && screen==1)
+    start.setClick(true); 
+  else if (backB.isInside() && (screen ==2 || screen ==3))
+    backB.setClick(true);
+  else if (credits.isInside() && screen ==2)
+    credits.setClick(true);
+  else if (quit.isInside() && screen ==2)
+    quit.setClick(true);
+  else if (yesQ.isInside() && screen==4)
+    yesQ.setClick(true);
+  else if (noQ.isInside() && screen==4)
+    noQ.setClick(true);
 }
 
 void mainMenu() {
@@ -44,50 +130,46 @@ void mainMenu() {
   textSize(60);
   fill(255);
   text("MAIN MENU", 200, 50);
-  Rectangle strip = new Rectangle(0, 100, width, 5);
   strip.colorRect();
   credits.showButton();
-  backB1.showButton();
+  quit.showButton();
+  backB.showButton();
 }
 
-void mousePressed() {
-  if (start.isInside() && screen ==1)
-    start.setClick(true); 
-  if (backB1.isInside() && screen ==2)
-    backB1.setClick(true);
-  if (backB2.isInside() && screen ==3)
-    backB2.setClick(true);
-  if (credits.isInside()&&screen ==2)
-    credits.setClick(true);
+
+
+void startScreen() {
+  background1.resize(width, height);
+  image(background1, 0, 0);
+  fill(255);  
+  textSize(60);
+  text("CUE'S GREAT ESCAPE", width/2, 100);
+  start.showButton();
 }
 
-void draw() {
-  switch (screen) {
-  case 1:
-    startScreen();
-    if (start.getClick()) {
-      screen=2;
-      start.setClick(false);
-    }
-    break;
-  case 2:
-    mainMenu();
-    if (credits.getClick()) {
-      screen=3;
-      credits.setClick(false);
-    }
-    if (backB1.getClick()) {
-      screen=1;
-      backB1.setClick(false);
-    }
-    break;
-  case 3:
-    credits();
-    if (backB2.getClick())
-      screen=2;
-    backB2.setClick(false);
-    break;
-  }
+void credits() {
+  background(0);
+  fill(255);
+  textSize(60);
+  text("CREDITS", 150, 50);
+  textSize(20);
+  text("Made by Safwan Wadud & Hamza Osman", width/2, 200);
+  text("ICS4U Summative Project", width/2, 250);
+  text("Jan 21, 2019", width/2, 300);
+  strip.colorRect();
+  backB.showButton();
+}
+
+void quitGame() {
+  background(0);
+  fill(255);
+  textSize(60);
+  text("QUIT GAME", 200, 50);
+  textSize(20);
+  text("Are you sure you want to quit the game?", width/2, height/2-50);
+  strip.colorRect();
+  yesQ.showButton();
+  noQ.showButton();
 }
 
 /*   call mainmenu method (USE SWITCH CASE)

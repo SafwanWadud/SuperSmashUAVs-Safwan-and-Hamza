@@ -30,6 +30,7 @@ class Rectangle {
   }
   
   void colorRect() {
+    noStroke();
     fill(r, g, b);//color of shape
     rect(x,y,w,h);
   }
