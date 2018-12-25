@@ -1,8 +1,8 @@
 //Blueprint for Button class
 class Button extends Rectangle {
-  private String label;
-  private boolean click;
-  private float txtSize;
+  protected String label;
+  protected boolean click;
+  protected float txtSize;
 
   Button (String lbl, float ts, float x, float y, float w, float h) {
     super(x, y, w, h);
@@ -20,6 +20,10 @@ class Button extends Rectangle {
       fill(255, 246, 0);//changes text color to yellow
       text(label, x+(w/2), y+(h/2)-5);
     }
+  }
+  
+  float getTextSize(){
+   return txtSize; 
   }
 
   void setClick(boolean b) {

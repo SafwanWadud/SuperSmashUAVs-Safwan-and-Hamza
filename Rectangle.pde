@@ -29,10 +29,22 @@ class Rectangle {
      rect(x,y,w,h);
   }
   
-  void colorRect() {
+  void colorRect1() {
     noStroke();
-    fill(r, g, b);//color of shape
+    fill(r, g, b);
     rect(x,y,w,h);
+  }
+  
+  void colorRect2() {
+    stroke(r, g, b);
+    noFill();
+    rect(x,y,w,h);
+  }
+  
+  void setColor(float r, float g, float b){
+    this.r = r;
+    this.g = g;
+    this.b = b;
   }
   
 }
