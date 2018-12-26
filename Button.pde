@@ -1,13 +1,14 @@
 //Blueprint for Button class
 class Button extends Rectangle {
   protected String label;
-  protected boolean click;
+  private boolean click;
   protected float txtSize;
 
   Button (String lbl, float ts, float x, float y, float w, float h) {
     super(x, y, w, h);
     label = lbl;
     txtSize = ts;
+    click = false;
   }
 
   void showButton() {

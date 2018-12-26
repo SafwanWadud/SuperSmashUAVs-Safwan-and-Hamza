@@ -65,7 +65,7 @@ void draw() {
   switch (screen) {
   case 1:
     menuBM.rewind();
-    if (startBM.isPlaying() == false) {
+    if (!startBM.isPlaying()) {
       startBM.rewind();
     }
     if (musicON.getActive()) {
