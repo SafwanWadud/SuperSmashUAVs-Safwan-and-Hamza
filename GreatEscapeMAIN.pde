@@ -219,7 +219,39 @@ void mousePressed() {
     noB.setClick(true);
 }
 
+void scoreboard() {
+  try {//Tries to read from a file which checks to see if the file exists or not
+    BufferedReader br = createReader("scoreboardGE.txt");
+    br.close();
+  }
+  catch (Exception err) {//Creates new file and initializes all scores
+    try {
+      PrintWriter pw = createWriter("scoreboardGE.txt");//Creates new file called "scoreboardGE"
+      pw.println("CUE'S GREAT ESCAPE");
+      pw.println("HIGH SCORES");
+      pw.println("RANK\tNAME\tSCORE");
 
+      for (int i = 0; i<100; i++) {
+        pw.print(i+1);//prints rank to the file
+        if (i+1 == 11 || i+1 == 12 || i+1 == 13) {//Prints sufixes for rank numbers 
+          pw.print("th");
+        } else if ((i+1)%10 == 1) {
+          pw.print("st");
+        } else if ((i+1)%10 == 2) {
+          pw.print("nd");
+        } else if ((i+1)%10 == 3) {
+          pw.print("rd");
+        } else {
+          pw.print("th");
+        }
+        pw.println("\t***\t" + 0); //prints default names and score
+      }
+      pw.close();
+    } 
+    catch (Exception e) {
+    }
+  }
+}
 
 void mainMenu() {
   image(background2, 0, 0);
