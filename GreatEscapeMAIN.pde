@@ -20,7 +20,7 @@ Switch musicON, musicOFF, soundON, soundOFF;
 Rectangle strip;
 
 void setup() {
-  size(1000, 600);
+  size(1000, 700);
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
@@ -47,10 +47,10 @@ void setup() {
   backB = new Button("BACK", 30, 10, height-40, textWidth("BACK"), 30);
 
   //Switches
-  musicON = new Switch("ON", true, 500, 180);
-  musicOFF = new Switch("OFF", false, 560, 180);
-  soundON = new Switch("ON", true, 500, 280);
-  soundOFF = new Switch("OFF", false, 560, 280);
+  musicON = new Switch("ON", true, 500, 230);
+  musicOFF = new Switch("OFF", false, 560, 230);
+  soundON = new Switch("ON", true, 500, 330);
+  soundOFF = new Switch("OFF", false, 560, 330);
 
   strip = new Rectangle(0, 100, width, 3);
 
@@ -218,6 +218,8 @@ void mousePressed() {
   else if (noB.isInside() && screen==5)
     noB.setClick(true);
 }
+
+
 
 void mainMenu() {
   image(background2, 0, 0);
