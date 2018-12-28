@@ -1,6 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Dec 25, 2018
+ Date: Dec 27, 2018
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -8,6 +8,7 @@
 //Import Libraries
 import ddf.minim.*;
 import processing.sound.*;
+import java.util.*;
 
 //Declaring variables
 Minim minim;//minim environment; credit: 
@@ -15,6 +16,7 @@ AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PImage background1, background2;//Background images
 int screen;//variable to represent the different screens/menus
+String [][] sbParts;
 Button startB, optionsB, creditsB, quitB, backB, yesB, noB;
 Switch musicON, musicOFF, soundON, soundOFF;
 Rectangle strip;
@@ -24,7 +26,8 @@ void setup() {
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
-
+  sbParts = new String[2][50];//2D array to hold the parts of the scoreboard (player names and scores)
+  
   //Music
   minim = new Minim(this);
   menuBM = minim.loadFile("1-03 Menu 1.mp3");
@@ -59,6 +62,8 @@ void setup() {
   background1.resize(width, height);
   background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for amin menu
   background2.resize(width, height);
+
+  createScoreboard();//If there is no existing scoreboard, a new one is created
 }
 
 void draw() {
@@ -219,7 +224,7 @@ void mousePressed() {
     noB.setClick(true);
 }
 
-void scoreboard() {
+void createScoreboard() {
   try {//Tries to read from a file which checks to see if the file exists or not
     BufferedReader br = createReader("scoreboardGE.txt");
     br.close();
@@ -227,11 +232,8 @@ void scoreboard() {
   catch (Exception err) {//Creates new file and initializes all scores
     try {
       PrintWriter pw = createWriter("scoreboardGE.txt");//Creates new file called "scoreboardGE"
-      pw.println("CUE'S GREAT ESCAPE");
-      pw.println("HIGH SCORES");
-      pw.println("RANK\tNAME\tSCORE");
 
-      for (int i = 0; i<100; i++) {
+      for (int i = 0; i<50; i++) {
         pw.print(i+1);//prints rank to the file
         if (i+1 == 11 || i+1 == 12 || i+1 == 13) {//Prints sufixes for rank numbers 
           pw.print("th");
@@ -249,6 +251,91 @@ void scoreboard() {
       pw.close();
     } 
     catch (Exception e) {
+    }
+  }
+}
+
+void readScoreboard() {
+  try {
+    BufferedReader br = createReader("scoreboardGE.txt");
+    String line;
+
+    for (int i = 0; i<sbParts[0].length; i++) { //Reads through the next 50 lines of the text file 
+      line = trimLine(br.readLine());//reads text file and calls trimLine method
+      sbParts[0][i] =  line.substring(0, line.indexOf('\t')); //holds player names extracted from text file
+      sbParts[1][i] =  trimLine(line); //holds player scores extracted from text file
+    }
+    br.close();
+  }
+  catch (Exception e) {
+  }
+}
+
+String trimLine (String l) {//String method to return the trimmed substring of a line which starts from the first tab   
+  return l.substring(l.indexOf('\t')).trim();
+}
+
+void modScoreboard(String score) {
+  Scanner sc = new Scanner(System.in);
+  String cScore, sHolder1, sHolder2; //variables to hold current player's score, and 2 temp score holders 
+  String cName, nHolder1, nHolder2; //variables to hold lines read from the text file, current player's name, and 2 temp name holders
+  boolean nameValid = false, sPlaced = false;//variables to check if the user has entered a valid name, and to check if current player's score has been placed into the top 50
+
+  cScore = score;
+
+  for (int i = 0; i<sbParts[1].length; i++) {//Goes through the scoreboard to check if current player's score has made top 100
+    if (Integer.parseInt(cScore)>Integer.parseInt(sbParts[1][i]) && !sPlaced) {//Modifies scoreboard if current player's score is greater than the score currently held AND player's score has not already been placed in a higher position 
+      sPlaced = true;
+      sHolder1 = cScore;//Sets 1st temp score holder equal to the player's current score
+      println("Congratulations! Your score has made the top 50 \nEnter your initials (max 3 letters): ");
+
+      do {//loops until user has entered a valid name
+        cName = sc.nextLine().trim().toUpperCase();
+        if (cName.length() == 0) {//Sets player's name to *** if they were to press enter without inputing a name
+          cName = "***";
+          nameValid = true;
+        } else if (cName.length()<=3) {
+          nameValid = true;
+          for (int j = 0; j<cName.length(); j++) {//loops through a certain number of times depending on the length of the name (1,2, or 3)
+            if (!(cName.charAt(j) >= 'A' && cName.charAt(j) <= 'Z')) {//Checks to see if all characters in the name are letters
+              System.out.println("Invalid entry. Up to 3 letters between A-Z can only be used.");
+              nameValid = false;
+              break;//breaks from the for loop once there is a character that is not a letter
+            }
+          }
+        } else {
+          System.out.println("Invalid entry. Max 3 letters allowed");
+        }
+      } while (!nameValid);
+      sc.close();
+      nHolder1 = cName;//Sets 1st temp name holder equal to the player's current name
+
+      for (int j = i; j<sbParts[1].length; j++) {//Goes through the scoreboard starting from the position the current player's score is to be held to the end of the array
+        sHolder2 = sbParts[1][j];//Sets 2nd temp score holder equal to the value of the score array at index j
+        sbParts[1][j] = sHolder1;//Sets the value of the score array at index j equal to the value currently held in the 1st temp score holder
+        sHolder1 = sHolder2;//Sets the first temp score holder equal to the value of the value held in the 2nd temp score holder
+        nHolder2 = sbParts[0][j];//Same process to modify the names as the scores
+        sbParts[0][j] = nHolder1; 
+        nHolder1 = nHolder2;
+      }
+
+      PrintWriter pw = createWriter("scoreboardGE.txt");
+      for (int j = 0; j<sbParts[0].length; j++) {
+        pw.print(j+1);//prints rank to the file
+        if (j+1 == 11 || j+1 == 12 || j+1 == 13) {//Prints sufixes of rank numbers 
+          pw.print("th");
+        } else if ((j+1)%10 == 1) {
+          pw.print("st");
+        } else if ((j+1)%10 == 2) {
+          pw.print("nd");
+        } else if ((j+1)%10 == 3) {
+          pw.print("rd");
+        } else {
+          pw.print("th");
+        }
+        pw.println("\t" + sbParts[0][j] + "\t" + sbParts[1][j]); //prints names and scores
+      }
+      pw.close();
     }
   }
 }
