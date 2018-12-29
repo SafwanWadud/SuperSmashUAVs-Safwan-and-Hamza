@@ -16,18 +16,18 @@ AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PImage background1, background2;//Background images
 int screen;//variable to represent the different screens/menus
-String [][] sbParts;
-Button startB, optionsB, creditsB, quitB, backB, yesB, noB;
-Switch musicON, musicOFF, soundON, soundOFF;
-Rectangle strip;
+String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
+Button startB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB;//buttons
+Switch musicON, musicOFF, soundON, soundOFF;//switches
+Rectangle strip;//white strip for menu design
 
 void setup() {
   size(1000, 700);
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
-  sbParts = new String[2][50];//2D array to hold the parts of the scoreboard (player names and scores)
-  
+  sbParts = new String[2][50];
+
   //Music
   minim = new Minim(this);
   menuBM = minim.loadFile("1-03 Menu 1.mp3");
@@ -41,6 +41,7 @@ void setup() {
   //Buttons
   textSize(40);
   startB = new Button("START", 40, width/2-(textWidth("START")/2), height/2-20, textWidth("START"), 40);
+  scoreboardB = new Button("SCOREBOARD", 40, 50, height-300, textWidth("SCOREBOARD"), 40);
   optionsB = new Button("OPTIONS", 40, 50, height-250, textWidth("OPTIONS"), 40);
   creditsB = new Button("CREDITS", 40, 50, height-200, textWidth("CREDITS"), 40);
   quitB = new Button("QUIT", 40, 50, height-150, textWidth("QUIT"), 40);
@@ -68,7 +69,7 @@ void setup() {
 
 void draw() {
   switch (screen) {
-  case 1:
+  case 1://Start screen
     menuBM.rewind();
     if (!startBM.isPlaying()) {
       startBM.rewind();
@@ -85,7 +86,7 @@ void draw() {
       startB.setClick(false);
     }
     break;
-  case 2:
+  case 2://main menu screen
     startBM.rewind();
     startBM.pause();
     if (!menuBM.isPlaying()) {
@@ -95,23 +96,29 @@ void draw() {
       menuBM.play();
     }
     mainMenu();
-    if (optionsB.getClick()) {
+    if (scoreboardB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=3;
+      screen =3;
+      scoreboardB.setClick(false);
+    } else if (optionsB.getClick()) {
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      screen=4;
       optionsB.setClick(false);
     } else if (creditsB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=4;
+      screen=5;
       creditsB.setClick(false);
     } else if (quitB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen = 5;
+      screen = 6;
       quitB.setClick(false);
     } else if (backB.getClick()) {
       if (soundON.getActive()) {
@@ -121,7 +128,23 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 3:
+  case 3://scoreboard screen
+    if (!menuBM.isPlaying()) {
+      menuBM.rewind();
+    }
+    if (musicON.getActive()) {
+      menuBM.play();
+    }
+    scoreboardMenu();
+    if (backB.getClick()) {
+      if (soundON.getActive()) {
+        sDeny.play();
+      }
+      screen=2;
+      backB.setClick(false);
+    }
+    break;
+  case 4://options menu screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -155,7 +178,7 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 4:
+  case 5://credits screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -171,7 +194,7 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 5:
+  case 6:// quit screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -195,32 +218,34 @@ void draw() {
 void mousePressed() {
   if (startB.isInside() && screen==1)
     startB.setClick(true); 
-  else if (backB.isInside() && (screen ==2 || screen ==3 || screen == 4))
+  else if (backB.isInside() && (screen ==2 || screen ==3 || screen == 4 || screen == 5))
     backB.setClick(true);
+  else if (scoreboardB.isInside() && screen ==2)
+    scoreboardB.setClick(true);
   else if (optionsB.isInside() && screen ==2)
     optionsB.setClick(true);
   else if (creditsB.isInside() && screen ==2)
     creditsB.setClick(true);
   else if (quitB.isInside() && screen ==2)
     quitB.setClick(true);
-  else if (musicON.isInside() && screen==3) {
+  else if (musicON.isInside() && screen==4) {
     musicON.setClick(true);
     musicON.setActive(true);
     musicOFF.setActive(false);
-  } else if (musicOFF.isInside() && screen==3) {
+  } else if (musicOFF.isInside() && screen==4) {
     musicOFF.setClick(true);
     musicOFF.setActive(true);
     musicON.setActive(false);
-  } else if (soundON.isInside() && screen==3) {
+  } else if (soundON.isInside() && screen==4) {
     soundON.setClick(true);
     soundON.setActive(true);
     soundOFF.setActive(false);
-  } else if (soundOFF.isInside() && screen==3) {
+  } else if (soundOFF.isInside() && screen==4) {
     soundOFF.setActive(true);
     soundON.setActive(false);
-  } else if (yesB.isInside() && screen==5)
+  } else if (yesB.isInside() && screen==6)
     yesB.setClick(true);
-  else if (noB.isInside() && screen==5)
+  else if (noB.isInside() && screen==6)
     noB.setClick(true);
 }
 
@@ -246,7 +271,7 @@ void createScoreboard() {
         } else {
           pw.print("th");
         }
-        pw.println("\t***\t" + 0); //prints default names and score
+        pw.println("                          XXX                          " + 0); //prints default names and score
       }
       pw.close();
     } 
@@ -340,12 +365,57 @@ void modScoreboard(String score) {
   }
 }
 
+void scoreboardMenu() {
+  image(background2, 0, 0);
+  fill(255);
+  textSize(60);
+  text("SCOREBOARD", 225, 50);
+  textSize(45);
+  text("Rank                  Name                  Score", width/2, 150);
+  textSize(40);
+  try {
+    BufferedReader br = createReader("scoreboardGE.txt");
+    for (int i = 1; i<=10; i++) { //Reads through the first 10 lines of the text file
+      text(br.readLine(), (width/2)+10, 180+(i*40));
+    }
+    br.close();
+  }
+  catch (Exception e) {
+  }
+  strip.colorRect1();
+  backB.showButton();
+}
+
+void bubbleSort (String[][] list)//Need to make an array to hold ranks
+{
+  boolean sorted = false;
+  for (int top = list[0].length-1; top > 0; top--)
+  {
+    sorted = true;
+    for (int i = 0; i < top; i++)
+    {
+      if (list[0][i].compareTo(list[0][i+1]) > 0)
+      {
+        sorted = false;
+        String temp = list[0][i];
+        list[0][i] = list[0][i+1];
+        list[0][i+1] = temp;
+        
+        String temp2 = list[1][i];
+        list[1][i] = list[1][i+1];
+        list[1][i+1] = temp2;
+      }
+    }
+  }
+}
+
 void mainMenu() {
   image(background2, 0, 0);
   textSize(60);
   fill(255);
   text("MAIN MENU", 200, 50);
   strip.colorRect1();
+  scoreboardB.showButton();
   optionsB.showButton();
   creditsB.showButton();
   quitB.showButton();
@@ -361,7 +431,7 @@ void startScreen() {
 }
 
 void options() {
-  background(0);
+  image(background2, 0, 0);
   fill(255);
   textSize(60);
   text("OPTIONS", 150, 50);
@@ -377,7 +447,7 @@ void options() {
 }
 
 void credits() {
-  background(0);
+  image(background2, 0, 0);
   fill(255);
   textSize(60);
   text("CREDITS", 150, 50);
@@ -390,7 +460,7 @@ void credits() {
 }
 
 void quitGame() {
-  background(0);
+  image(background2, 0, 0);
   fill(255);
   textSize(60);
   text("QUIT GAME", 200, 50);
