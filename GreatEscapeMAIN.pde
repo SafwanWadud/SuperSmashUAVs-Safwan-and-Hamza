@@ -1,6 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Dec 27, 2018
+ Date: Dec 31, 2018
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -8,25 +8,26 @@
 //Import Libraries
 import ddf.minim.*;
 import processing.sound.*;
-import java.util.*;
 
 //Declaring variables
 Minim minim;//minim environment; credit: 
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PImage background1, background2;//Background images
-int screen;//variable to represent the different screens/menus
+int screen, score, position;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50
+String strScore, cName;//holds user score as a string; holds user's current name 
+boolean played, tBoxClicked, nameEntered;//determines if the game was played once already;determines if a textbox was clicked on; determines if a name was entered
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
-Button startB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB;//buttons
+Button startB, playB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nameB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF;//switches
-Rectangle strip;//white strip for menu design
+Rectangle strip, textBox;//white strip for menu design; textBox to get user's name
 
 void setup() {
   size(1000, 700);
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
-  sbParts = new String[2][50];
+  sbParts = new String[3][50];
 
   //Music
   minim = new Minim(this);
@@ -39,16 +40,21 @@ void setup() {
   sStart = new SoundFile(this, "243020__plasterbrain__game-start.mp3");
 
   //Buttons
+  textSize(50);
+  playB = new Button("PLAY", 50, 50, 150, textWidth("PLAY"), 50);
+  scoreboardB = new Button("SCOREBOARD", 50, 50, 270, textWidth("SCOREBOARD"), 50);
+  optionsB = new Button("OPTIONS", 50, 50, 330, textWidth("OPTIONS"), 50);
+  creditsB = new Button("CREDITS", 50, 50, 390, textWidth("CREDITS"), 50);
+  quitB = new Button("QUIT", 50, 50, 450, textWidth("QUIT"), 50);
+  nameB = new Button("Name", 50, width/2-(textWidth("Name")/2), 130, textWidth("Name"), 50);
   textSize(40);
   startB = new Button("START", 40, width/2-(textWidth("START")/2), height/2-20, textWidth("START"), 40);
-  scoreboardB = new Button("SCOREBOARD", 40, 50, height-300, textWidth("SCOREBOARD"), 40);
-  optionsB = new Button("OPTIONS", 40, 50, height-250, textWidth("OPTIONS"), 40);
-  creditsB = new Button("CREDITS", 40, 50, height-200, textWidth("CREDITS"), 40);
-  quitB = new Button("QUIT", 40, 50, height-150, textWidth("QUIT"), 40);
   yesB = new Button("YES", 40, width/2-(textWidth("YES")/2), (height/2)+25, textWidth("YES"), 40 );
   noB = new Button("NO", 40, width/2-(textWidth("NO")/2), (height/2)+100, textWidth("NO"), 40 );
+  continueB = new Button("CONTINUE", 40, width/2-(textWidth("CONTINUE")/2), height/2, textWidth("CONTINUE"), 40);
   textSize(30);
   backB = new Button("BACK", 30, 10, height-40, textWidth("BACK"), 30);
+  returnB = new Button("RETURN TO MAIN MENU", 30, width/2-(textWidth("RETURN TO MAIN MENU")/2), (height/2)+100, textWidth("RETURN TO MAIN MENU"), 30);
 
   //Switches
   musicON = new Switch("ON", true, 500, 230);
@@ -56,11 +62,13 @@ void setup() {
   soundON = new Switch("ON", true, 500, 330);
   soundOFF = new Switch("OFF", false, 560, 330);
 
+  //Rectangles
   strip = new Rectangle(0, 100, width, 3);
+  textBox = new Rectangle((width/2)-100, (height/2)-25, 200, 50);
 
   //import all images
   background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
-  background1.resize(width, height);
+  background1.resize(width, height);//Changes size of image to fit the screen size
   background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for amin menu
   background2.resize(width, height);
 
@@ -96,29 +104,35 @@ void draw() {
       menuBM.play();
     }
     mainMenu();
-    if (scoreboardB.getClick()) {
+    if (playB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen =3;
+      screen = 3;
+      playB.setClick(false);
+    } else if (scoreboardB.getClick()) {
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      screen =4;
       scoreboardB.setClick(false);
     } else if (optionsB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=4;
+      screen=5;
       optionsB.setClick(false);
     } else if (creditsB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=5;
+      screen=6;
       creditsB.setClick(false);
     } else if (quitB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen = 6;
+      screen = 7;
       quitB.setClick(false);
     } else if (backB.getClick()) {
       if (soundON.getActive()) {
@@ -128,7 +142,28 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 3://scoreboard screen
+  case 3://play game screen
+    if (!menuBM.isPlaying()) {
+      menuBM.rewind();
+    }
+    if (musicON.getActive()) {
+      menuBM.play();
+    }
+    play();
+    nameEntered = false;
+    cName = "";
+    if (continueB.getClick()) {
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      if (isScoreTop50())
+        screen = 8;
+      else
+        screen = 2;
+      continueB.setClick(false);
+    }
+    break;
+  case 4://scoreboard screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -136,6 +171,13 @@ void draw() {
       menuBM.play();
     }
     scoreboardMenu();
+    if (nameB.getClick()){
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      nameB.setClick(false);
+      bubbleSort(sbParts);
+    } 
     if (backB.getClick()) {
       if (soundON.getActive()) {
         sDeny.play();
@@ -144,7 +186,7 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 4://options menu screen
+  case 5://options menu screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -178,7 +220,7 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 5://credits screen
+  case 6://credits screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -194,7 +236,7 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 6:// quit screen
+  case 7:// quit screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -212,14 +254,28 @@ void draw() {
       noB.setClick(false);
     }
     break;
+  case 8://update scoreboard menu
+    promptUser();//gets user's name
+    if (returnB.getClick()) {
+      modScoreboard();//Updates the scoreboard
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      screen=2;
+      returnB.setClick(false);
+    }
+    played = false;
+    break;
   }
 }
 
 void mousePressed() {
   if (startB.isInside() && screen==1)
     startB.setClick(true); 
-  else if (backB.isInside() && (screen ==2 || screen ==3 || screen == 4 || screen == 5))
+  else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6))
     backB.setClick(true);
+  else if (playB.isInside() && screen == 2)
+    playB.setClick(true);
   else if (scoreboardB.isInside() && screen ==2)
     scoreboardB.setClick(true);
   else if (optionsB.isInside() && screen ==2)
@@ -228,185 +284,113 @@ void mousePressed() {
     creditsB.setClick(true);
   else if (quitB.isInside() && screen ==2)
     quitB.setClick(true);
-  else if (musicON.isInside() && screen==4) {
+  else if (continueB.isInside() && screen ==3)
+    continueB.setClick(true);
+  else if (nameB.isInside() && screen ==4)
+    nameB.setClick(true);
+  else if (musicON.isInside() && screen==5) {
     musicON.setClick(true);
     musicON.setActive(true);
     musicOFF.setActive(false);
-  } else if (musicOFF.isInside() && screen==4) {
+  } else if (musicOFF.isInside() && screen==5) {
     musicOFF.setClick(true);
     musicOFF.setActive(true);
     musicON.setActive(false);
-  } else if (soundON.isInside() && screen==4) {
+  } else if (soundON.isInside() && screen==5) {
     soundON.setClick(true);
     soundON.setActive(true);
     soundOFF.setActive(false);
-  } else if (soundOFF.isInside() && screen==4) {
+  } else if (soundOFF.isInside() && screen==5) {
     soundOFF.setActive(true);
     soundON.setActive(false);
-  } else if (yesB.isInside() && screen==6)
+  } else if (yesB.isInside() && screen==7)
     yesB.setClick(true);
-  else if (noB.isInside() && screen==6)
+  else if (noB.isInside() && screen==7)
     noB.setClick(true);
+  else if (textBox.isInside() && screen == 8)
+    tBoxClicked = true;
+  else if (returnB.isInside() && screen == 8 && nameEntered)
+    returnB.setClick(true);
 }
 
-void createScoreboard() {
-  try {//Tries to read from a file which checks to see if the file exists or not
-    BufferedReader br = createReader("scoreboardGE.txt");
-    br.close();
-  }
-  catch (Exception err) {//Creates new file and initializes all scores
-    try {
-      PrintWriter pw = createWriter("scoreboardGE.txt");//Creates new file called "scoreboardGE"
-
-      for (int i = 0; i<50; i++) {
-        pw.print(i+1);//prints rank to the file
-        if (i+1 == 11 || i+1 == 12 || i+1 == 13) {//Prints sufixes for rank numbers 
-          pw.print("th");
-        } else if ((i+1)%10 == 1) {
-          pw.print("st");
-        } else if ((i+1)%10 == 2) {
-          pw.print("nd");
-        } else if ((i+1)%10 == 3) {
-          pw.print("rd");
-        } else {
-          pw.print("th");
-        }
-        pw.println("                          XXX                          " + 0); //prints default names and score
+void keyPressed() {
+  if (screen==8 && tBoxClicked && !nameEntered) {
+    if (key>='a'&&key<='z' && cName.length()<6) {
+      cName+=key;
+    } else if (key == BACKSPACE) {
+      if (cName.length() > 0) {
+        cName = cName.substring(0, cName.length()-1);
       }
-      pw.close();
-    } 
-    catch (Exception e) {
+    } else if (key==ENTER) {
+      if (cName.length()<=6 && cName.length()>=1) {
+        nameEntered = true;
+      } else {
+        cName = "";
+      }
     }
   }
 }
 
-void readScoreboard() {
-  try {
-    BufferedReader br = createReader("scoreboardGE.txt");
-    String line;
+void bubbleSort (String[][] list)//Sorts the scoreboard in alphabetical order
+{
+  for (int top = list[0].length-1; top > 0; top--)
+  {
+    for (int i = 0; i < top; i++)
+    {
+      if (list[1][i].compareTo(list[1][i+1]) > 0)
+      {
+        //Swap names
+        String temp = list[1][i];
+        list[1][i] = list[1][i+1];
+        list[1][i+1] = temp;
 
-    for (int i = 0; i<sbParts[0].length; i++) { //Reads through the next 50 lines of the text file 
-      line = trimLine(br.readLine());//reads text file and calls trimLine method
-      sbParts[0][i] =  line.substring(0, line.indexOf('\t')); //holds player names extracted from text file
-      sbParts[1][i] =  trimLine(line); //holds player scores extracted from text file
-    }
-    br.close();
-  }
-  catch (Exception e) {
-  }
-}
+        //Swap corresponding ranks
+        String temp2 = list[0][i];
+        list[0][i] = list[0][i+1];
+        list[0][i+1] = temp2;
 
-String trimLine (String l) {//String method to return the trimmed substring of a line which starts from the first tab   
-  return l.substring(l.indexOf('\t')).trim();
-}
-
-void modScoreboard(String score) {
-  Scanner sc = new Scanner(System.in);
-  String cScore, sHolder1, sHolder2; //variables to hold current player's score, and 2 temp score holders 
-  String cName, nHolder1, nHolder2; //variables to hold lines read from the text file, current player's name, and 2 temp name holders
-  boolean nameValid = false, sPlaced = false;//variables to check if the user has entered a valid name, and to check if current player's score has been placed into the top 50
-
-  cScore = score;
-
-  for (int i = 0; i<sbParts[1].length; i++) {//Goes through the scoreboard to check if current player's score has made top 100
-    if (Integer.parseInt(cScore)>Integer.parseInt(sbParts[1][i]) && !sPlaced) {//Modifies scoreboard if current player's score is greater than the score currently held AND player's score has not already been placed in a higher position 
-      sPlaced = true;
-      sHolder1 = cScore;//Sets 1st temp score holder equal to the player's current score
-      println("Congratulations! Your score has made the top 50 \nEnter your initials (max 3 letters): ");
-
-      do {//loops until user has entered a valid name
-        cName = sc.nextLine().trim().toUpperCase();
-        if (cName.length() == 0) {//Sets player's name to *** if they were to press enter without inputing a name
-          cName = "***";
-          nameValid = true;
-        } else if (cName.length()<=3) {
-          nameValid = true;
-          for (int j = 0; j<cName.length(); j++) {//loops through a certain number of times depending on the length of the name (1,2, or 3)
-            if (!(cName.charAt(j) >= 'A' && cName.charAt(j) <= 'Z')) {//Checks to see if all characters in the name are letters
-              System.out.println("Invalid entry. Up to 3 letters between A-Z can only be used.");
-              nameValid = false;
-              break;//breaks from the for loop once there is a character that is not a letter
-            }
-          }
-        } else {
-          System.out.println("Invalid entry. Max 3 letters allowed");
-        }
-      } while (!nameValid);
-      sc.close();
-      nHolder1 = cName;//Sets 1st temp name holder equal to the player's current name
-
-      for (int j = i; j<sbParts[1].length; j++) {//Goes through the scoreboard starting from the position the current player's score is to be held to the end of the array
-        sHolder2 = sbParts[1][j];//Sets 2nd temp score holder equal to the value of the score array at index j
-        sbParts[1][j] = sHolder1;//Sets the value of the score array at index j equal to the value currently held in the 1st temp score holder
-        sHolder1 = sHolder2;//Sets the first temp score holder equal to the value of the value held in the 2nd temp score holder
-        nHolder2 = sbParts[0][j];//Same process to modify the names as the scores
-        sbParts[0][j] = nHolder1; 
-        nHolder1 = nHolder2;
+        //Swap corresponding scores
+        String temp3 = list[2][i];
+        list[2][i] = list[2][i+1];
+        list[2][i+1] = temp3;
       }
-
-      PrintWriter pw = createWriter("scoreboardGE.txt");
-      for (int j = 0; j<sbParts[0].length; j++) {
-        pw.print(j+1);//prints rank to the file
-        if (j+1 == 11 || j+1 == 12 || j+1 == 13) {//Prints sufixes of rank numbers 
-          pw.print("th");
-        } else if ((j+1)%10 == 1) {
-          pw.print("st");
-        } else if ((j+1)%10 == 2) {
-          pw.print("nd");
-        } else if ((j+1)%10 == 3) {
-          pw.print("rd");
-        } else {
-          pw.print("th");
-        }
-        pw.println("\t" + sbParts[0][j] + "\t" + sbParts[1][j]); //prints names and scores
-      }
-      pw.close();
     }
   }
 }
 
-void scoreboardMenu() {
+void scoreboardMenu() {//ADD SORT BY  NAME  SCORE; GET RID OF NAME BUTTON
   image(background2, 0, 0);
   fill(255);
   textSize(60);
   text("SCOREBOARD", 225, 50);
-  textSize(45);
-  text("Rank                  Name                  Score", width/2, 150);
+  textSize(50);
+  text("Rank", 100, 150);
+  text("Score", width-100, 150);
   textSize(40);
-  try {
-    BufferedReader br = createReader("scoreboardGE.txt");
-    for (int i = 1; i<=10; i++) { //Reads through the first 10 lines of the text file
-      text(br.readLine(), (width/2)+10, 180+(i*40));
-    }
-    br.close();
-  }
-  catch (Exception e) {
+  for (int i = 0; i<10; i++) { //Prints the top 10 scores
+    text(sbParts[0][i], 100, 200+(i*40));//Prints the rank
+    text(sbParts[1][i], width/2, 200+(i*40));//Prints the name
+    text(sbParts[2][i], width-100, 200+(i*40));//Prints the score
   }
   strip.colorRect1();
+  nameB.showButton();
   backB.showButton();
 }
 
-void bubbleSort (String[][] list)//Need to make an array to hold ranks
-{
-  boolean sorted = false;
-  for (int top = list[0].length-1; top > 0; top--)
-  {
-    sorted = true;
-    for (int i = 0; i < top; i++)
-    {
-      if (list[0][i].compareTo(list[0][i+1]) > 0)
-      {
-        sorted = false;
-        String temp = list[0][i];
-        list[0][i] = list[0][i+1];
-        list[0][i+1] = temp;
-        
-        String temp2 = list[1][i];
-        list[1][i] = list[1][i+1];
-        list[1][i+1] = temp2;
-      }
-    }
+void play() {
+  image(background2, 0, 0);
+  fill(255);
+  textSize(60);
+  text("PLAY", 100, 50);
+  textSize(20);
+  if (!played) {
+    score = (int)(99999*Math.random()); //Temporary get a random score for the user
+    strScore = String.valueOf(score);//converts to string
+    played = true;
   }
+  text("Your score is " + score, width/2, 200);
+  strip.colorRect1();
+  continueB.showButton();
 }
 
 void mainMenu() {
@@ -415,6 +399,7 @@ void mainMenu() {
   fill(255);
   text("MAIN MENU", 200, 50);
   strip.colorRect1();
+  playB.showButton();
   scoreboardB.showButton();
   optionsB.showButton();
   creditsB.showButton();
@@ -469,6 +454,110 @@ void quitGame() {
   strip.colorRect1();
   yesB.showButton();
   noB.showButton();
+}
+
+void promptUser() {
+  background(0);
+  fill(255);
+  textBox.colorRect2();
+  textSize(30);
+  text("Congratulations! Your score has made the top 50 \nEnter your name (max 6 letters): ", width/2, height/3);
+  fill(255, 255, 0);
+  text(cName, width/2, (height/2)-5);
+  if (nameEntered) {
+    returnB.showButton();
+  } else {
+    fill(255);
+    textSize(15);
+    text("Press the \"ENTER\" key to confirm", width/2, (height/2)+50);
+  }
+}
+
+boolean isScoreTop50() {
+  boolean sPlaced = false;//variable to check if current player's score has been placed into the top 50
+  for (int i = 0; i<sbParts[2].length; i++) {//Goes through the scoreboard to check if current player's score has made top 100
+    if (Integer.parseInt(strScore)>Integer.parseInt(sbParts[2][i]) && !sPlaced) {//Modifies scoreboard if current player's score is greater than the score currently held AND player's score has not already been placed in a higher position 
+      sPlaced = true;
+      position = i;
+    }
+  }
+  return sPlaced;
+}
+
+void modScoreboard() {
+  String sHolder1, sHolder2, nHolder1, nHolder2; //2 temp name holders and 2 temp score holders
+
+  sHolder1 = strScore;//Sets 1st temp score holder equal to the player's current score
+  nHolder1 = cName;//Sets 1st temp name holder equal to the player's current name
+
+  for (int i = position; i<sbParts[2].length; i++) {//Goes through the scoreboard starting from the position the current player's score is to be held to the end of the array
+    sHolder2 = sbParts[2][i];//Sets 2nd temp score holder equal to the value of the score array at index j
+    sbParts[2][i] = sHolder1;//Sets the value of the score array at index j equal to the value currently held in the 1st temp score holder
+    sHolder1 = sHolder2;//Sets the first temp score holder equal to the value of the value held in the 2nd temp score holder
+    nHolder2 = sbParts[1][i];//Same process to modify the names as the scores
+    sbParts[1][i] = nHolder1; 
+    nHolder1 = nHolder2;
+  }
+
+  try {
+    PrintWriter pw = createWriter("scoreboardGE.txt");
+    for (int i = 0; i<sbParts[1].length; i++) {
+      pw.println(sbParts[0][i] + "                          " + sbParts[1][i] + "                          " + sbParts[2][i]); //prints ranks, names, and scores
+    }
+    pw.close();
+  }
+  catch (Exception e) {
+  }
+}
+
+void createScoreboard() {
+  try {//Tries to read from a file which checks to see if the file exists or not
+    BufferedReader br = createReader("scoreboardGE.txt");
+    br.close();
+  }
+  catch (Exception err) {//Creates new file and initializes all scores
+    try {
+      PrintWriter pw = createWriter("scoreboardGE.txt");//Creates new file called "scoreboardGE"
+
+      for (int i = 0; i<50; i++) {
+        pw.print(i+1);//prints rank to the file
+        if (i+1 == 11 || i+1 == 12 || i+1 == 13) {//Prints sufixes for rank numbers 
+          pw.print("th");
+        } else if ((i+1)%10 == 1) {
+          pw.print("st");
+        } else if ((i+1)%10 == 2) {
+          pw.print("nd");
+        } else if ((i+1)%10 == 3) {
+          pw.print("rd");
+        } else {
+          pw.print("th");
+        }
+        pw.println("                          XXX                          " + 0); //prints default names and score
+      }
+      pw.close();
+    } 
+    catch (Exception e) {
+    }
+  }
+  try {
+    BufferedReader br = createReader("scoreboardGE.txt");
+    String line;
+
+    for (int i = 0; i<sbParts[0].length; i++) { //Reads through the next 50 lines of the text file 
+      line = br.readLine();
+      sbParts[0][i] = line.substring(0, line.indexOf(' '));
+      line = trimLine(line);
+      sbParts[1][i] =  line.substring(0, line.indexOf(' ')); //holds player names extracted from text file
+      sbParts[2][i] =  trimLine(line); //holds player scores extracted from text file
+    }
+    br.close();
+  }
+  catch (Exception e) {
+  }
+}
+
+String trimLine (String l) {//String method to return the trimmed substring of a line which starts from the first tab   
+  return l.substring(l.indexOf(' ')).trim();
 }
 
 /*   call mainmenu method (USE SWITCH CASE)

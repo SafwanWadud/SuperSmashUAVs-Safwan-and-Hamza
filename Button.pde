@@ -22,10 +22,6 @@ class Button extends Rectangle {
       text(label, x+(w/2), y+(h/2)-5);
     }
   }
-  
-  float getTextSize(){
-   return txtSize; 
-  }
 
   void setClick(boolean b) {
     click = b;
@@ -35,7 +31,4 @@ class Button extends Rectangle {
     return click;
   }
 
-  boolean isInside() {//Checks to see if mouse x,y coordinates are within the button
-    return (mouseX >= x && mouseX <= (x+w) && mouseY >= y & mouseY <= y+h);
-  }
 }

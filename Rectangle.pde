@@ -23,6 +23,10 @@ class Rectangle {
     b = 255;
   }
   
+  boolean isInside() {//Checks to see if mouse x,y coordinates are within the rectangle
+    return (mouseX >= x && mouseX <= (x+w) && mouseY >= y & mouseY <= y+h);
+  }
+  
   void invisibleRect(){
      noStroke();
      noFill();
@@ -45,6 +49,5 @@ class Rectangle {
     this.r = r;
     this.g = g;
     this.b = b;
-  }
-  
+  } 
 }
