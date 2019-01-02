@@ -1,6 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Dec 31, 2018
+ Date: Jan 01, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -14,12 +14,12 @@ Minim minim;//minim environment; credit:
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PImage background1, background2;//Background images
-int screen, score, position;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50
+int screen, score, position, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
 String strScore, cName;//holds user score as a string; holds user's current name 
 boolean played, tBoxClicked, nameEntered;//determines if the game was played once already;determines if a textbox was clicked on; determines if a name was entered
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
-Button startB, playB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nameB;//buttons
-Switch musicON, musicOFF, soundON, soundOFF;//switches
+Button startB, playB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB;//buttons
+Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
 Rectangle strip, textBox;//white strip for menu design; textBox to get user's name
 
 void setup() {
@@ -46,7 +46,6 @@ void setup() {
   optionsB = new Button("OPTIONS", 50, 50, 330, textWidth("OPTIONS"), 50);
   creditsB = new Button("CREDITS", 50, 50, 390, textWidth("CREDITS"), 50);
   quitB = new Button("QUIT", 50, 50, 450, textWidth("QUIT"), 50);
-  nameB = new Button("Name", 50, width/2-(textWidth("Name")/2), 130, textWidth("Name"), 50);
   textSize(40);
   startB = new Button("START", 40, width/2-(textWidth("START")/2), height/2-20, textWidth("START"), 40);
   yesB = new Button("YES", 40, width/2-(textWidth("YES")/2), (height/2)+25, textWidth("YES"), 40 );
@@ -55,12 +54,16 @@ void setup() {
   textSize(30);
   backB = new Button("BACK", 30, 10, height-40, textWidth("BACK"), 30);
   returnB = new Button("RETURN TO MAIN MENU", 30, width/2-(textWidth("RETURN TO MAIN MENU")/2), (height/2)+100, textWidth("RETURN TO MAIN MENU"), 30);
+  nextB = new Button("Next >>", 30, width-50-textWidth("Next >>"), height-120, textWidth("Next >>"), 30);
+  previousB = new Button("<< Previous", 30, 50, height-120, textWidth("<< Previous"), 30);
 
   //Switches
-  musicON = new Switch("ON", true, 500, 230);
-  musicOFF = new Switch("OFF", false, 560, 230);
-  soundON = new Switch("ON", true, 500, 330);
-  soundOFF = new Switch("OFF", false, 560, 330);
+  musicON = new Switch("ON", true, 500, 230, 50, 50);
+  musicOFF = new Switch("OFF", false, 560, 230, 50, 50);
+  soundON = new Switch("ON", true, 500, 330, 50, 50);
+  soundOFF = new Switch("OFF", false, 560, 330, 50, 50);
+  sortName = new Switch("NAME", false, 800, 120, 70, 30);
+  sortScore = new Switch("SCORE", true, 880, 120, 70, 30);
 
   //Rectangles
   strip = new Rectangle(0, 100, width, 3);
@@ -170,19 +173,44 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    scoreboardMenu();
-    if (nameB.getClick()){
+    scoreboardMenu(page);
+    if (sortName.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      nameB.setClick(false);
       bubbleSort(sbParts);
+      sortName.setClick(false);
     } 
+    if (sortScore.getClick()) {
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      selectSort(sbParts);
+      sortScore.setClick(false);
+    } 
+    if (nextB.getClick()) {
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      page+=10;//Goes to next page, showing the next 10 scores
+      nextB.setClick(false);
+    }
+    if (previousB.getClick()) {
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      page-=10;//Goes to previous page,showing the previous 10 scores
+      previousB.setClick(false);
+    }
     if (backB.getClick()) {
       if (soundON.getActive()) {
         sDeny.play();
       }
       screen=2;
+      page =0;
+      sortName.setActive(false);//Resets scoreboard to original order
+      sortScore.setActive(true);
+      selectSort(sbParts);
       backB.setClick(false);
     }
     break;
@@ -286,8 +314,18 @@ void mousePressed() {
     quitB.setClick(true);
   else if (continueB.isInside() && screen ==3)
     continueB.setClick(true);
-  else if (nameB.isInside() && screen ==4)
-    nameB.setClick(true);
+  else if (sortName.isInside() && screen==4) {
+    sortName.setClick(true);
+    sortName.setActive(true);
+    sortScore.setActive(false);
+  } else if (sortScore.isInside() && screen==4) {
+    sortScore.setClick(true);
+    sortScore.setActive(true);
+    sortName.setActive(false);
+  } else if (nextB.isInside() && screen ==4 && page<40)
+    nextB.setClick(true);
+  else if (previousB.isInside() && screen ==4 && page>0)
+    previousB.setClick(true);
   else if (musicON.isInside() && screen==5) {
     musicON.setClick(true);
     musicON.setActive(true);
@@ -316,7 +354,8 @@ void mousePressed() {
 void keyPressed() {
   if (screen==8 && tBoxClicked && !nameEntered) {
     if (key>='a'&&key<='z' && cName.length()<6) {
-      cName+=key;
+      cName = (cName+key).toUpperCase();
+      ;
     } else if (key == BACKSPACE) {
       if (cName.length() > 0) {
         cName = cName.substring(0, cName.length()-1);
@@ -358,22 +397,58 @@ void bubbleSort (String[][] list)//Sorts the scoreboard in alphabetical order
   }
 }
 
-void scoreboardMenu() {//ADD SORT BY  NAME  SCORE; GET RID OF NAME BUTTON
+void selectSort (String[][] list)//NEED TO FIX
+{
+  for (int top = 0; top < list[2].length; top++)
+  {
+    int largeLoc = list[2].length-1; // location of largest element
+    // assume list[2][49] is largest to start
+    for (int i = 48; i >= top; i--) // check list[2][48] to list[2][top]
+      if (Integer.parseInt(list[2][i]) > Integer.parseInt(list[2][largeLoc]))
+        largeLoc = i;
+
+    //Swap scores
+    if (Integer.parseInt(list[2][largeLoc]) != Integer.parseInt(list[2][top])) {
+      String temp = list[2][top]; // temporary storage
+      list[2][top] = list[2][largeLoc];
+      list[2][largeLoc] = temp;
+
+      //Swap corresponding names
+      String temp2 = list[1][top];
+      list[1][top] = list[1][largeLoc];
+      list[1][largeLoc] = temp2;
+
+      //Swap corresponding ranks
+      String temp3 = list[0][top];
+      list[0][top] = list[0][largeLoc];
+      list[0][largeLoc] = temp3;
+    }
+  }
+}
+
+void scoreboardMenu(int page) {
   image(background2, 0, 0);
   fill(255);
   textSize(60);
   text("SCOREBOARD", 225, 50);
-  textSize(50);
-  text("Rank", 100, 150);
-  text("Score", width-100, 150);
   textSize(40);
-  for (int i = 0; i<10; i++) { //Prints the top 10 scores
-    text(sbParts[0][i], 100, 200+(i*40));//Prints the rank
-    text(sbParts[1][i], width/2, 200+(i*40));//Prints the name
-    text(sbParts[2][i], width-100, 200+(i*40));//Prints the score
+  text("Rank", 100, 175);
+  text("Name", width/2, 175);
+  text("Score", width-100, 175);
+  textSize(30);
+  text("Sort by: ", 730, 130);
+  for (int i = page; i<10+page; i++) { //Prints 10 scores depending on the page
+    text(sbParts[0][i], 100, 225+((i%10)*35));//Prints the rank
+    text(sbParts[1][i], width/2, 225+((i%10)*35));//Prints the name
+    text(sbParts[2][i], width-100, 225+((i%10)*35));//Prints the score
   }
   strip.colorRect1();
-  nameB.showButton();
+  if (page<40)
+    nextB.showButton();
+  if (page>0)
+    previousB.showButton();
+  sortName.showSwitch();
+  sortScore.showSwitch();
   backB.showButton();
 }
 

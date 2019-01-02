@@ -2,8 +2,8 @@
 class Switch extends Button {
   private boolean active; 
 
-  Switch (String lbl, boolean active, float x, float y) {
-    super(lbl, 20, x, y, 50, 50);
+  Switch (String lbl, boolean active, float x, float y, float w,float h) {
+    super(lbl, 20, x, y, w, h);
     this.active = active;
   }
 
