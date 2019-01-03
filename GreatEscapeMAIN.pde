@@ -1,6 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 01, 2019
+ Date: Jan 02, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -370,62 +370,6 @@ void keyPressed() {
   }
 }
 
-void bubbleSort (String[][] list)//Sorts the scoreboard in alphabetical order
-{
-  for (int top = list[0].length-1; top > 0; top--)
-  {
-    for (int i = 0; i < top; i++)
-    {
-      if (list[1][i].compareTo(list[1][i+1]) > 0)
-      {
-        //Swap names
-        String temp = list[1][i];
-        list[1][i] = list[1][i+1];
-        list[1][i+1] = temp;
-
-        //Swap corresponding ranks
-        String temp2 = list[0][i];
-        list[0][i] = list[0][i+1];
-        list[0][i+1] = temp2;
-
-        //Swap corresponding scores
-        String temp3 = list[2][i];
-        list[2][i] = list[2][i+1];
-        list[2][i+1] = temp3;
-      }
-    }
-  }
-}
-
-void selectSort (String[][] list)//NEED TO FIX
-{
-  for (int top = 0; top < list[2].length; top++)
-  {
-    int largeLoc = list[2].length-1; // location of largest element
-    // assume list[2][49] is largest to start
-    for (int i = 48; i >= top; i--) // check list[2][48] to list[2][top]
-      if (Integer.parseInt(list[2][i]) > Integer.parseInt(list[2][largeLoc]))
-        largeLoc = i;
-
-    //Swap scores
-    if (Integer.parseInt(list[2][largeLoc]) != Integer.parseInt(list[2][top])) {
-      String temp = list[2][top]; // temporary storage
-      list[2][top] = list[2][largeLoc];
-      list[2][largeLoc] = temp;
-
-      //Swap corresponding names
-      String temp2 = list[1][top];
-      list[1][top] = list[1][largeLoc];
-      list[1][largeLoc] = temp2;
-
-      //Swap corresponding ranks
-      String temp3 = list[0][top];
-      list[0][top] = list[0][largeLoc];
-      list[0][largeLoc] = temp3;
-    }
-  }
-}
-
 void scoreboardMenu(int page) {
   image(background2, 0, 0);
   fill(255);
@@ -633,6 +577,60 @@ void createScoreboard() {
 
 String trimLine (String l) {//String method to return the trimmed substring of a line which starts from the first tab   
   return l.substring(l.indexOf(' ')).trim();
+}
+
+void bubbleSort (String[][] list)//Sorts the scoreboard in alphabetical order
+{
+  for (int top = list[0].length-1; top > 0; top--)
+  {
+    for (int i = 0; i < top; i++)
+    {
+      if (list[1][i].compareTo(list[1][i+1]) > 0)
+      {
+        //Swap names
+        String temp = list[1][i];
+        list[1][i] = list[1][i+1];
+        list[1][i+1] = temp;
+
+        //Swap corresponding ranks
+        String temp2 = list[0][i];
+        list[0][i] = list[0][i+1];
+        list[0][i+1] = temp2;
+
+        //Swap corresponding scores
+        String temp3 = list[2][i];
+        list[2][i] = list[2][i+1];
+        list[2][i+1] = temp3;
+      }
+    }
+  }
+}
+
+void selectSort (String[][] list)
+{
+  for (int top = list[0].length - 1; top > 0; top--)
+  {
+    int largeLoc = 0; // location of largest element
+    // assume list[0][0] is largest to start
+    for (int i = 1; i <= top; i++) // check list[0][1] to list[0][top]
+      if (Integer.parseInt(list[0][i].substring(0, (list[0][i].length()-2))) > Integer.parseInt(list[0][largeLoc].substring(0, (list[0][largeLoc].length()-2))))//Gets rid of the prefixes and compares the numbers
+        largeLoc = i;
+
+    //Swap ranks
+    String temp = list[0][top]; // temporary storage
+    list[0][top] = list[0][largeLoc];
+    list[0][largeLoc] = temp;
+
+    //Swap corresponding names
+    String temp2 = list[1][top];
+    list[1][top] = list[1][largeLoc];
+    list[1][largeLoc] = temp2;
+
+    //Swap corresponding scores
+    String temp3 = list[2][top];
+    list[2][top] = list[2][largeLoc];
+    list[2][largeLoc] = temp3;
+  }
 }
 
 /*   call mainmenu method (USE SWITCH CASE)
