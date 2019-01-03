@@ -18,7 +18,7 @@ int screen, score, position, page=0;//variable to represent the different screen
 String strScore, cName;//holds user score as a string; holds user's current name 
 boolean played, tBoxClicked, nameEntered;//determines if the game was played once already;determines if a textbox was clicked on; determines if a name was entered
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
-Button startB, playB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB;//buttons
+Button startB, playB, controlsB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
 Rectangle strip, textBox;//white strip for menu design; textBox to get user's name
 
@@ -42,6 +42,7 @@ void setup() {
   //Buttons
   textSize(50);
   playB = new Button("PLAY", 50, 50, 150, textWidth("PLAY"), 50);
+  controlsB = new Button("HOW TO PLAY", 50, 50, 210, textWidth("HOW TO PLAY"), 50);
   scoreboardB = new Button("SCOREBOARD", 50, 50, 270, textWidth("SCOREBOARD"), 50);
   optionsB = new Button("OPTIONS", 50, 50, 330, textWidth("OPTIONS"), 50);
   creditsB = new Button("CREDITS", 50, 50, 390, textWidth("CREDITS"), 50);
@@ -113,29 +114,35 @@ void draw() {
       }
       screen = 3;
       playB.setClick(false);
-    } else if (scoreboardB.getClick()) {
+    } else if (controlsB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
       screen =4;
+      controlsB.setClick(false);
+    } else if (scoreboardB.getClick()) {
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      screen =5;
       scoreboardB.setClick(false);
     } else if (optionsB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=5;
+      screen=6;
       optionsB.setClick(false);
     } else if (creditsB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=6;
+      screen=7;
       creditsB.setClick(false);
     } else if (quitB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen = 7;
+      screen = 8;
       quitB.setClick(false);
     } else if (backB.getClick()) {
       if (soundON.getActive()) {
@@ -160,13 +167,29 @@ void draw() {
         sConfirm.play();
       }
       if (isScoreTop50())
-        screen = 8;
+        screen = 9;
       else
         screen = 2;
       continueB.setClick(false);
     }
     break;
-  case 4://scoreboard screen
+  case 4:
+    if (!menuBM.isPlaying()) {
+      menuBM.rewind();
+    }
+    if (musicON.getActive()) {
+      menuBM.play();
+    }
+    howToPlay();
+    if (backB.getClick()) {
+      if (soundON.getActive()) {
+        sDeny.play();
+      }
+      screen=2;
+      backB.setClick(false);
+    }
+    break;
+  case 5://scoreboard screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -214,7 +237,7 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 5://options menu screen
+  case 6://options menu screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -248,7 +271,7 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 6://credits screen
+  case 7://credits screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -264,7 +287,7 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 7:// quit screen
+  case 8:// quit screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -282,7 +305,7 @@ void draw() {
       noB.setClick(false);
     }
     break;
-  case 8://update scoreboard menu
+  case 9://update scoreboard menu
     promptUser();//gets user's name
     if (returnB.getClick()) {
       modScoreboard();//Updates the scoreboard
@@ -300,10 +323,12 @@ void draw() {
 void mousePressed() {
   if (startB.isInside() && screen==1)
     startB.setClick(true); 
-  else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6))
+  else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6 || screen == 7))
     backB.setClick(true);
   else if (playB.isInside() && screen == 2)
     playB.setClick(true);
+  else if (controlsB.isInside() && screen ==2)
+    controlsB.setClick(true);
   else if (scoreboardB.isInside() && screen ==2)
     scoreboardB.setClick(true);
   else if (optionsB.isInside() && screen ==2)
@@ -314,45 +339,45 @@ void mousePressed() {
     quitB.setClick(true);
   else if (continueB.isInside() && screen ==3)
     continueB.setClick(true);
-  else if (sortName.isInside() && screen==4) {
+  else if (sortName.isInside() && screen==5) {
     sortName.setClick(true);
     sortName.setActive(true);
     sortScore.setActive(false);
-  } else if (sortScore.isInside() && screen==4) {
+  } else if (sortScore.isInside() && screen==5) {
     sortScore.setClick(true);
     sortScore.setActive(true);
     sortName.setActive(false);
-  } else if (nextB.isInside() && screen ==4 && page<40)
+  } else if (nextB.isInside() && screen ==5 && page<40)
     nextB.setClick(true);
-  else if (previousB.isInside() && screen ==4 && page>0)
+  else if (previousB.isInside() && screen ==5 && page>0)
     previousB.setClick(true);
-  else if (musicON.isInside() && screen==5) {
+  else if (musicON.isInside() && screen==6) {
     musicON.setClick(true);
     musicON.setActive(true);
     musicOFF.setActive(false);
-  } else if (musicOFF.isInside() && screen==5) {
+  } else if (musicOFF.isInside() && screen==6) {
     musicOFF.setClick(true);
     musicOFF.setActive(true);
     musicON.setActive(false);
-  } else if (soundON.isInside() && screen==5) {
+  } else if (soundON.isInside() && screen==6) {
     soundON.setClick(true);
     soundON.setActive(true);
     soundOFF.setActive(false);
-  } else if (soundOFF.isInside() && screen==5) {
+  } else if (soundOFF.isInside() && screen==6) {
     soundOFF.setActive(true);
     soundON.setActive(false);
-  } else if (yesB.isInside() && screen==7)
+  } else if (yesB.isInside() && screen==8)
     yesB.setClick(true);
-  else if (noB.isInside() && screen==7)
+  else if (noB.isInside() && screen==8)
     noB.setClick(true);
-  else if (textBox.isInside() && screen == 8)
+  else if (textBox.isInside() && screen == 9)
     tBoxClicked = true;
-  else if (returnB.isInside() && screen == 8 && nameEntered)
+  else if (returnB.isInside() && screen == 9 && nameEntered)
     returnB.setClick(true);
 }
 
 void keyPressed() {
-  if (screen==8 && tBoxClicked && !nameEntered) {
+  if (screen==9 && tBoxClicked && !nameEntered) {
     if (key>='a'&&key<='z' && cName.length()<6) {
       cName = (cName+key).toUpperCase();
       ;
@@ -396,6 +421,29 @@ void scoreboardMenu(int page) {
   backB.showButton();
 }
 
+void startScreen() {
+  image(background1, 0, 0);
+  fill(255);  
+  textSize(60);
+  text("CUE'S GREAT ESCAPE", width/2, 100);
+  startB.showButton();
+}
+
+void mainMenu() {
+  image(background2, 0, 0);
+  textSize(60);
+  fill(255);
+  text("MAIN MENU", 200, 50);
+  strip.colorRect1();
+  playB.showButton();
+  controlsB.showButton();
+  scoreboardB.showButton();
+  optionsB.showButton();
+  creditsB.showButton();
+  quitB.showButton();
+  backB.showButton();
+}
+
 void play() {
   image(background2, 0, 0);
   fill(255);
@@ -412,26 +460,24 @@ void play() {
   continueB.showButton();
 }
 
-void mainMenu() {
+void howToPlay() {
   image(background2, 0, 0);
-  textSize(60);
   fill(255);
-  text("MAIN MENU", 200, 50);
-  strip.colorRect1();
-  playB.showButton();
-  scoreboardB.showButton();
-  optionsB.showButton();
-  creditsB.showButton();
-  quitB.showButton();
-  backB.showButton();
-}
-
-void startScreen() {
-  image(background1, 0, 0);
-  fill(255);  
   textSize(60);
-  text("CUE'S GREAT ESCAPE", width/2, 100);
-  startB.showButton();
+  text("HOW TO PLAY", 230, 50);
+  textSize(40);
+  text("W", width/2-150, 200);
+  text("A", width/2-150, 280);
+  text("D", width/2-150, 360);
+  text("SPACEBAR", width/2-150, 440);
+  text("P", width/2-150, 520);
+  text("Jump", width/2+150, 200);
+  text("Move Right", width/2+150, 280);
+  text("Move Left", width/2+150, 360);
+  text("Shoot", width/2+150, 440);
+  text("Pause", width/2+150, 520);
+  strip.colorRect1();
+  backB.showButton();
 }
 
 void options() {
