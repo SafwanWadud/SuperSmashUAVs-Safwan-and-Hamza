@@ -1,6 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 02, 2019
+ Date: Jan 03, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -10,7 +10,7 @@ import ddf.minim.*;
 import processing.sound.*;
 
 //Declaring variables
-Minim minim;//minim environment; credit: 
+Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PImage background1, background2;//Background images
@@ -27,21 +27,23 @@ void setup() {
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
-  sbParts = new String[3][50];
+  sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
 
   //Music
+  //Loads the audio files from the data folder
   minim = new Minim(this);
-  menuBM = minim.loadFile("1-03 Menu 1.mp3");
-  startBM = minim.loadFile("Fortnite-Battle-Royale-OST-Season-2_64kbs.mp3");
+  menuBM = minim.loadFile("1-03 Menu 1.mp3");//Background music for the main menu
+  startBM = minim.loadFile("Fortnite-Battle-Royale-OST-Season-2_64kbs.mp3");//Background music for the start screen
 
   //Sound
-  sConfirm = new SoundFile(this, "220168__gameaudio__button-spacey-confirm.mp3");
+  //Loads the sound files from the data folder
+  sConfirm = new SoundFile(this, "220168__gameaudio__button-spacey-confirm.mp3");//Sound effect when a button is pressed
   sDeny = new SoundFile(this, "220167__gameaudio__button-deny-spacey.mp3");
-  sStart = new SoundFile(this, "243020__plasterbrain__game-start.mp3");
+  sStart = new SoundFile(this, "243020__plasterbrain__game-start.mp3");//Sound effect when the start button is pressed
 
   //Buttons
-  textSize(50);
-  playB = new Button("PLAY", 50, 50, 150, textWidth("PLAY"), 50);
+  textSize(50);//size of button
+  playB = new Button("PLAY", 50, 50, 150, textWidth("PLAY"), 50); //(text to be displayed, text size, x location, y location, width, height)
   controlsB = new Button("HOW TO PLAY", 50, 50, 210, textWidth("HOW TO PLAY"), 50);
   scoreboardB = new Button("SCOREBOARD", 50, 50, 270, textWidth("SCOREBOARD"), 50);
   optionsB = new Button("OPTIONS", 50, 50, 330, textWidth("OPTIONS"), 50);
@@ -59,7 +61,7 @@ void setup() {
   previousB = new Button("<< Previous", 30, 50, height-120, textWidth("<< Previous"), 30);
 
   //Switches
-  musicON = new Switch("ON", true, 500, 230, 50, 50);
+  musicON = new Switch("ON", true, 500, 230, 50, 50);//(text to be displayed, whether the switch is activated or not, x location, y location, width, height)
   musicOFF = new Switch("OFF", false, 560, 230, 50, 50);
   soundON = new Switch("ON", true, 500, 330, 50, 50);
   soundOFF = new Switch("OFF", false, 560, 330, 50, 50);
@@ -67,8 +69,8 @@ void setup() {
   sortScore = new Switch("SCORE", true, 880, 120, 70, 30);
 
   //Rectangles
-  strip = new Rectangle(0, 100, width, 3);
-  textBox = new Rectangle((width/2)-100, (height/2)-25, 200, 50);
+  strip = new Rectangle(0, 100, width, 3);//creates a thin white strip
+  textBox = new Rectangle((width/2)-100, (height/2)-25, 200, 50);//creates a small rectangle with a white outline representing a text box
 
   //import all images
   background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
@@ -82,73 +84,73 @@ void setup() {
 void draw() {
   switch (screen) {
   case 1://Start screen
-    menuBM.rewind();
-    if (!startBM.isPlaying()) {
+    menuBM.rewind();//rewinds the menu music
+    if (!startBM.isPlaying()) {//if the start screen music is not playing, rewind it
       startBM.rewind();
     }
-    if (musicON.getActive()) {
+    if (musicON.getActive()) {//If the music on button is activated, play start screen music
       startBM.play();
     }
-    startScreen();
-    if (startB.getClick()) {
-      if (soundON.getActive()) {
+    startScreen();//Call startScreen() to show the start screen 
+    if (startB.getClick()) {//If the start button is clicked
+      if (soundON.getActive()) {//if the sound on button is activated, play the 'start' sound effect
         sStart.play();
       }
-      screen=2;
-      startB.setClick(false);
+      screen=2;//set screen to 2 so that it can go to the main menu (case 2)
+      startB.setClick(false);//resets the button's click to false
     }
     break;
   case 2://main menu screen
-    startBM.rewind();
-    startBM.pause();
-    if (!menuBM.isPlaying()) {
+    startBM.rewind();//Rewinds the start screen music
+    startBM.pause();//Stops the start screen music 
+    if (!menuBM.isPlaying()) {//if the menu music is not playing, rewind it
       menuBM.rewind();
     }
-    if (musicON.getActive()) {
+    if (musicON.getActive()) {//If the music on button is activated, play menu music
       menuBM.play();
     }
-    mainMenu();
-    if (playB.getClick()) {
-      if (soundON.getActive()) {
+    mainMenu();//Call mainMenu() to show the main menu 
+    if (playB.getClick()) {//IF the play button gets clicked
+      if (soundON.getActive()) {//If the sound on button is activated, play the 'confirm' sound effect
         sConfirm.play();
       }
-      screen = 3;
+      screen = 3;//set screen to 3 so that it can go to the play game screen (case 3)
       playB.setClick(false);
-    } else if (controlsB.getClick()) {
+    } else if (controlsB.getClick()) {//controls button
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen =4;
+      screen =4;//sets screen to 4 to go to case 4 (how to play menu)
       controlsB.setClick(false);
-    } else if (scoreboardB.getClick()) {
+    } else if (scoreboardB.getClick()) {//scoreboard button
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen =5;
+      screen =5;//sets screen to 5 (scoreboard menu)
       scoreboardB.setClick(false);
-    } else if (optionsB.getClick()) {
+    } else if (optionsB.getClick()) {//options button
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=6;
+      screen=6;//sets screen to 6 (options menu)
       optionsB.setClick(false);
-    } else if (creditsB.getClick()) {
+    } else if (creditsB.getClick()) {//credits button
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=7;
+      screen=7;//sets screen to 7 (credits screen)
       creditsB.setClick(false);
-    } else if (quitB.getClick()) {
+    } else if (quitB.getClick()) {//quit button
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen = 8;
+      screen = 8;//sets screen to 8 (quit game menu)
       quitB.setClick(false);
-    } else if (backB.getClick()) {
+    } else if (backB.getClick()) {//back button
       if (soundON.getActive()) {
-        sDeny.play();
+        sDeny.play();//plays the 'deny' sound effect
       }
-      screen=1;
+      screen=1;//sets screen to 1 to go back to the start screen
       backB.setClick(false);
     }
     break;
@@ -159,29 +161,29 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    play();
-    nameEntered = false;
-    cName = "";
-    if (continueB.getClick()) {
+    play();//calls play() to play the game
+    nameEntered = false;//sets nameEntered to false
+    cName = "";// initializes current user's name
+    if (continueB.getClick()) {//if the continue button is clicked
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      if (isScoreTop50())
-        screen = 9;
+      if (isScoreTop50())//If current user's score is in the top 50, which is checked by calling isScoreTop50
+        screen = 9;//set screen to 9 to go to the update scoreboard menu
       else
-        screen = 2;
+        screen = 2;//User did not make top 50 so sets screen to 2 to go back to the main menu
       continueB.setClick(false);
     }
     break;
-  case 4:
+  case 4://How to play screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
     if (musicON.getActive()) {
       menuBM.play();
     }
-    howToPlay();
-    if (backB.getClick()) {
+    howToPlay();//calls howToPlay() to show the controls screen
+    if (backB.getClick()) {//goes back to main menu if back is clicked
       if (soundON.getActive()) {
         sDeny.play();
       }
@@ -196,42 +198,42 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    scoreboardMenu(page);
-    if (sortName.getClick()) {
+    scoreboardMenu(page);//calls scoreboardMenu() to show the scoreboard and passes on page to let the program know which page of the scoreboard to show 
+    if (sortName.getClick()) {//If the sort by name button is clicked
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      bubbleSort(sbParts);
+      bubbleSort(sbParts);//sort the 2d array by name using bubble sort
       sortName.setClick(false);
     } 
-    if (sortScore.getClick()) {
+    if (sortScore.getClick()) {//If the sort by score button is clicked 
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      selectSort(sbParts);
+      selectSort(sbParts);//sort the 2d array by rank using selection sort
       sortScore.setClick(false);
     } 
-    if (nextB.getClick()) {
+    if (nextB.getClick()) {//If "next" button is clicked
       if (soundON.getActive()) {
         sConfirm.play();
       }
       page+=10;//Goes to next page, showing the next 10 scores
       nextB.setClick(false);
     }
-    if (previousB.getClick()) {
+    if (previousB.getClick()) {//If "previous" button is clicked
       if (soundON.getActive()) {
         sConfirm.play();
       }
       page-=10;//Goes to previous page,showing the previous 10 scores
       previousB.setClick(false);
     }
-    if (backB.getClick()) {
+    if (backB.getClick()) {//If the back button is clicked
       if (soundON.getActive()) {
         sDeny.play();
       }
       screen=2;
-      page =0;
-      sortName.setActive(false);//Resets scoreboard to original order
+      page =0;//sets page to 0, so scoreboard shows the first page
+      sortName.setActive(false);//Resets scoreboard to original order (by rank)
       sortScore.setActive(true);
       selectSort(sbParts);
       backB.setClick(false);
@@ -244,26 +246,26 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    options();
-    if (soundON.getClick()) {
+    options();//calls options() to show the options menu
+    if (soundON.getClick()) {// If the sound on button gets clicked, it is activated (see mousePressed method), which means that sound effects are on
       sConfirm.play();
       soundON.setClick(false);
     } 
-    if (musicON.getClick()) {
+    if (musicON.getClick()) {// if the music on button gets clicked, it is activated, which means that the music is turned on
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      menuBM.play();
+      menuBM.play();//Plays the menu music
       musicON.setClick(false);
     } 
-    if (musicOFF.getClick()) {
+    if (musicOFF.getClick()) {//If the music off button gets clicked, it is activated, which means that the music is turned off
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      menuBM.pause();
+      menuBM.pause();//Stops the menu music
       musicOFF.setClick(false);
     } 
-    if (backB.getClick()) {
+    if (backB.getClick()) {//goes back to main menu if back is clicked
       if (soundON.getActive()) {
         sDeny.play();
       }
@@ -278,8 +280,8 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    credits();
-    if (backB.getClick()) {
+    credits();//Calls credits() and shows the credits screen
+    if (backB.getClick()) {//goes back to main menu if back is clicked
       if (soundON.getActive()) {
         sDeny.play();
       }
@@ -287,17 +289,17 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 8:// quit screen
+  case 8://quit game screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
     if (musicON.getActive()) {
       menuBM.play();
     }
-    quitGame();
-    if (yesB.getClick()) {
+    quitGame();//Calls quitGame() and shows the quit menu
+    if (yesB.getClick()) {//exits the program if yes is clicked
       exit();
-    } else if (noB.getClick()) {
+    } else if (noB.getClick()) {//goes back to main menu if no is clicked
       if (soundON.getActive()) {
         sDeny.play();
       }
@@ -307,99 +309,99 @@ void draw() {
     break;
   case 9://update scoreboard menu
     promptUser();//gets user's name
-    if (returnB.getClick()) {
+    if (returnB.getClick()) {//If the "return to main menu" button is clicked
       modScoreboard();//Updates the scoreboard
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=2;
+      screen=2;//sets screen to 2 to go back to the main menu
       returnB.setClick(false);
     }
-    played = false;
+    played = false;//sets played to false
     break;
   }
 }
 
-void mousePressed() {
-  if (startB.isInside() && screen==1)
-    startB.setClick(true); 
-  else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6 || screen == 7))
-    backB.setClick(true);
-  else if (playB.isInside() && screen == 2)
-    playB.setClick(true);
-  else if (controlsB.isInside() && screen ==2)
+void mousePressed() {//code to run if the mouse is pressed at specific locations and screens
+  if (startB.isInside() && screen==1)//If the mouse is within the start button and the screen is 1
+    startB.setClick(true);//calls a mutator method to set its field, click, to true
+  else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6 || screen == 7))//if the mouse is within the back button and the screen is either 2,4,5,6, or 7
+    backB.setClick(true);//set backB's click to true
+  else if (playB.isInside() && screen == 2)//if mouse is within play button and screen is 2
+    playB.setClick(true);//set playB's click to true
+  else if (controlsB.isInside() && screen ==2)//if mouse is within controls button and screen is 2
     controlsB.setClick(true);
-  else if (scoreboardB.isInside() && screen ==2)
+  else if (scoreboardB.isInside() && screen ==2)//if mouse is within scoreboard button and screen is 2
     scoreboardB.setClick(true);
-  else if (optionsB.isInside() && screen ==2)
+  else if (optionsB.isInside() && screen ==2)//if mouse is within options button and screen is 2
     optionsB.setClick(true);
-  else if (creditsB.isInside() && screen ==2)
+  else if (creditsB.isInside() && screen ==2)//if mouse is within credits button and screen is 2
     creditsB.setClick(true);
-  else if (quitB.isInside() && screen ==2)
+  else if (quitB.isInside() && screen ==2)//if mouse is within quit button and screen is 2
     quitB.setClick(true);
-  else if (continueB.isInside() && screen ==3)
+  else if (continueB.isInside() && screen ==3)//if mouse is within continue button and screen is 3
     continueB.setClick(true);
-  else if (sortName.isInside() && screen==5) {
+  else if (sortName.isInside() && screen==5) {//if mouse is within sortName switch and screen is 5
     sortName.setClick(true);
-    sortName.setActive(true);
-    sortScore.setActive(false);
-  } else if (sortScore.isInside() && screen==5) {
+    sortName.setActive(true);//Activates the sortName switch
+    sortScore.setActive(false);//Deactivates the sortScore switch
+  } else if (sortScore.isInside() && screen==5) {//if mouse is within sortScore switch and screen is 5
     sortScore.setClick(true);
-    sortScore.setActive(true);
-    sortName.setActive(false);
-  } else if (nextB.isInside() && screen ==5 && page<40)
+    sortScore.setActive(true);//Activates the sortScore switch
+    sortName.setActive(false);//Deactivates the sortName switch
+  } else if (nextB.isInside() && screen ==5 && page<40)//if mouse is within next button and screen is 5 and it isn't the last page of the scoreboard
     nextB.setClick(true);
-  else if (previousB.isInside() && screen ==5 && page>0)
+  else if (previousB.isInside() && screen ==5 && page>0)//if mouse is within previous button and screen is 5 and it isn't the first page of the scoreboard
     previousB.setClick(true);
-  else if (musicON.isInside() && screen==6) {
+  else if (musicON.isInside() && screen==6) {//if mouse is within musicON switch and screen is 6
     musicON.setClick(true);
-    musicON.setActive(true);
-    musicOFF.setActive(false);
-  } else if (musicOFF.isInside() && screen==6) {
+    musicON.setActive(true);//Activates the musicON switch
+    musicOFF.setActive(false);//Deactivates the musicOFF switch
+  } else if (musicOFF.isInside() && screen==6) {//if mouse is within musicOFF switch and screen is 6
     musicOFF.setClick(true);
-    musicOFF.setActive(true);
-    musicON.setActive(false);
-  } else if (soundON.isInside() && screen==6) {
+    musicOFF.setActive(true);//Activates the musicOFF switch
+    musicON.setActive(false);//Deactivates the musicON switch
+  } else if (soundON.isInside() && screen==6) {//if mouse is within soundON switch and screen is 6
     soundON.setClick(true);
-    soundON.setActive(true);
-    soundOFF.setActive(false);
-  } else if (soundOFF.isInside() && screen==6) {
-    soundOFF.setActive(true);
-    soundON.setActive(false);
-  } else if (yesB.isInside() && screen==8)
+    soundON.setActive(true);//Activates the soundON switch
+    soundOFF.setActive(false);//Deactivates the soundOFF switch
+  } else if (soundOFF.isInside() && screen==6) {//if mouse is within soundOFF switch and screen is 6
+    soundOFF.setActive(true);//Activates the soundOFF switch
+    soundON.setActive(false);//Deactivates the soundON switch
+  } else if (yesB.isInside() && screen==8)//if mouse is within yes button and screen is 8
     yesB.setClick(true);
-  else if (noB.isInside() && screen==8)
+  else if (noB.isInside() && screen==8)//if mouse is within no button and screen is 8
     noB.setClick(true);
-  else if (textBox.isInside() && screen == 9)
-    tBoxClicked = true;
-  else if (returnB.isInside() && screen == 9 && nameEntered)
+  else if (textBox.isInside() && screen == 9)//if mouse is within textbox and screen is 9
+    tBoxClicked = true;//sets tBoxClicked to true
+  else if (returnB.isInside() && screen == 9 && nameEntered)//if mouse is within return button and screen is 9 and user has entered a name
     returnB.setClick(true);
 }
 
-void keyPressed() {
-  if (screen==9 && tBoxClicked && !nameEntered) {
-    if (key>='a'&&key<='z' && cName.length()<6) {
-      cName = (cName+key).toUpperCase();
-      ;
-    } else if (key == BACKSPACE) {
-      if (cName.length() > 0) {
-        cName = cName.substring(0, cName.length()-1);
+void keyPressed() {//code to run if keys are pressed on a specific screen
+  if (screen==9 && tBoxClicked && !nameEntered) {//If the screen is 9, and the text box was clicked, and nameEntered is false
+    if (key>='a'&&key<='z' && cName.length()<6) {//If a letter is pressed and the current user's name has less than 6 characters
+      cName = (cName+key).toUpperCase();//Adds the key to current user's name and changes it to upper case
+    } else if (key == BACKSPACE) {//If backspace is pressed
+      if (cName.length() > 0) {//If the current user's name contains 1 or more characters
+        cName = cName.substring(0, cName.length()-1);//current user's name is set equal to the substring of itself minus the last character
       }
-    } else if (key==ENTER) {
-      if (cName.length()<=6 && cName.length()>=1) {
-        nameEntered = true;
+    } else if (key==ENTER) {//If the enter key is pressed
+      if (cName.length()<=6 && cName.length()>=1) {//If the current user's name contains 1-6 characters
+        nameEntered = true;//sets nameEntered to true
       } else {
-        cName = "";
+        cName = "";//sets current user's name to null (empty string)
       }
     }
   }
 }
 
-void scoreboardMenu(int page) {
-  image(background2, 0, 0);
-  fill(255);
-  textSize(60);
-  text("SCOREBOARD", 225, 50);
+//Shows the scoreboard when called upon
+void scoreboardMenu(int page) {//takes in an int paramater which lets the program know which page the method is to show
+  image(background2, 0, 0);//draws image
+  fill(255);//255 = white
+  textSize(60);//sets text size to 60
+  text("SCOREBOARD", 225, 50);//draws text to screen at specified x and y location
   textSize(40);
   text("Rank", 100, 175);
   text("Name", width/2, 175);
@@ -411,14 +413,14 @@ void scoreboardMenu(int page) {
     text(sbParts[1][i], width/2, 225+((i%10)*35));//Prints the name
     text(sbParts[2][i], width-100, 225+((i%10)*35));//Prints the score
   }
-  strip.colorRect1();
-  if (page<40)
+  strip.colorRect1();//Draws a white rectangular strip near the top of the screen
+  if (page<40)//If page is less than 40 (not at the last page), draw the next button
     nextB.showButton();
-  if (page>0)
+  if (page>0)//If page is greater than 0 (not at first page), draw the previous button
     previousB.showButton();
-  sortName.showSwitch();
-  sortScore.showSwitch();
-  backB.showButton();
+  sortName.showSwitch();//Draw the sortName switch
+  sortScore.showSwitch();//Draw the sortScore switch
+  backB.showButton();//Draw the back button
 }
 
 void startScreen() {
