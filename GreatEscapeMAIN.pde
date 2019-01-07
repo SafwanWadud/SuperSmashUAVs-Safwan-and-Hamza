@@ -1,6 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 04, 2019
+ Date: Jan 07, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -15,8 +15,8 @@ AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PImage background1, background2;//Background images
 int screen, score, position, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
-String strScore, cName;//holds user score as a string; holds user's current name 
-boolean played, tBoxClicked, nameEntered;//determines if the game was played once already;determines if a textbox was clicked on; determines if a name was entered
+String strScore, cName,sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
+boolean played, nameEntered;//determines if the game was played once already; determines if a name was entered
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
 Button startB, playB, controlsB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
@@ -372,14 +372,29 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
     yesB.setClick(true);
   else if (noB.isInside() && screen==8)//if mouse is within no button and screen is 8
     noB.setClick(true);
-  else if (textBox.isInside() && screen == 9)//if mouse is within textbox and screen is 9
-    tBoxClicked = true;//sets tBoxClicked to true
   else if (returnB.isInside() && screen == 9 && nameEntered)//if mouse is within return button and screen is 9 and user has entered a name
     returnB.setClick(true);
 }
 
 void keyPressed() {//code to run if keys are pressed on a specific screen
-  if (screen==9 && tBoxClicked && !nameEntered) {//If the screen is 9, and the text box was clicked, and nameEntered is false
+  if (screen==9 && !nameEntered) {//If the screen is 9, and nameEntered is false
+    if (key>='a'&&key<='z' && cName.length()<6) {//If a letter is pressed and the current user's name has less than 6 characters
+      cName = (cName+key).toUpperCase();//Adds the key to current user's name and changes it to upper case
+    } else if (key == BACKSPACE) {//If backspace is pressed
+      if (cName.length() > 0) {//If the current user's name contains 1 or more characters
+        cName = cName.substring(0, cName.length()-1);//current user's name is set equal to the substring of itself minus the last character
+      }
+    } else if (key==ENTER) {//If the enter key is pressed
+      if (cName.length()<=6 && cName.length()>=1) {//If the current user's name contains 1-6 characters
+        nameEntered = true;//sets nameEntered to true
+      } else {
+        cName = "";//sets current user's name to null (empty string)
+      }
+    }
+    
+    
+    
+  } else if (screen==5) {//If the screen is 5
     if (key>='a'&&key<='z' && cName.length()<6) {//If a letter is pressed and the current user's name has less than 6 characters
       cName = (cName+key).toUpperCase();//Adds the key to current user's name and changes it to upper case
     } else if (key == BACKSPACE) {//If backspace is pressed
@@ -394,6 +409,22 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
       }
     }
   }
+}
+
+//Searches for a name in the scoreboard specified by the user and shows corresponding rank and score
+int seqSearch (String[][] list, String item)
+{
+  int location = -1;
+  boolean found = false;
+  for (int i = 0; i < list[1].length && !found; i++)
+  {
+    if (list[1][i].equals(item))
+    {
+      location = i;
+      found = true;
+    }
+  }
+  return location;
 }
 
 //Displays the scoreboard
