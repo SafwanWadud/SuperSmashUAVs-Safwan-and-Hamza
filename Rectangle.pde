@@ -41,6 +41,7 @@ class Rectangle {
   
   void colorRect2() {
     stroke(r, g, b);
+    strokeWeight(4);
     noFill();
     rect(x,y,w,h);
   }

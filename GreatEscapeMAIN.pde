@@ -1,6 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 03, 2019
+ Date: Jan 04, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -62,10 +62,10 @@ void setup() {
 
   //Switches
   musicON = new Switch("ON", true, 500, 230, 50, 50);//(text to be displayed, whether the switch is activated or not, x location, y location, width, height)
-  musicOFF = new Switch("OFF", false, 560, 230, 50, 50);
+  musicOFF = new Switch("OFF", false, 554, 230, 50, 50);
   soundON = new Switch("ON", true, 500, 330, 50, 50);
-  soundOFF = new Switch("OFF", false, 560, 330, 50, 50);
-  sortName = new Switch("NAME", false, 800, 120, 70, 30);
+  soundOFF = new Switch("OFF", false, 554, 330, 50, 50);
+  sortName = new Switch("NAME", false, 806, 120, 70, 30);
   sortScore = new Switch("SCORE", true, 880, 120, 70, 30);
 
   //Rectangles
@@ -396,12 +396,12 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
   }
 }
 
-//Shows the scoreboard when called upon
-void scoreboardMenu(int page) {//takes in an int paramater which lets the program know which page the method is to show
-  image(background2, 0, 0);//draws image
-  fill(255);//255 = white
-  textSize(60);//sets text size to 60
-  text("SCOREBOARD", 225, 50);//draws text to screen at specified x and y location
+//Displays the scoreboard
+void scoreboardMenu(int page) {//takes in an int paramater which lets the program know which page of the scoreboard the method is to show
+  image(background2, 0, 0);
+  fill(255);
+  textSize(60);
+  text("SCOREBOARD", 225, 50);
   textSize(40);
   text("Rank", 100, 175);
   text("Name", width/2, 175);
@@ -413,31 +413,36 @@ void scoreboardMenu(int page) {//takes in an int paramater which lets the progra
     text(sbParts[1][i], width/2, 225+((i%10)*35));//Prints the name
     text(sbParts[2][i], width-100, 225+((i%10)*35));//Prints the score
   }
-  strip.colorRect1();//Draws a white rectangular strip near the top of the screen
+  strip.colorRect1();
   if (page<40)//If page is less than 40 (not at the last page), draw the next button
     nextB.showButton();
   if (page>0)//If page is greater than 0 (not at first page), draw the previous button
     previousB.showButton();
   sortName.showSwitch();//Draw the sortName switch
   sortScore.showSwitch();//Draw the sortScore switch
-  backB.showButton();//Draw the back button
+  backB.showButton();
 }
 
+//Displays the start screen when called upon
 void startScreen() {
-  image(background1, 0, 0);
-  fill(255);  
-  textSize(60);
-  text("CUE'S GREAT ESCAPE", width/2, 100);
-  startB.showButton();
+  image(background1, 0, 0);//draws the first image
+  fill(255);//255 = white  
+  textSize(60);//sets text size to 60
+  text("CUE'S GREAT ESCAPE", width/2, 100);//draws text to screen at specified x and y locations
+  startB.showButton();//Draw the start button
 }
 
+//Displays the main mennu screen 
 void mainMenu() {
-  image(background2, 0, 0);
+  image(background2, 0, 0);//Draws the second image
   textSize(60);
   fill(255);
   text("MAIN MENU", 200, 50);
-  strip.colorRect1();
-  playB.showButton();
+  fill(0);
+  textSize(50);
+  textAlign(LEFT);
+  strip.colorRect1();//Draws a white rectangular strip near the top of the screen
+  playB.showButton();//Draw 7 buttons 
   controlsB.showButton();
   scoreboardB.showButton();
   optionsB.showButton();
@@ -446,22 +451,24 @@ void mainMenu() {
   backB.showButton();
 }
 
+//Displays the play game screen
 void play() {
   image(background2, 0, 0);
   fill(255);
   textSize(60);
   text("PLAY", 100, 50);
   textSize(20);
-  if (!played) {
+  if (!played) {//If played is false
     score = (int)(99999*Math.random()); //Temporary get a random score for the user
     strScore = String.valueOf(score);//converts to string
-    played = true;
+    played = true;//set played to true
   }
-  text("Your score is " + score, width/2, 200);
+  text("Your score is " + score, width/2, 200);//Let user know their score
   strip.colorRect1();
-  continueB.showButton();
+  continueB.showButton();//Draw continue button
 }
 
+//Displays the controls screen
 void howToPlay() {
   image(background2, 0, 0);
   fill(255);
@@ -482,6 +489,7 @@ void howToPlay() {
   backB.showButton();
 }
 
+//Displays the options menu
 void options() {
   image(background2, 0, 0);
   fill(255);
@@ -491,13 +499,14 @@ void options() {
   text("MUSIC:", width/2-textWidth("MUSIC"), height/2-100);
   text("SOUND:", width/2-textWidth("SOUND"), height/2);
   strip.colorRect1();
-  musicON.showSwitch();
+  musicON.showSwitch();//Draws 4 switches 
   musicOFF.showSwitch();
   soundON.showSwitch();
   soundOFF.showSwitch();
   backB.showButton();
 }
 
+//Displays the credits screen
 void credits() {
   image(background2, 0, 0);
   fill(255);
@@ -511,6 +520,7 @@ void credits() {
   backB.showButton();
 }
 
+//Displays the quit game menu
 void quitGame() {
   image(background2, 0, 0);
   fill(255);
@@ -519,27 +529,29 @@ void quitGame() {
   textSize(20);
   text("Are you sure you want to quit the game?", width/2, height/2-50);
   strip.colorRect1();
-  yesB.showButton();
-  noB.showButton();
+  yesB.showButton();//Draw the yes button
+  noB.showButton();//Draw the no button
 }
 
+//Displays a post-game screen where if the current user made it to the top 50, a text box is drawn to get the user's name 
 void promptUser() {
   background(0);
   fill(255);
-  textBox.colorRect2();
+  textBox.colorRect2();//Draws a small rectangle with a white stroke to represent a text box
   textSize(30);
   text("Congratulations! Your score has made the top 50 \nEnter your name (max 6 letters): ", width/2, height/3);
-  fill(255, 255, 0);
-  text(cName, width/2, (height/2)-5);
-  if (nameEntered) {
+  fill(255, 255, 0);//yellow 
+  text(cName, width/2, (height/2)-5);//Draws the user's name inside the text box as letters are pressed on the keyboard
+  if (nameEntered) {//If the user has entered their name, a return button is drawn
     returnB.showButton();
-  } else {
+  } else {//IF the user has not entered their name yet, the program draws text to let the user know to press enter to confirm their name
     fill(255);
     textSize(15);
     text("Press the \"ENTER\" key to confirm", width/2, (height/2)+50);
   }
 }
 
+//Boolean method to return true if the current user's score is in the top 50, or false otherwise
 boolean isScoreTop50() {
   boolean sPlaced = false;//variable to check if current player's score has been placed into the top 50
   for (int i = 0; i<sbParts[2].length; i++) {//Goes through the scoreboard to check if current player's score has made top 100
@@ -551,6 +563,7 @@ boolean isScoreTop50() {
   return sPlaced;
 }
 
+//modifies the scoreboard given that the current user's score is in the top 50 and then updates the scoreboard
 void modScoreboard() {
   String sHolder1, sHolder2, nHolder1, nHolder2; //2 temp name holders and 2 temp score holders
 
@@ -566,10 +579,10 @@ void modScoreboard() {
     nHolder1 = nHolder2;
   }
 
-  try {
+  try {//Prints the ranks, names, and scores to text file
     PrintWriter pw = createWriter("scoreboardGE.txt");
     for (int i = 0; i<sbParts[1].length; i++) {
-      pw.println(sbParts[0][i] + "                          " + sbParts[1][i] + "                          " + sbParts[2][i]); //prints ranks, names, and scores
+      pw.println(sbParts[0][i] + "                          " + sbParts[1][i] + "                          " + sbParts[2][i]);
     }
     pw.close();
   }
@@ -577,8 +590,9 @@ void modScoreboard() {
   }
 }
 
+//Creates a new scoreboard and prints it to a text file if there is no existing text file
 void createScoreboard() {
-  try {//Tries to read from a file which checks to see if the file exists or not
+  try {//Tries to read from a file which checks to see if the file already exists or not
     BufferedReader br = createReader("scoreboardGE.txt");
     br.close();
   }
@@ -612,10 +626,10 @@ void createScoreboard() {
 
     for (int i = 0; i<sbParts[0].length; i++) { //Reads through the next 50 lines of the text file 
       line = br.readLine();
-      sbParts[0][i] = line.substring(0, line.indexOf(' '));
+      sbParts[0][i] = line.substring(0, line.indexOf(' '));//holds player ranks extracted from text file
       line = trimLine(line);
-      sbParts[1][i] =  line.substring(0, line.indexOf(' ')); //holds player names extracted from text file
-      sbParts[2][i] =  trimLine(line); //holds player scores extracted from text file
+      sbParts[1][i] =  line.substring(0, line.indexOf(' ')); //holds player names
+      sbParts[2][i] =  trimLine(line); //holds player scores
     }
     br.close();
   }
@@ -623,10 +637,12 @@ void createScoreboard() {
   }
 }
 
-String trimLine (String l) {//String method to return the trimmed substring of a line which starts from the first tab   
+//String method to return the trimmed substring of a line which starts from the first tab   
+String trimLine (String l) {
   return l.substring(l.indexOf(' ')).trim();
 }
 
+//Sorts the array, using the bubble sort algorithm, in alphebetical order and sorts the corresponding ranks and scores
 void bubbleSort (String[][] list)//Sorts the scoreboard in alphabetical order
 {
   for (int top = list[0].length-1; top > 0; top--)
@@ -654,6 +670,7 @@ void bubbleSort (String[][] list)//Sorts the scoreboard in alphabetical order
   }
 }
 
+//Sorts the array, using the selection sort algorithm, in order from highest rank to lowest rank and sorts the corresponding names and scores
 void selectSort (String[][] list)
 {
   for (int top = list[0].length - 1; top > 0; top--)
@@ -680,132 +697,3 @@ void selectSort (String[][] list)
     list[2][largeLoc] = temp3;
   }
 }
-
-/*   call mainmenu method (USE SWITCH CASE)
- If user clicks on singleplayer 
- call singleplayer menu method
- depending on selection on menu, call either of the three level methods
- start timer
- if user presses a key to pause
- stop timer
- call pause method
- Check if user made top 50 
- if so, record score onto leaderboard
- If user clicks on multiplayer
- call multiplayer menu method
- depending on selection on menu, call either of the three level methods
- start timer
- if user presses a key to pause
- stop timer
- call pause method
- If user clicsk on tutorial
- call tutorial method
- If user clicks on leaderboards
- call leaderboards method
- IF user clicks on options
- call options method
- IF user clicks on credits
- call credits method
- if user clicks on quit game
- call quitgame method
- 
- main menu method
- output background
- output text for the different choices
- if user clicks on an area within the box of text of an option
- The choice that was clicked on will become the choice of the user
- 
- Singleplayer menu
- Create a player object
- output background
- output text for the different choices
- get level choice from user
- 
- 
- Multiplayer menu
- Create two player obects
- output background
- output text for the different choices
- get level choice from user 
- 
- leaderboards method
- If there is no existing file to read, 
- create a file
- Else 
- read the textfile containing the leaderboards
- output the leaderboards
- If user clicks on the area within the "search" text box
- use the sequential search to find the specified player's score
- If user clicks on the area within the headers of the leaderboard
- use a sort to organize the leaderboard by that column
- 
- options menu
- Output text for the different components
- music on/off
- game audio on/off
- show controls
- 
- credits menu
- output text, showing the credits
- 
- quit game menu
- IF user clicks on yes
- quit the game
- If user clicks on no,
- go back to main menu
- 
- method to create level 1
- make 2d array for size of map
- create platforms/boarders
- create enemies
- 
- method to create level 2
- make 2d array for size of map
- create platforms/boarders
- create enemies
- 
- method to create level 3
- make 2d array for size of map
- create platforms/boarders
- create enemies
- 
- pause method
- Output text for the different options
- If user selects return to main menu
- go back to main menu
- if user selects to restart
- restart level
- if user selects change level
- go back to multiplayer menu
- 
- method for keypressed that calls the move method from character  
- keyPressed (W,A,S,D) for movement  
- keyPressed (space) reverse gravity
- */
-
-/* Rectangle Class
- Constructor with length, width, x-coordinate, y-coordinate
- */
-
-/*Character extends rectangle
- move method that is invoked by the keypressd method
- intersection method
- show method
- */
-
-/*Player extends character
- show method
- move method
- shoot method
- die method
- */
-
-/*Enemy extends character
- show method
- move method
- die method
- */
-
-/*UAV extends enemies
- import uav image
- */

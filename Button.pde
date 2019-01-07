@@ -12,14 +12,18 @@ class Button extends Rectangle {
   }
 
   void showButton() {
-    fill(255);
     textAlign(CENTER, CENTER);
     textSize(txtSize);
-    text(label, x+(w/2), y+(h/2)-5);
-
-    if (isInside()) {
-      fill(255, 246, 0);//changes text color to yellow
+    if (!isInside()) {
+      fill(0);
+      text(label, x+(w/2)+2, y+(h/2)-2);//Creates a shadow for the text
+      fill(255);
       text(label, x+(w/2), y+(h/2)-5);
+    } else if (isInside()) {
+      fill(0);
+      text(label, x+(w/2)+2, y+(h/2)-5);
+      fill(255, 246, 0);//changes text color to yellow
+      text(label, x+(w/2), y+(h/2)-8);
     }
   }
 
@@ -30,5 +34,4 @@ class Button extends Rectangle {
   boolean getClick() {
     return click;
   }
-
 }
