@@ -1,10 +1,16 @@
+/*Player Class
+Hamza Osman
+
+*/
+
 class Player {
   private PImage img;
   private float x;
   private float y;
   private float w;
   boolean inAir;
-  float gravity;
+  private float gravity;
+  private float yVelocity;
 
   Player(float x, float y, float w, PImage img) {
     // this template for the current Frog object
@@ -13,10 +19,27 @@ class Player {
     this.y = y;
     this.w = w;
     inAir = false;
-    gravity = 10;
+    gravity = 1.0;
+    yVelocity = 0;
   }
 
   void show() {
+    image(img, x, y, w, w);
+  }
+
+  void update() {
+    if (inAir && y < height) {
+      yVelocity += gravity;
+      y+= yVelocity;
+    } 
+    
+    if (y > height-w)
+    {
+      inAir = false;
+      yVelocity = 0;
+      y = height-w;
+    }
+    
     image(img, x, y, w, w);
   }
 
@@ -30,16 +53,24 @@ class Player {
       x=0;
   }
 
-  void jump(float ydir) 
+  void jump(float yVelocity) 
   {
-    //loop that ends whrn y+= ydir
-    //each loop it jumps a few seconds
-    y+= ydir;
-    if (y>(height-w)) 
-      y=height-w;
+    this.yVelocity = yVelocity;
+    
+    //Probably trash
+    //float max = y - yVelocity;
 
-    if (y<0)
-      y=0;
+    //do
+    //{
+    //  y = y - 20;
+    //}
+    //while (y > max);
+
+    //if (y>(height-w)) 
+    //  y=height-w;
+
+    //if (y<0)
+    //  y=0;
   }
 
   float getY()
