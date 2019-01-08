@@ -15,7 +15,7 @@ AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PImage background1, background2;//Background images
 int screen, score, position, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
-String strScore, cName,sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
+String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
 boolean played, nameEntered;//determines if the game was played once already; determines if a name was entered
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
 Button startB, playB, controlsB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB;//buttons
@@ -126,6 +126,7 @@ void draw() {
       if (soundON.getActive()) {
         sConfirm.play();
       }
+      sName = "";// initializes searched name
       screen =5;//sets screen to 5 (scoreboard menu)
       scoreboardB.setClick(false);
     } else if (optionsB.getClick()) {//options button
@@ -391,21 +392,12 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
         cName = "";//sets current user's name to null (empty string)
       }
     }
-    
-    
-    
   } else if (screen==5) {//If the screen is 5
-    if (key>='a'&&key<='z' && cName.length()<6) {//If a letter is pressed and the current user's name has less than 6 characters
-      cName = (cName+key).toUpperCase();//Adds the key to current user's name and changes it to upper case
+    if (key>='a'&&key<='z' && sName.length()<6) {//If a letter is pressed and the searched name has less than 6 characters
+      sName = (sName+key).toUpperCase();//Adds the key to searched name and changes it to upper case
     } else if (key == BACKSPACE) {//If backspace is pressed
-      if (cName.length() > 0) {//If the current user's name contains 1 or more characters
-        cName = cName.substring(0, cName.length()-1);//current user's name is set equal to the substring of itself minus the last character
-      }
-    } else if (key==ENTER) {//If the enter key is pressed
-      if (cName.length()<=6 && cName.length()>=1) {//If the current user's name contains 1-6 characters
-        nameEntered = true;//sets nameEntered to true
-      } else {
-        cName = "";//sets current user's name to null (empty string)
+      if (sName.length() > 0) {//If the searched name contains 1 or more characters
+        sName = sName.substring(0, sName.length()-1);//searched name is set equal to the substring of itself minus the last character
       }
     }
   }
@@ -429,6 +421,7 @@ int seqSearch (String[][] list, String item)
 
 //Displays the scoreboard
 void scoreboardMenu(int page) {//takes in an int paramater which lets the program know which page of the scoreboard the method is to show
+  int searchPos;
   image(background2, 0, 0);
   fill(255);
   textSize(60);
@@ -439,10 +432,25 @@ void scoreboardMenu(int page) {//takes in an int paramater which lets the progra
   text("Score", width-100, 175);
   textSize(30);
   text("Sort by: ", 730, 130);
-  for (int i = page; i<10+page; i++) { //Prints 10 scores depending on the page
-    text(sbParts[0][i], 100, 225+((i%10)*35));//Prints the rank
-    text(sbParts[1][i], width/2, 225+((i%10)*35));//Prints the name
-    text(sbParts[2][i], width-100, 225+((i%10)*35));//Prints the score
+  text("Search Name: ", 158, 130); 
+  fill(255, 255, 0);//yellow 
+  text(sName, 320, 130);//Draws the searched name inside the text box as letters are pressed on the keyboard
+  fill(255);
+  if (sName.length()>0) {
+    searchPos = seqSearch(sbParts, sName); 
+    if (searchPos != -1) {
+      text(sbParts[0][searchPos], 100, 225);//Prints the rank
+      text(sbParts[1][searchPos], width/2, 225);//Prints the name
+      text(sbParts[2][searchPos], width-100, 225);//Prints the score
+    } else {
+      text("No match found", width/2, 225);//Prints the name
+    }
+  } else {//Draws the regular scoreboard
+    for (int i = page; i<10+page; i++) { //Prints 10 scores depending on the page
+      text(sbParts[0][i], 100, 225+((i%10)*35));//Prints the rank
+      text(sbParts[1][i], width/2, 225+((i%10)*35));//Prints the name
+      text(sbParts[2][i], width-100, 225+((i%10)*35));//Prints the score
+    }
   }
   strip.colorRect1();
   if (page<40)//If page is less than 40 (not at the last page), draw the next button

@@ -1,4 +1,5 @@
-//Blueprint for Button class
+//Name: Safwan Wadud
+//Brief Description: Blueprint for Button class
 class Button extends Rectangle {
   protected String label;
   private boolean click;

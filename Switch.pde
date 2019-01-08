@@ -1,4 +1,5 @@
-//Blueprint for Switch class
+//Name: Safwan Wadud
+//Brief Description: Blueprint for Switch class
 class Switch extends Button {
   private boolean active; 
 

@@ -1,4 +1,5 @@
-//Blueprint for rectangle class
+//Name: Safwan Wadud
+//Brief Description: Blueprint for rectangle class
 class Rectangle {
   protected float x, y, w, h;//x and y coordinates of top left corner, width, and height of rectangle
   protected float r, g, b; //rgb colors for outline and fill of rectangle
