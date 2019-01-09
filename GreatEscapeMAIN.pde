@@ -1,6 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 07, 2019
+ Date: Jan 09, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -8,7 +8,6 @@
 //Import Libraries
 import ddf.minim.*;
 import processing.sound.*;
-
 //Declaring variables
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM;//background music
@@ -22,12 +21,15 @@ Button startB, playB, controlsB, scoreboardB, optionsB, creditsB, quitB, backB, 
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
 Rectangle strip, textBox;//white strip for menu design; textBox to get user's name
 
+
+
 void setup() {
   size(1000, 700);
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
   sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
+
 
   //Music
   //Loads the audio files from the data folder
@@ -75,7 +77,7 @@ void setup() {
   //import all images
   background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
   background1.resize(width, height);//Changes size of image to fit the screen size
-  background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for amin menu
+  background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for main menu
   background2.resize(width, height);
 
   createScoreboard();//If there is no existing scoreboard, a new one is created
@@ -404,19 +406,19 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
 }
 
 //Searches for a name in the scoreboard specified by the user and shows corresponding rank and score
-int seqSearch (String[][] list, String item)
+int[] seqSearch (String[][] list, String item)
 {
-  int location = -1;
-  boolean found = false;
-  for (int i = 0; i < list[1].length && !found; i++)
+  int[] locations = new int[50];
+  locations[0]=-1;
+
+  for (int i = 0; i < list[1].length; i++)
   {
     if (list[1][i].equals(item))
     {
-      location = i;
-      found = true;
+      locations[i] = i;
     }
   }
-  return location;
+  return locations;
 }
 
 //Displays the scoreboard
