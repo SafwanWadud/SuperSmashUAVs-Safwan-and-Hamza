@@ -1,5 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
+
  Date: Jan 09, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
