@@ -47,6 +47,13 @@ class Rectangle {
     rect(x,y,w,h);
   }
   
+  void colorRect3() {
+    stroke(r, g, b);
+    strokeWeight(4);
+    fill(130);
+    rect(x,y,w,h);
+  }
+  
   void setColor(float r, float g, float b){
     this.r = r;
     this.g = g;

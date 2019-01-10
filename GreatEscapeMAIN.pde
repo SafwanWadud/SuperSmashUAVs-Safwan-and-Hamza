@@ -8,28 +8,27 @@
 //Import Libraries
 import ddf.minim.*;
 import processing.sound.*;
+
 //Declaring variables
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
+PFont font;//text font
 PImage background1, background2;//Background images
 int screen, score, position, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
 String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
-boolean played, nameEntered;//determines if the game was played once already; determines if a name was entered
+boolean played, nameEntered, isSearching;//determines if the game was played once already; determines if a name was entered; determines if the user is searching for a name in the scoreboard
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
 Button startB, playB, controlsB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
-Rectangle strip, textBox;//white strip for menu design; textBox to get user's name
-
-
+Rectangle strip, textBox, searchBar;//white strip for menu design; textBox to get user's name; searchBar to get a name entered by user in scoreboard
 
 void setup() {
   size(1000, 700);
-
+  
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
   sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
-
 
   //Music
   //Loads the audio files from the data folder
@@ -42,7 +41,11 @@ void setup() {
   sConfirm = new SoundFile(this, "220168__gameaudio__button-spacey-confirm.mp3");//Sound effect when a button is pressed
   sDeny = new SoundFile(this, "220167__gameaudio__button-deny-spacey.mp3");
   sStart = new SoundFile(this, "243020__plasterbrain__game-start.mp3");//Sound effect when the start button is pressed
-
+  
+  //Font
+  font = createFont("ssbFont.ttf",32);
+  textFont(font);
+  
   //Buttons
   textSize(50);//size of button
   playB = new Button("PLAY", 50, 50, 150, textWidth("PLAY"), 50); //(text to be displayed, text size, x location, y location, width, height)
@@ -72,7 +75,8 @@ void setup() {
 
   //Rectangles
   strip = new Rectangle(0, 100, width, 3);//creates a thin white strip
-  textBox = new Rectangle((width/2)-100, (height/2)-25, 200, 50);//creates a small rectangle with a white outline representing a text box
+  textBox = new Rectangle((width/2)-88, (height/2)-20, 175, 40);//creates a small rectangle with a white outline representing a text box
+  searchBar = new Rectangle(260,115,175, 40);
 
   //import all images
   background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
@@ -352,9 +356,9 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
     sortScore.setClick(true);
     sortScore.setActive(true);//Activates the sortScore switch
     sortName.setActive(false);//Deactivates the sortName switch
-  } else if (nextB.isInside() && screen ==5 && page<40)//if mouse is within next button and screen is 5 and it isn't the last page of the scoreboard
+  } else if (nextB.isInside() && screen ==5 && page<40 && !isSearching)//if mouse is within next button and screen is 5 and it isn't the last page of the scoreboard and user is not searching a name in the scoreboard
     nextB.setClick(true);
-  else if (previousB.isInside() && screen ==5 && page>0)//if mouse is within previous button and screen is 5 and it isn't the first page of the scoreboard
+  else if (previousB.isInside() && screen ==5 && page>0 && !isSearching)//if mouse is within previous button and screen is 5 and it isn't the first page of the scoreboard and user is not searching a name in the scoreboard
     previousB.setClick(true);
   else if (musicON.isInside() && screen==6) {//if mouse is within musicON switch and screen is 6
     musicON.setClick(true);
@@ -406,19 +410,22 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
 }
 
 //Searches for a name in the scoreboard specified by the user and shows corresponding rank and score
-int[] seqSearch (String[][] list, String item)
+int seqSearch (String[][] list, String item)
 {
-  int[] locations = new int[50];
-  locations[0]=-1;
-
+  int location = -1;
+  int row = 225;//holds y value to print out the row of text
   for (int i = 0; i < list[1].length; i++)
   {
-    if (list[1][i].equals(item))
-    {
-      locations[i] = i;
+    if (list[1][i].equals(item) && row<=540)//Checks to see if the value of list[1][i] is equal to item and that row is not greater than 540 so only the first ten results would show up
+    {  
+      location = i;
+      text(sbParts[0][i], 100, row);//Prints the rank
+      text(sbParts[1][i], width/2, row);//Prints the name
+      text(sbParts[2][i], width-100, row);//Prints the score
+      row+=35;//Increases row by 35 to prevent overlapping of scores
     }
   }
-  return locations;
+  return location;
 }
 
 //Displays the scoreboard
@@ -435,19 +442,20 @@ void scoreboardMenu(int page) {//takes in an int paramater which lets the progra
   textSize(30);
   text("Sort by: ", 730, 130);
   text("Search Name: ", 158, 130); 
+  searchBar.colorRect3();//Draws a small rectangle with a white stroke to represent a search bar
   fill(255, 255, 0);//yellow 
-  text(sName, 320, 130);//Draws the searched name inside the text box as letters are pressed on the keyboard
+  textAlign(LEFT);
+  text(sName, 270, 145);//Draws the searched name inside the text box as letters are pressed on the keyboard
   fill(255);
-  if (sName.length()>0) {
-    searchPos = seqSearch(sbParts, sName); 
-    if (searchPos != -1) {
-      text(sbParts[0][searchPos], 100, 225);//Prints the rank
-      text(sbParts[1][searchPos], width/2, 225);//Prints the name
-      text(sbParts[2][searchPos], width-100, 225);//Prints the score
-    } else {
+  textAlign(CENTER,CENTER);
+  if (sName.length()>0) {//If the searched name contains atleast 1 character
+    isSearching = true;
+    searchPos = seqSearch(sbParts, sName); //sets search position to the value returned by the seqSearch method
+    if (searchPos == -1) {//Indicates that the sequential search found no match
       text("No match found", width/2, 225);//Prints the name
     }
   } else {//Draws the regular scoreboard
+    isSearching = false;
     for (int i = page; i<10+page; i++) { //Prints 10 scores depending on the page
       text(sbParts[0][i], 100, 225+((i%10)*35));//Prints the rank
       text(sbParts[1][i], width/2, 225+((i%10)*35));//Prints the name
@@ -455,9 +463,9 @@ void scoreboardMenu(int page) {//takes in an int paramater which lets the progra
     }
   }
   strip.colorRect1();
-  if (page<40)//If page is less than 40 (not at the last page), draw the next button
+  if (page<40 && !isSearching)//If page is less than 40 (not at the last page) and the user is not searching, draw the next button
     nextB.showButton();
-  if (page>0)//If page is greater than 0 (not at first page), draw the previous button
+  if (page>0 && !isSearching)//If page is greater than 0 (not at first page) and the user is not searching, draw the previous button
     previousB.showButton();
   sortName.showSwitch();//Draw the sortName switch
   sortScore.showSwitch();//Draw the sortScore switch
@@ -577,12 +585,14 @@ void quitGame() {
 //Displays a post-game screen where if the current user made it to the top 50, a text box is drawn to get the user's name 
 void promptUser() {
   background(0);
-  fill(255);
-  textBox.colorRect2();//Draws a small rectangle with a white stroke to represent a text box
+  textBox.colorRect3();//Draws a small rectangle with a white stroke to represent a text box
   textSize(30);
+  fill(255);
   text("Congratulations! Your score has made the top 50 \nEnter your name (max 6 letters): ", width/2, height/3);
   fill(255, 255, 0);//yellow 
-  text(cName, width/2, (height/2)-5);//Draws the user's name inside the text box as letters are pressed on the keyboard
+  textAlign(LEFT);
+  text(cName, 420, 362);//Draws the user's name inside the text box as letters are pressed on the keyboard
+  textAlign(CENTER,CENTER);
   if (nameEntered) {//If the user has entered their name, a return button is drawn
     returnB.showButton();
   } else {//IF the user has not entered their name yet, the program draws text to let the user know to press enter to confirm their name
