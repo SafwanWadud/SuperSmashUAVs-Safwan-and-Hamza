@@ -1,6 +1,7 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 01, 2019
+
+ Date: Jan 09, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -10,38 +11,46 @@ import ddf.minim.*;
 import processing.sound.*;
 
 //Declaring variables
-Minim minim;//minim environment; credit: 
+Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
+PFont font;//text font
 PImage background1, background2;//Background images
 int screen, score, position, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
-String strScore, cName;//holds user score as a string; holds user's current name 
-boolean played, tBoxClicked, nameEntered;//determines if the game was played once already;determines if a textbox was clicked on; determines if a name was entered
+String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
+boolean played, nameEntered, isSearching;//determines if the game was played once already; determines if a name was entered; determines if the user is searching for a name in the scoreboard
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
-Button startB, playB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB;//buttons
+Button startB, playB, controlsB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
-Rectangle strip, textBox;//white strip for menu design; textBox to get user's name
+Rectangle strip, textBox, searchBar;//white strip for menu design; textBox to get user's name; searchBar to get a name entered by user in scoreboard
 
 void setup() {
   size(1000, 700);
-
+  
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
-  sbParts = new String[3][50];
+  sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
 
   //Music
+  //Loads the audio files from the data folder
   minim = new Minim(this);
-  menuBM = minim.loadFile("1-03 Menu 1.mp3");
-  startBM = minim.loadFile("Fortnite-Battle-Royale-OST-Season-2_64kbs.mp3");
+  menuBM = minim.loadFile("1-03 Menu 1.mp3");//Background music for the main menu
+  startBM = minim.loadFile("Fortnite-Battle-Royale-OST-Season-2_64kbs.mp3");//Background music for the start screen
 
   //Sound
-  sConfirm = new SoundFile(this, "220168__gameaudio__button-spacey-confirm.mp3");
+  //Loads the sound files from the data folder
+  sConfirm = new SoundFile(this, "220168__gameaudio__button-spacey-confirm.mp3");//Sound effect when a button is pressed
   sDeny = new SoundFile(this, "220167__gameaudio__button-deny-spacey.mp3");
-  sStart = new SoundFile(this, "243020__plasterbrain__game-start.mp3");
-
+  sStart = new SoundFile(this, "243020__plasterbrain__game-start.mp3");//Sound effect when the start button is pressed
+  
+  //Font
+  font = createFont("ssbFont.ttf",32);
+  textFont(font);
+  
   //Buttons
-  textSize(50);
-  playB = new Button("PLAY", 50, 50, 150, textWidth("PLAY"), 50);
+  textSize(50);//size of button
+  playB = new Button("PLAY", 50, 50, 150, textWidth("PLAY"), 50); //(text to be displayed, text size, x location, y location, width, height)
+  controlsB = new Button("HOW TO PLAY", 50, 50, 210, textWidth("HOW TO PLAY"), 50);
   scoreboardB = new Button("SCOREBOARD", 50, 50, 270, textWidth("SCOREBOARD"), 50);
   optionsB = new Button("OPTIONS", 50, 50, 330, textWidth("OPTIONS"), 50);
   creditsB = new Button("CREDITS", 50, 50, 390, textWidth("CREDITS"), 50);
@@ -58,21 +67,22 @@ void setup() {
   previousB = new Button("<< Previous", 30, 50, height-120, textWidth("<< Previous"), 30);
 
   //Switches
-  musicON = new Switch("ON", true, 500, 230, 50, 50);
-  musicOFF = new Switch("OFF", false, 560, 230, 50, 50);
+  musicON = new Switch("ON", true, 500, 230, 50, 50);//(text to be displayed, whether the switch is activated or not, x location, y location, width, height)
+  musicOFF = new Switch("OFF", false, 554, 230, 50, 50);
   soundON = new Switch("ON", true, 500, 330, 50, 50);
-  soundOFF = new Switch("OFF", false, 560, 330, 50, 50);
-  sortName = new Switch("NAME", false, 800, 120, 70, 30);
+  soundOFF = new Switch("OFF", false, 554, 330, 50, 50);
+  sortName = new Switch("NAME", false, 806, 120, 70, 30);
   sortScore = new Switch("SCORE", true, 880, 120, 70, 30);
 
   //Rectangles
-  strip = new Rectangle(0, 100, width, 3);
-  textBox = new Rectangle((width/2)-100, (height/2)-25, 200, 50);
+  strip = new Rectangle(0, 100, width, 3);//creates a thin white strip
+  textBox = new Rectangle((width/2)-88, (height/2)-20, 175, 40);//creates a small rectangle with a white outline representing a text box
+  searchBar = new Rectangle(260,115,175, 40);
 
   //import all images
   background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
   background1.resize(width, height);//Changes size of image to fit the screen size
-  background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for amin menu
+  background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for main menu
   background2.resize(width, height);
 
   createScoreboard();//If there is no existing scoreboard, a new one is created
@@ -81,67 +91,74 @@ void setup() {
 void draw() {
   switch (screen) {
   case 1://Start screen
-    menuBM.rewind();
-    if (!startBM.isPlaying()) {
+    menuBM.rewind();//rewinds the menu music
+    if (!startBM.isPlaying()) {//if the start screen music is not playing, rewind it
       startBM.rewind();
     }
-    if (musicON.getActive()) {
+    if (musicON.getActive()) {//If the music on button is activated, play start screen music
       startBM.play();
     }
-    startScreen();
-    if (startB.getClick()) {
-      if (soundON.getActive()) {
+    startScreen();//Call startScreen() to show the start screen 
+    if (startB.getClick()) {//If the start button is clicked
+      if (soundON.getActive()) {//if the sound on button is activated, play the 'start' sound effect
         sStart.play();
       }
-      screen=2;
-      startB.setClick(false);
+      screen=2;//set screen to 2 so that it can go to the main menu (case 2)
+      startB.setClick(false);//resets the button's click to false
     }
     break;
   case 2://main menu screen
-    startBM.rewind();
-    startBM.pause();
-    if (!menuBM.isPlaying()) {
+    startBM.rewind();//Rewinds the start screen music
+    startBM.pause();//Stops the start screen music 
+    if (!menuBM.isPlaying()) {//if the menu music is not playing, rewind it
       menuBM.rewind();
     }
-    if (musicON.getActive()) {
+    if (musicON.getActive()) {//If the music on button is activated, play menu music
       menuBM.play();
     }
-    mainMenu();
-    if (playB.getClick()) {
-      if (soundON.getActive()) {
+    mainMenu();//Call mainMenu() to show the main menu 
+    if (playB.getClick()) {//IF the play button gets clicked
+      if (soundON.getActive()) {//If the sound on button is activated, play the 'confirm' sound effect
         sConfirm.play();
       }
-      screen = 3;
+      screen = 3;//set screen to 3 so that it can go to the play game screen (case 3)
       playB.setClick(false);
-    } else if (scoreboardB.getClick()) {
+    } else if (controlsB.getClick()) {//controls button
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen =4;
+      screen =4;//sets screen to 4 to go to case 4 (how to play menu)
+      controlsB.setClick(false);
+    } else if (scoreboardB.getClick()) {//scoreboard button
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      sName = "";// initializes searched name
+      screen =5;//sets screen to 5 (scoreboard menu)
       scoreboardB.setClick(false);
-    } else if (optionsB.getClick()) {
+    } else if (optionsB.getClick()) {//options button
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=5;
+      screen=6;//sets screen to 6 (options menu)
       optionsB.setClick(false);
-    } else if (creditsB.getClick()) {
+    } else if (creditsB.getClick()) {//credits button
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=6;
+      screen=7;//sets screen to 7 (credits screen)
       creditsB.setClick(false);
-    } else if (quitB.getClick()) {
+    } else if (quitB.getClick()) {//quit button
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen = 7;
+      screen = 8;//sets screen to 8 (quit game menu)
       quitB.setClick(false);
-    } else if (backB.getClick()) {
+    } else if (backB.getClick()) {//back button
       if (soundON.getActive()) {
-        sDeny.play();
+        sDeny.play();//plays the 'deny' sound effect
       }
-      screen=1;
+      screen=1;//sets screen to 1 to go back to the start screen
       backB.setClick(false);
     }
     break;
@@ -152,95 +169,111 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    play();
-    nameEntered = false;
-    cName = "";
-    if (continueB.getClick()) {
+    play();//calls play() to play the game
+    nameEntered = false;//sets nameEntered to false
+    cName = "";// initializes current user's name
+    if (continueB.getClick()) {//if the continue button is clicked
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      if (isScoreTop50())
-        screen = 8;
+      if (isScoreTop50())//If current user's score is in the top 50, which is checked by calling isScoreTop50
+        screen = 9;//set screen to 9 to go to the update scoreboard menu
       else
-        screen = 2;
+        screen = 2;//User did not make top 50 so sets screen to 2 to go back to the main menu
       continueB.setClick(false);
     }
     break;
-  case 4://scoreboard screen
+  case 4://How to play screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
     if (musicON.getActive()) {
       menuBM.play();
     }
-    scoreboardMenu(page);
-    if (sortName.getClick()) {
+    howToPlay();//calls howToPlay() to show the controls screen
+    if (backB.getClick()) {//goes back to main menu if back is clicked
+      if (soundON.getActive()) {
+        sDeny.play();
+      }
+      screen=2;
+      backB.setClick(false);
+    }
+    break;
+  case 5://scoreboard screen
+    if (!menuBM.isPlaying()) {
+      menuBM.rewind();
+    }
+    if (musicON.getActive()) {
+      menuBM.play();
+    }
+    scoreboardMenu(page);//calls scoreboardMenu() to show the scoreboard and passes on page to let the program know which page of the scoreboard to show 
+    if (sortName.getClick()) {//If the sort by name button is clicked
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      bubbleSort(sbParts);
+      bubbleSort(sbParts);//sort the 2d array by name using bubble sort
       sortName.setClick(false);
     } 
-    if (sortScore.getClick()) {
+    if (sortScore.getClick()) {//If the sort by score button is clicked 
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      selectSort(sbParts);
+      selectSort(sbParts);//sort the 2d array by rank using selection sort
       sortScore.setClick(false);
     } 
-    if (nextB.getClick()) {
+    if (nextB.getClick()) {//If "next" button is clicked
       if (soundON.getActive()) {
         sConfirm.play();
       }
       page+=10;//Goes to next page, showing the next 10 scores
       nextB.setClick(false);
     }
-    if (previousB.getClick()) {
+    if (previousB.getClick()) {//If "previous" button is clicked
       if (soundON.getActive()) {
         sConfirm.play();
       }
       page-=10;//Goes to previous page,showing the previous 10 scores
       previousB.setClick(false);
     }
-    if (backB.getClick()) {
+    if (backB.getClick()) {//If the back button is clicked
       if (soundON.getActive()) {
         sDeny.play();
       }
       screen=2;
-      page =0;
-      sortName.setActive(false);//Resets scoreboard to original order
+      page =0;//sets page to 0, so scoreboard shows the first page
+      sortName.setActive(false);//Resets scoreboard to original order (by rank)
       sortScore.setActive(true);
       selectSort(sbParts);
       backB.setClick(false);
     }
     break;
-  case 5://options menu screen
+  case 6://options menu screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
     if (musicON.getActive()) {
       menuBM.play();
     }
-    options();
-    if (soundON.getClick()) {
+    options();//calls options() to show the options menu
+    if (soundON.getClick()) {// If the sound on button gets clicked, it is activated (see mousePressed method), which means that sound effects are on
       sConfirm.play();
       soundON.setClick(false);
     } 
-    if (musicON.getClick()) {
+    if (musicON.getClick()) {// if the music on button gets clicked, it is activated, which means that the music is turned on
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      menuBM.play();
+      menuBM.play();//Plays the menu music
       musicON.setClick(false);
     } 
-    if (musicOFF.getClick()) {
+    if (musicOFF.getClick()) {//If the music off button gets clicked, it is activated, which means that the music is turned off
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      menuBM.pause();
+      menuBM.pause();//Stops the menu music
       musicOFF.setClick(false);
     } 
-    if (backB.getClick()) {
+    if (backB.getClick()) {//goes back to main menu if back is clicked
       if (soundON.getActive()) {
         sDeny.play();
       }
@@ -248,15 +281,15 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 6://credits screen
+  case 7://credits screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
     if (musicON.getActive()) {
       menuBM.play();
     }
-    credits();
-    if (backB.getClick()) {
+    credits();//Calls credits() and shows the credits screen
+    if (backB.getClick()) {//goes back to main menu if back is clicked
       if (soundON.getActive()) {
         sDeny.play();
       }
@@ -264,17 +297,17 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 7:// quit screen
+  case 8://quit game screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
     if (musicON.getActive()) {
       menuBM.play();
     }
-    quitGame();
-    if (yesB.getClick()) {
+    quitGame();//Calls quitGame() and shows the quit menu
+    if (yesB.getClick()) {//exits the program if yes is clicked
       exit();
-    } else if (noB.getClick()) {
+    } else if (noB.getClick()) {//goes back to main menu if no is clicked
       if (soundON.getActive()) {
         sDeny.play();
       }
@@ -282,151 +315,123 @@ void draw() {
       noB.setClick(false);
     }
     break;
-  case 8://update scoreboard menu
+  case 9://update scoreboard menu
     promptUser();//gets user's name
-    if (returnB.getClick()) {
+    if (returnB.getClick()) {//If the "return to main menu" button is clicked
       modScoreboard();//Updates the scoreboard
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=2;
+      screen=2;//sets screen to 2 to go back to the main menu
       returnB.setClick(false);
     }
-    played = false;
+    played = false;//sets played to false
     break;
   }
 }
 
-void mousePressed() {
-  if (startB.isInside() && screen==1)
-    startB.setClick(true); 
-  else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6))
-    backB.setClick(true);
-  else if (playB.isInside() && screen == 2)
-    playB.setClick(true);
-  else if (scoreboardB.isInside() && screen ==2)
+void mousePressed() {//code to run if the mouse is pressed at specific locations and screens
+  if (startB.isInside() && screen==1)//If the mouse is within the start button and the screen is 1
+    startB.setClick(true);//calls a mutator method to set its field, click, to true
+  else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6 || screen == 7))//if the mouse is within the back button and the screen is either 2,4,5,6, or 7
+    backB.setClick(true);//set backB's click to true
+  else if (playB.isInside() && screen == 2)//if mouse is within play button and screen is 2
+    playB.setClick(true);//set playB's click to true
+  else if (controlsB.isInside() && screen ==2)//if mouse is within controls button and screen is 2
+    controlsB.setClick(true);
+  else if (scoreboardB.isInside() && screen ==2)//if mouse is within scoreboard button and screen is 2
     scoreboardB.setClick(true);
-  else if (optionsB.isInside() && screen ==2)
+  else if (optionsB.isInside() && screen ==2)//if mouse is within options button and screen is 2
     optionsB.setClick(true);
-  else if (creditsB.isInside() && screen ==2)
+  else if (creditsB.isInside() && screen ==2)//if mouse is within credits button and screen is 2
     creditsB.setClick(true);
-  else if (quitB.isInside() && screen ==2)
+  else if (quitB.isInside() && screen ==2)//if mouse is within quit button and screen is 2
     quitB.setClick(true);
-  else if (continueB.isInside() && screen ==3)
+  else if (continueB.isInside() && screen ==3)//if mouse is within continue button and screen is 3
     continueB.setClick(true);
-  else if (sortName.isInside() && screen==4) {
+  else if (sortName.isInside() && screen==5) {//if mouse is within sortName switch and screen is 5
     sortName.setClick(true);
-    sortName.setActive(true);
-    sortScore.setActive(false);
-  } else if (sortScore.isInside() && screen==4) {
+    sortName.setActive(true);//Activates the sortName switch
+    sortScore.setActive(false);//Deactivates the sortScore switch
+  } else if (sortScore.isInside() && screen==5) {//if mouse is within sortScore switch and screen is 5
     sortScore.setClick(true);
-    sortScore.setActive(true);
-    sortName.setActive(false);
-  } else if (nextB.isInside() && screen ==4 && page<40)
+    sortScore.setActive(true);//Activates the sortScore switch
+    sortName.setActive(false);//Deactivates the sortName switch
+  } else if (nextB.isInside() && screen ==5 && page<40 && !isSearching)//if mouse is within next button and screen is 5 and it isn't the last page of the scoreboard and user is not searching a name in the scoreboard
     nextB.setClick(true);
-  else if (previousB.isInside() && screen ==4 && page>0)
+  else if (previousB.isInside() && screen ==5 && page>0 && !isSearching)//if mouse is within previous button and screen is 5 and it isn't the first page of the scoreboard and user is not searching a name in the scoreboard
     previousB.setClick(true);
-  else if (musicON.isInside() && screen==5) {
+  else if (musicON.isInside() && screen==6) {//if mouse is within musicON switch and screen is 6
     musicON.setClick(true);
-    musicON.setActive(true);
-    musicOFF.setActive(false);
-  } else if (musicOFF.isInside() && screen==5) {
+    musicON.setActive(true);//Activates the musicON switch
+    musicOFF.setActive(false);//Deactivates the musicOFF switch
+  } else if (musicOFF.isInside() && screen==6) {//if mouse is within musicOFF switch and screen is 6
     musicOFF.setClick(true);
-    musicOFF.setActive(true);
-    musicON.setActive(false);
-  } else if (soundON.isInside() && screen==5) {
+    musicOFF.setActive(true);//Activates the musicOFF switch
+    musicON.setActive(false);//Deactivates the musicON switch
+  } else if (soundON.isInside() && screen==6) {//if mouse is within soundON switch and screen is 6
     soundON.setClick(true);
-    soundON.setActive(true);
-    soundOFF.setActive(false);
-  } else if (soundOFF.isInside() && screen==5) {
-    soundOFF.setActive(true);
-    soundON.setActive(false);
-  } else if (yesB.isInside() && screen==7)
+    soundON.setActive(true);//Activates the soundON switch
+    soundOFF.setActive(false);//Deactivates the soundOFF switch
+  } else if (soundOFF.isInside() && screen==6) {//if mouse is within soundOFF switch and screen is 6
+    soundOFF.setActive(true);//Activates the soundOFF switch
+    soundON.setActive(false);//Deactivates the soundON switch
+  } else if (yesB.isInside() && screen==8)//if mouse is within yes button and screen is 8
     yesB.setClick(true);
-  else if (noB.isInside() && screen==7)
+  else if (noB.isInside() && screen==8)//if mouse is within no button and screen is 8
     noB.setClick(true);
-  else if (textBox.isInside() && screen == 8)
-    tBoxClicked = true;
-  else if (returnB.isInside() && screen == 8 && nameEntered)
+  else if (returnB.isInside() && screen == 9 && nameEntered)//if mouse is within return button and screen is 9 and user has entered a name
     returnB.setClick(true);
 }
 
-void keyPressed() {
-  if (screen==8 && tBoxClicked && !nameEntered) {
-    if (key>='a'&&key<='z' && cName.length()<6) {
-      cName = (cName+key).toUpperCase();
-      ;
-    } else if (key == BACKSPACE) {
-      if (cName.length() > 0) {
-        cName = cName.substring(0, cName.length()-1);
+void keyPressed() {//code to run if keys are pressed on a specific screen
+  if (screen==9 && !nameEntered) {//If the screen is 9, and nameEntered is false
+    if (key>='a'&&key<='z' && cName.length()<6) {//If a letter is pressed and the current user's name has less than 6 characters
+      cName = (cName+key).toUpperCase();//Adds the key to current user's name and changes it to upper case
+    } else if (key == BACKSPACE) {//If backspace is pressed
+      if (cName.length() > 0) {//If the current user's name contains 1 or more characters
+        cName = cName.substring(0, cName.length()-1);//current user's name is set equal to the substring of itself minus the last character
       }
-    } else if (key==ENTER) {
-      if (cName.length()<=6 && cName.length()>=1) {
-        nameEntered = true;
+    } else if (key==ENTER) {//If the enter key is pressed
+      if (cName.length()<=6 && cName.length()>=1) {//If the current user's name contains 1-6 characters
+        nameEntered = true;//sets nameEntered to true
       } else {
-        cName = "";
+        cName = "";//sets current user's name to null (empty string)
+      }
+    }
+  } else if (screen==5) {//If the screen is 5
+    if (key>='a'&&key<='z' && sName.length()<6) {//If a letter is pressed and the searched name has less than 6 characters
+      sName = (sName+key).toUpperCase();//Adds the key to searched name and changes it to upper case
+    } else if (key == BACKSPACE) {//If backspace is pressed
+      if (sName.length() > 0) {//If the searched name contains 1 or more characters
+        sName = sName.substring(0, sName.length()-1);//searched name is set equal to the substring of itself minus the last character
       }
     }
   }
 }
 
-void bubbleSort (String[][] list)//Sorts the scoreboard in alphabetical order
+//Searches for a name in the scoreboard specified by the user and shows corresponding rank and score
+int seqSearch (String[][] list, String item)
 {
-  for (int top = list[0].length-1; top > 0; top--)
+  int location = -1;
+  int row = 225;//holds y value to print out the row of text
+  for (int i = 0; i < list[1].length; i++)
   {
-    for (int i = 0; i < top; i++)
-    {
-      if (list[1][i].compareTo(list[1][i+1]) > 0)
-      {
-        //Swap names
-        String temp = list[1][i];
-        list[1][i] = list[1][i+1];
-        list[1][i+1] = temp;
-
-        //Swap corresponding ranks
-        String temp2 = list[0][i];
-        list[0][i] = list[0][i+1];
-        list[0][i+1] = temp2;
-
-        //Swap corresponding scores
-        String temp3 = list[2][i];
-        list[2][i] = list[2][i+1];
-        list[2][i+1] = temp3;
-      }
+    if (list[1][i].equals(item) && row<=540)//Checks to see if the value of list[1][i] is equal to item and that row is not greater than 540 so only the first ten results would show up
+    {  
+      location = i;
+      text(sbParts[0][i], 100, row);//Prints the rank
+      text(sbParts[1][i], width/2, row);//Prints the name
+      text(sbParts[2][i], width-100, row);//Prints the score
+      row+=35;//Increases row by 35 to prevent overlapping of scores
     }
   }
+  return location;
 }
 
-void selectSort (String[][] list)//NEED TO FIX
-{
-  for (int top = 0; top < list[2].length; top++)
-  {
-    int largeLoc = list[2].length-1; // location of largest element
-    // assume list[2][49] is largest to start
-    for (int i = 48; i >= top; i--) // check list[2][48] to list[2][top]
-      if (Integer.parseInt(list[2][i]) > Integer.parseInt(list[2][largeLoc]))
-        largeLoc = i;
-
-    //Swap scores
-    if (Integer.parseInt(list[2][largeLoc]) != Integer.parseInt(list[2][top])) {
-      String temp = list[2][top]; // temporary storage
-      list[2][top] = list[2][largeLoc];
-      list[2][largeLoc] = temp;
-
-      //Swap corresponding names
-      String temp2 = list[1][top];
-      list[1][top] = list[1][largeLoc];
-      list[1][largeLoc] = temp2;
-
-      //Swap corresponding ranks
-      String temp3 = list[0][top];
-      list[0][top] = list[0][largeLoc];
-      list[0][largeLoc] = temp3;
-    }
-  }
-}
-
-void scoreboardMenu(int page) {
+//Displays the scoreboard
+void scoreboardMenu(int page) {//takes in an int paramater which lets the program know which page of the scoreboard the method is to show
+  int searchPos;
   image(background2, 0, 0);
   fill(255);
   textSize(60);
@@ -437,44 +442,58 @@ void scoreboardMenu(int page) {
   text("Score", width-100, 175);
   textSize(30);
   text("Sort by: ", 730, 130);
-  for (int i = page; i<10+page; i++) { //Prints 10 scores depending on the page
-    text(sbParts[0][i], 100, 225+((i%10)*35));//Prints the rank
-    text(sbParts[1][i], width/2, 225+((i%10)*35));//Prints the name
-    text(sbParts[2][i], width-100, 225+((i%10)*35));//Prints the score
+  text("Search Name: ", 158, 130); 
+  searchBar.colorRect3();//Draws a small rectangle with a white stroke to represent a search bar
+  fill(255, 255, 0);//yellow 
+  textAlign(LEFT);
+  text(sName, 270, 145);//Draws the searched name inside the text box as letters are pressed on the keyboard
+  fill(255);
+  textAlign(CENTER,CENTER);
+  if (sName.length()>0) {//If the searched name contains atleast 1 character
+    isSearching = true;
+    searchPos = seqSearch(sbParts, sName); //sets search position to the value returned by the seqSearch method
+    if (searchPos == -1) {//Indicates that the sequential search found no match
+      text("No match found", width/2, 225);//Prints the name
+    }
+  } else {//Draws the regular scoreboard
+    isSearching = false;
+    for (int i = page; i<10+page; i++) { //Prints 10 scores depending on the page
+      text(sbParts[0][i], 100, 225+((i%10)*35));//Prints the rank
+      text(sbParts[1][i], width/2, 225+((i%10)*35));//Prints the name
+      text(sbParts[2][i], width-100, 225+((i%10)*35));//Prints the score
+    }
   }
   strip.colorRect1();
-  if (page<40)
+  if (page<40 && !isSearching)//If page is less than 40 (not at the last page) and the user is not searching, draw the next button
     nextB.showButton();
-  if (page>0)
+  if (page>0 && !isSearching)//If page is greater than 0 (not at first page) and the user is not searching, draw the previous button
     previousB.showButton();
-  sortName.showSwitch();
-  sortScore.showSwitch();
+  sortName.showSwitch();//Draw the sortName switch
+  sortScore.showSwitch();//Draw the sortScore switch
   backB.showButton();
 }
 
-void play() {
-  image(background2, 0, 0);
-  fill(255);
-  textSize(60);
-  text("PLAY", 100, 50);
-  textSize(20);
-  if (!played) {
-    score = (int)(99999*Math.random()); //Temporary get a random score for the user
-    strScore = String.valueOf(score);//converts to string
-    played = true;
-  }
-  text("Your score is " + score, width/2, 200);
-  strip.colorRect1();
-  continueB.showButton();
+//Displays the start screen when called upon
+void startScreen() {
+  image(background1, 0, 0);//draws the first image
+  fill(255);//255 = white  
+  textSize(60);//sets text size to 60
+  text("CUE'S GREAT ESCAPE", width/2, 100);//draws text to screen at specified x and y locations
+  startB.showButton();//Draw the start button
 }
 
+//Displays the main mennu screen 
 void mainMenu() {
-  image(background2, 0, 0);
+  image(background2, 0, 0);//Draws the second image
   textSize(60);
   fill(255);
   text("MAIN MENU", 200, 50);
-  strip.colorRect1();
-  playB.showButton();
+  fill(0);
+  textSize(50);
+  textAlign(LEFT);
+  strip.colorRect1();//Draws a white rectangular strip near the top of the screen
+  playB.showButton();//Draw 7 buttons 
+  controlsB.showButton();
   scoreboardB.showButton();
   optionsB.showButton();
   creditsB.showButton();
@@ -482,14 +501,45 @@ void mainMenu() {
   backB.showButton();
 }
 
-void startScreen() {
-  image(background1, 0, 0);
-  fill(255);  
+//Displays the play game screen
+void play() {
+  image(background2, 0, 0);
+  fill(255);
   textSize(60);
-  text("CUE'S GREAT ESCAPE", width/2, 100);
-  startB.showButton();
+  text("PLAY", 100, 50);
+  textSize(20);
+  if (!played) {//If played is false
+    score = (int)(99999*Math.random()); //Temporary get a random score for the user
+    strScore = String.valueOf(score);//converts to string
+    played = true;//set played to true
+  }
+  text("Your score is " + score, width/2, 200);//Let user know their score
+  strip.colorRect1();
+  continueB.showButton();//Draw continue button
 }
 
+//Displays the controls screen
+void howToPlay() {
+  image(background2, 0, 0);
+  fill(255);
+  textSize(60);
+  text("HOW TO PLAY", 230, 50);
+  textSize(40);
+  text("W", width/2-150, 200);
+  text("A", width/2-150, 280);
+  text("D", width/2-150, 360);
+  text("SPACEBAR", width/2-150, 440);
+  text("P", width/2-150, 520);
+  text("Jump", width/2+150, 200);
+  text("Move Right", width/2+150, 280);
+  text("Move Left", width/2+150, 360);
+  text("Shoot", width/2+150, 440);
+  text("Pause", width/2+150, 520);
+  strip.colorRect1();
+  backB.showButton();
+}
+
+//Displays the options menu
 void options() {
   image(background2, 0, 0);
   fill(255);
@@ -499,13 +549,14 @@ void options() {
   text("MUSIC:", width/2-textWidth("MUSIC"), height/2-100);
   text("SOUND:", width/2-textWidth("SOUND"), height/2);
   strip.colorRect1();
-  musicON.showSwitch();
+  musicON.showSwitch();//Draws 4 switches 
   musicOFF.showSwitch();
   soundON.showSwitch();
   soundOFF.showSwitch();
   backB.showButton();
 }
 
+//Displays the credits screen
 void credits() {
   image(background2, 0, 0);
   fill(255);
@@ -519,6 +570,7 @@ void credits() {
   backB.showButton();
 }
 
+//Displays the quit game menu
 void quitGame() {
   image(background2, 0, 0);
   fill(255);
@@ -527,27 +579,31 @@ void quitGame() {
   textSize(20);
   text("Are you sure you want to quit the game?", width/2, height/2-50);
   strip.colorRect1();
-  yesB.showButton();
-  noB.showButton();
+  yesB.showButton();//Draw the yes button
+  noB.showButton();//Draw the no button
 }
 
+//Displays a post-game screen where if the current user made it to the top 50, a text box is drawn to get the user's name 
 void promptUser() {
   background(0);
-  fill(255);
-  textBox.colorRect2();
+  textBox.colorRect3();//Draws a small rectangle with a white stroke to represent a text box
   textSize(30);
+  fill(255);
   text("Congratulations! Your score has made the top 50 \nEnter your name (max 6 letters): ", width/2, height/3);
-  fill(255, 255, 0);
-  text(cName, width/2, (height/2)-5);
-  if (nameEntered) {
+  fill(255, 255, 0);//yellow 
+  textAlign(LEFT);
+  text(cName, 420, 362);//Draws the user's name inside the text box as letters are pressed on the keyboard
+  textAlign(CENTER,CENTER);
+  if (nameEntered) {//If the user has entered their name, a return button is drawn
     returnB.showButton();
-  } else {
+  } else {//IF the user has not entered their name yet, the program draws text to let the user know to press enter to confirm their name
     fill(255);
     textSize(15);
     text("Press the \"ENTER\" key to confirm", width/2, (height/2)+50);
   }
 }
 
+//Boolean method to return true if the current user's score is in the top 50, or false otherwise
 boolean isScoreTop50() {
   boolean sPlaced = false;//variable to check if current player's score has been placed into the top 50
   for (int i = 0; i<sbParts[2].length; i++) {//Goes through the scoreboard to check if current player's score has made top 100
@@ -559,6 +615,7 @@ boolean isScoreTop50() {
   return sPlaced;
 }
 
+//modifies the scoreboard given that the current user's score is in the top 50 and then updates the scoreboard
 void modScoreboard() {
   String sHolder1, sHolder2, nHolder1, nHolder2; //2 temp name holders and 2 temp score holders
 
@@ -574,10 +631,10 @@ void modScoreboard() {
     nHolder1 = nHolder2;
   }
 
-  try {
+  try {//Prints the ranks, names, and scores to text file
     PrintWriter pw = createWriter("scoreboardGE.txt");
     for (int i = 0; i<sbParts[1].length; i++) {
-      pw.println(sbParts[0][i] + "                          " + sbParts[1][i] + "                          " + sbParts[2][i]); //prints ranks, names, and scores
+      pw.println(sbParts[0][i] + "                          " + sbParts[1][i] + "                          " + sbParts[2][i]);
     }
     pw.close();
   }
@@ -585,8 +642,9 @@ void modScoreboard() {
   }
 }
 
+//Creates a new scoreboard and prints it to a text file if there is no existing text file
 void createScoreboard() {
-  try {//Tries to read from a file which checks to see if the file exists or not
+  try {//Tries to read from a file which checks to see if the file already exists or not
     BufferedReader br = createReader("scoreboardGE.txt");
     br.close();
   }
@@ -620,10 +678,10 @@ void createScoreboard() {
 
     for (int i = 0; i<sbParts[0].length; i++) { //Reads through the next 50 lines of the text file 
       line = br.readLine();
-      sbParts[0][i] = line.substring(0, line.indexOf(' '));
+      sbParts[0][i] = line.substring(0, line.indexOf(' '));//holds player ranks extracted from text file
       line = trimLine(line);
-      sbParts[1][i] =  line.substring(0, line.indexOf(' ')); //holds player names extracted from text file
-      sbParts[2][i] =  trimLine(line); //holds player scores extracted from text file
+      sbParts[1][i] =  line.substring(0, line.indexOf(' ')); //holds player names
+      sbParts[2][i] =  trimLine(line); //holds player scores
     }
     br.close();
   }
@@ -631,135 +689,63 @@ void createScoreboard() {
   }
 }
 
-String trimLine (String l) {//String method to return the trimmed substring of a line which starts from the first tab   
+//String method to return the trimmed substring of a line which starts from the first tab   
+String trimLine (String l) {
   return l.substring(l.indexOf(' ')).trim();
 }
 
-/*   call mainmenu method (USE SWITCH CASE)
- If user clicks on singleplayer 
- call singleplayer menu method
- depending on selection on menu, call either of the three level methods
- start timer
- if user presses a key to pause
- stop timer
- call pause method
- Check if user made top 50 
- if so, record score onto leaderboard
- If user clicks on multiplayer
- call multiplayer menu method
- depending on selection on menu, call either of the three level methods
- start timer
- if user presses a key to pause
- stop timer
- call pause method
- If user clicsk on tutorial
- call tutorial method
- If user clicks on leaderboards
- call leaderboards method
- IF user clicks on options
- call options method
- IF user clicks on credits
- call credits method
- if user clicks on quit game
- call quitgame method
- 
- main menu method
- output background
- output text for the different choices
- if user clicks on an area within the box of text of an option
- The choice that was clicked on will become the choice of the user
- 
- Singleplayer menu
- Create a player object
- output background
- output text for the different choices
- get level choice from user
- 
- 
- Multiplayer menu
- Create two player obects
- output background
- output text for the different choices
- get level choice from user 
- 
- leaderboards method
- If there is no existing file to read, 
- create a file
- Else 
- read the textfile containing the leaderboards
- output the leaderboards
- If user clicks on the area within the "search" text box
- use the sequential search to find the specified player's score
- If user clicks on the area within the headers of the leaderboard
- use a sort to organize the leaderboard by that column
- 
- options menu
- Output text for the different components
- music on/off
- game audio on/off
- show controls
- 
- credits menu
- output text, showing the credits
- 
- quit game menu
- IF user clicks on yes
- quit the game
- If user clicks on no,
- go back to main menu
- 
- method to create level 1
- make 2d array for size of map
- create platforms/boarders
- create enemies
- 
- method to create level 2
- make 2d array for size of map
- create platforms/boarders
- create enemies
- 
- method to create level 3
- make 2d array for size of map
- create platforms/boarders
- create enemies
- 
- pause method
- Output text for the different options
- If user selects return to main menu
- go back to main menu
- if user selects to restart
- restart level
- if user selects change level
- go back to multiplayer menu
- 
- method for keypressed that calls the move method from character  
- keyPressed (W,A,S,D) for movement  
- keyPressed (space) reverse gravity
- */
+//Sorts the array, using the bubble sort algorithm, in alphebetical order and sorts the corresponding ranks and scores
+void bubbleSort (String[][] list)//Sorts the scoreboard in alphabetical order
+{
+  for (int top = list[0].length-1; top > 0; top--)
+  {
+    for (int i = 0; i < top; i++)
+    {
+      if (list[1][i].compareTo(list[1][i+1]) > 0)
+      {
+        //Swap names
+        String temp = list[1][i];
+        list[1][i] = list[1][i+1];
+        list[1][i+1] = temp;
 
-/* Rectangle Class
- Constructor with length, width, x-coordinate, y-coordinate
- */
+        //Swap corresponding ranks
+        String temp2 = list[0][i];
+        list[0][i] = list[0][i+1];
+        list[0][i+1] = temp2;
 
-/*Character extends rectangle
- move method that is invoked by the keypressd method
- intersection method
- show method
- */
+        //Swap corresponding scores
+        String temp3 = list[2][i];
+        list[2][i] = list[2][i+1];
+        list[2][i+1] = temp3;
+      }
+    }
+  }
+}
 
-/*Player extends character
- show method
- move method
- shoot method
- die method
- */
+//Sorts the array, using the selection sort algorithm, in order from highest rank to lowest rank and sorts the corresponding names and scores
+void selectSort (String[][] list)
+{
+  for (int top = list[0].length - 1; top > 0; top--)
+  {
+    int largeLoc = 0; // location of largest element
+    // assume list[0][0] is largest to start
+    for (int i = 1; i <= top; i++) // check list[0][1] to list[0][top]
+      if (Integer.parseInt(list[0][i].substring(0, (list[0][i].length()-2))) > Integer.parseInt(list[0][largeLoc].substring(0, (list[0][largeLoc].length()-2))))//Gets rid of the prefixes and compares the numbers
+        largeLoc = i;
 
-/*Enemy extends character
- show method
- move method
- die method
- */
+    //Swap ranks
+    String temp = list[0][top]; // temporary storage
+    list[0][top] = list[0][largeLoc];
+    list[0][largeLoc] = temp;
 
-/*UAV extends enemies
- import uav image
- */
+    //Swap corresponding names
+    String temp2 = list[1][top];
+    list[1][top] = list[1][largeLoc];
+    list[1][largeLoc] = temp2;
+
+    //Swap corresponding scores
+    String temp3 = list[2][top];
+    list[2][top] = list[2][largeLoc];
+    list[2][largeLoc] = temp3;
+  }
+}
