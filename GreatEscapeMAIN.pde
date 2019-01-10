@@ -1,7 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
-
- Date: Jan 09, 2019
+ Date: Jan 10, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -15,7 +14,7 @@ Minim minim;//Minim object used to create background music; credit: http://code.
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PFont font;//text font
-PImage background1, background2;//Background images
+PImage background1, background2, mCursor;//Background images; image for mouse cursor
 int screen, score, position, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
 String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
 boolean played, nameEntered, isSearching;//determines if the game was played once already; determines if a name was entered; determines if the user is searching for a name in the scoreboard
@@ -71,20 +70,21 @@ void setup() {
   musicOFF = new Switch("OFF", false, 554, 230, 50, 50);
   soundON = new Switch("ON", true, 500, 330, 50, 50);
   soundOFF = new Switch("OFF", false, 554, 330, 50, 50);
-  sortName = new Switch("NAME", false, 806, 120, 70, 30);
-  sortScore = new Switch("SCORE", true, 880, 120, 70, 30);
+  sortName = new Switch("NAME", false, 820, 120, 70, 30);
+  sortScore = new Switch("SCORE", true, 894, 120, 70, 30);
 
   //Rectangles
   strip = new Rectangle(0, 100, width, 3);//creates a thin white strip
-  textBox = new Rectangle((width/2)-88, (height/2)-20, 175, 40);//creates a small rectangle with a white outline representing a text box
-  searchBar = new Rectangle(260,115,175, 40);
+  textBox = new Rectangle((width/2)-88, (height/2)-20, 195, 40);//creates a small rectangle with a white outline representing a text box
+  searchBar = new Rectangle(280,115,195, 40);
 
   //import all images
   background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
   background1.resize(width, height);//Changes size of image to fit the screen size
   background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for main menu
   background2.resize(width, height);
-
+  mCursor = loadImage("cursor.jpg");
+  
   createScoreboard();//If there is no existing scoreboard, a new one is created
 }
 
@@ -441,12 +441,12 @@ void scoreboardMenu(int page) {//takes in an int paramater which lets the progra
   text("Name", width/2, 175);
   text("Score", width-100, 175);
   textSize(30);
-  text("Sort by: ", 730, 130);
+  text("Sort by: ", 740, 130);
   text("Search Name: ", 158, 130); 
   searchBar.colorRect3();//Draws a small rectangle with a white stroke to represent a search bar
   fill(255, 255, 0);//yellow 
   textAlign(LEFT);
-  text(sName, 270, 145);//Draws the searched name inside the text box as letters are pressed on the keyboard
+  text(sName, 285, 145);//Draws the searched name inside the text box as letters are pressed on the keyboard
   fill(255);
   textAlign(CENTER,CENTER);
   if (sName.length()>0) {//If the searched name contains atleast 1 character
