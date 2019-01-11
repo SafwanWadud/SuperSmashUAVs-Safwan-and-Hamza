@@ -1,7 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
-
- Date: Jan 09, 2019
+ Date: Jan 10, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -15,10 +14,10 @@ Minim minim;//Minim object used to create background music; credit: http://code.
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PFont font;//text font
-PImage background1, background2;//Background images
+PImage background1, background2, mCursor1, mCursor2;//Background images; image for mouse cursors
 int screen, score, position, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
 String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
-boolean played, nameEntered, isSearching;//determines if the game was played once already; determines if a name was entered; determines if the user is searching for a name in the scoreboard
+boolean played, nameEntered, isSearching, buttonClicked;//determines if the game was played once already; determines if a name was entered; determines if the user is searching for a name in the scoreboard
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
 Button startB, playB, controlsB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
@@ -26,7 +25,7 @@ Rectangle strip, textBox, searchBar;//white strip for menu design; textBox to ge
 
 void setup() {
   size(1000, 700);
-  
+
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
   sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
@@ -42,11 +41,11 @@ void setup() {
   sConfirm = new SoundFile(this, "220168__gameaudio__button-spacey-confirm.mp3");//Sound effect when a button is pressed
   sDeny = new SoundFile(this, "220167__gameaudio__button-deny-spacey.mp3");
   sStart = new SoundFile(this, "243020__plasterbrain__game-start.mp3");//Sound effect when the start button is pressed
-  
+
   //Font
-  font = createFont("ssbFont.ttf",32);
+  font = createFont("ssbFont.ttf", 32);
   textFont(font);
-  
+
   //Buttons
   textSize(50);//size of button
   playB = new Button("PLAY", 50, 50, 150, textWidth("PLAY"), 50); //(text to be displayed, text size, x location, y location, width, height)
@@ -71,24 +70,33 @@ void setup() {
   musicOFF = new Switch("OFF", false, 554, 230, 50, 50);
   soundON = new Switch("ON", true, 500, 330, 50, 50);
   soundOFF = new Switch("OFF", false, 554, 330, 50, 50);
-  sortName = new Switch("NAME", false, 806, 120, 70, 30);
-  sortScore = new Switch("SCORE", true, 880, 120, 70, 30);
+  sortName = new Switch("NAME", false, 820, 120, 70, 30);
+  sortScore = new Switch("SCORE", true, 894, 120, 70, 30);
 
   //Rectangles
   strip = new Rectangle(0, 100, width, 3);//creates a thin white strip
-  textBox = new Rectangle((width/2)-88, (height/2)-20, 175, 40);//creates a small rectangle with a white outline representing a text box
-  searchBar = new Rectangle(260,115,175, 40);
+  textBox = new Rectangle((width/2)-88, (height/2)-20, 195, 40);//creates a small rectangle with a white outline representing a text box
+  searchBar = new Rectangle(280, 115, 195, 40);
 
   //import all images
   background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
   background1.resize(width, height);//Changes size of image to fit the screen size
   background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for main menu
   background2.resize(width, height);
+  mCursor1 = loadImage("cursor1.png");
+  mCursor2 = loadImage("cursor2.png");
 
   createScoreboard();//If there is no existing scoreboard, a new one is created
 }
 
 void draw() {
+  if (buttonClicked) {
+    cursor(mCursor2);
+    buttonClicked = false;
+    }
+   else {
+    cursor(mCursor1);
+  }
   switch (screen) {
   case 1://Start screen
     menuBM.rewind();//rewinds the menu music
@@ -331,57 +339,91 @@ void draw() {
 }
 
 void mousePressed() {//code to run if the mouse is pressed at specific locations and screens
-  if (startB.isInside() && screen==1)//If the mouse is within the start button and the screen is 1
+  if (startB.isInside() && screen==1){//If the mouse is within the start button and the screen is 1
     startB.setClick(true);//calls a mutator method to set its field, click, to true
-  else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6 || screen == 7))//if the mouse is within the back button and the screen is either 2,4,5,6, or 7
+    buttonClicked=true;
+  }
+  else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6 || screen == 7)){//if the mouse is within the back button and the screen is either 2,4,5,6, or 7
     backB.setClick(true);//set backB's click to true
-  else if (playB.isInside() && screen == 2)//if mouse is within play button and screen is 2
+    buttonClicked=true;
+  }
+  else if (playB.isInside() && screen == 2){//if mouse is within play button and screen is 2
     playB.setClick(true);//set playB's click to true
-  else if (controlsB.isInside() && screen ==2)//if mouse is within controls button and screen is 2
+    buttonClicked=true;
+  }
+  else if (controlsB.isInside() && screen ==2){//if mouse is within controls button and screen is 2
     controlsB.setClick(true);
-  else if (scoreboardB.isInside() && screen ==2)//if mouse is within scoreboard button and screen is 2
+    buttonClicked=true;
+  }
+  else if (scoreboardB.isInside() && screen ==2){//if mouse is within scoreboard button and screen is 2
     scoreboardB.setClick(true);
-  else if (optionsB.isInside() && screen ==2)//if mouse is within options button and screen is 2
+    buttonClicked=true;
+  }
+  else if (optionsB.isInside() && screen ==2){//if mouse is within options button and screen is 2
     optionsB.setClick(true);
-  else if (creditsB.isInside() && screen ==2)//if mouse is within credits button and screen is 2
+    buttonClicked=true;
+  }
+  else if (creditsB.isInside() && screen ==2){//if mouse is within credits button and screen is 2
     creditsB.setClick(true);
-  else if (quitB.isInside() && screen ==2)//if mouse is within quit button and screen is 2
+    buttonClicked=true;
+  }
+  else if (quitB.isInside() && screen ==2){//if mouse is within quit button and screen is 2
     quitB.setClick(true);
-  else if (continueB.isInside() && screen ==3)//if mouse is within continue button and screen is 3
+    buttonClicked=true;
+  }
+  else if (continueB.isInside() && screen ==3){//if mouse is within continue button and screen is 3
     continueB.setClick(true);
+    buttonClicked=true;
+  }
   else if (sortName.isInside() && screen==5) {//if mouse is within sortName switch and screen is 5
     sortName.setClick(true);
     sortName.setActive(true);//Activates the sortName switch
     sortScore.setActive(false);//Deactivates the sortScore switch
+    buttonClicked=true;
   } else if (sortScore.isInside() && screen==5) {//if mouse is within sortScore switch and screen is 5
     sortScore.setClick(true);
     sortScore.setActive(true);//Activates the sortScore switch
     sortName.setActive(false);//Deactivates the sortName switch
-  } else if (nextB.isInside() && screen ==5 && page<40 && !isSearching)//if mouse is within next button and screen is 5 and it isn't the last page of the scoreboard and user is not searching a name in the scoreboard
+    buttonClicked=true;
+  } else if (nextB.isInside() && screen ==5 && page<40 && !isSearching){//if mouse is within next button and screen is 5 and it isn't the last page of the scoreboard and user is not searching a name in the scoreboard
     nextB.setClick(true);
-  else if (previousB.isInside() && screen ==5 && page>0 && !isSearching)//if mouse is within previous button and screen is 5 and it isn't the first page of the scoreboard and user is not searching a name in the scoreboard
+    buttonClicked=true;
+  }
+  else if (previousB.isInside() && screen ==5 && page>0 && !isSearching){//if mouse is within previous button and screen is 5 and it isn't the first page of the scoreboard and user is not searching a name in the scoreboard
     previousB.setClick(true);
+    buttonClicked=true;
+  }
   else if (musicON.isInside() && screen==6) {//if mouse is within musicON switch and screen is 6
     musicON.setClick(true);
     musicON.setActive(true);//Activates the musicON switch
     musicOFF.setActive(false);//Deactivates the musicOFF switch
+    buttonClicked=true;
   } else if (musicOFF.isInside() && screen==6) {//if mouse is within musicOFF switch and screen is 6
     musicOFF.setClick(true);
     musicOFF.setActive(true);//Activates the musicOFF switch
     musicON.setActive(false);//Deactivates the musicON switch
+    buttonClicked=true;
   } else if (soundON.isInside() && screen==6) {//if mouse is within soundON switch and screen is 6
     soundON.setClick(true);
     soundON.setActive(true);//Activates the soundON switch
     soundOFF.setActive(false);//Deactivates the soundOFF switch
+    buttonClicked=true;
   } else if (soundOFF.isInside() && screen==6) {//if mouse is within soundOFF switch and screen is 6
     soundOFF.setActive(true);//Activates the soundOFF switch
     soundON.setActive(false);//Deactivates the soundON switch
-  } else if (yesB.isInside() && screen==8)//if mouse is within yes button and screen is 8
+    buttonClicked=true;
+  } else if (yesB.isInside() && screen==8){//if mouse is within yes button and screen is 8
     yesB.setClick(true);
-  else if (noB.isInside() && screen==8)//if mouse is within no button and screen is 8
+    buttonClicked=true;
+  }
+  else if (noB.isInside() && screen==8){//if mouse is within no button and screen is 8
     noB.setClick(true);
-  else if (returnB.isInside() && screen == 9 && nameEntered)//if mouse is within return button and screen is 9 and user has entered a name
+    buttonClicked=true;
+  }
+  else if (returnB.isInside() && screen == 9 && nameEntered){//if mouse is within return button and screen is 9 and user has entered a name
     returnB.setClick(true);
+    buttonClicked=true;
+  }
 }
 
 void keyPressed() {//code to run if keys are pressed on a specific screen
@@ -441,14 +483,14 @@ void scoreboardMenu(int page) {//takes in an int paramater which lets the progra
   text("Name", width/2, 175);
   text("Score", width-100, 175);
   textSize(30);
-  text("Sort by: ", 730, 130);
+  text("Sort by: ", 740, 130);
   text("Search Name: ", 158, 130); 
   searchBar.colorRect3();//Draws a small rectangle with a white stroke to represent a search bar
   fill(255, 255, 0);//yellow 
   textAlign(LEFT);
-  text(sName, 270, 145);//Draws the searched name inside the text box as letters are pressed on the keyboard
+  text(sName, 285, 145);//Draws the searched name inside the text box as letters are pressed on the keyboard
   fill(255);
-  textAlign(CENTER,CENTER);
+  textAlign(CENTER, CENTER);
   if (sName.length()>0) {//If the searched name contains atleast 1 character
     isSearching = true;
     searchPos = seqSearch(sbParts, sName); //sets search position to the value returned by the seqSearch method
@@ -593,7 +635,7 @@ void promptUser() {
   fill(255, 255, 0);//yellow 
   textAlign(LEFT);
   text(cName, 420, 362);//Draws the user's name inside the text box as letters are pressed on the keyboard
-  textAlign(CENTER,CENTER);
+  textAlign(CENTER, CENTER);
   if (nameEntered) {//If the user has entered their name, a return button is drawn
     returnB.showButton();
   } else {//IF the user has not entered their name yet, the program draws text to let the user know to press enter to confirm their name
