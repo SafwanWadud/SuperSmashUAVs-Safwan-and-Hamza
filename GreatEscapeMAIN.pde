@@ -10,13 +10,13 @@ import ddf.minim.*;
 import processing.sound.*;
 
 //Declaring variables
-PImage imgR;
-PImage imgL;
-PImage jumpR;
-PImage jumpL;
-PImage[] playerImgR = new PImage[5];
-PImage[] playerImgL = new PImage[5];
-Player player;
+PImage imgR; //Standard position facing right
+PImage imgL; //Standard position facing left
+PImage jumpR; //Jumping position facing right
+PImage jumpL; //Jumping position facing left
+PImage[] playerImgR = new PImage[5]; //Moving right array of images
+PImage[] playerImgL = new PImage[5]; //Moving right array of images
+Player player; //Player object
 float counter;
 
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
@@ -41,10 +41,10 @@ void setup() {
   jumpL = loadImage("JumpL.png");
 
   for (int i = 1; i <= playerImgR.length; i++)
-    playerImgR[i-1] = loadImage("Right" + i + ".png");
+    playerImgR[i-1] = loadImage("Right" + i + ".png"); //Initialise each index of array to an image
 
   for (int i = 1; i <= playerImgL.length; i++)
-    playerImgL[i-1] = loadImage("Left" + i + ".png");
+    playerImgL[i-1] = loadImage("Left" + i + ".png");  //Initialise each index of array to an image
 
   player = new Player(0, height-50, 50, imgR); //(x,y,width,image)
   counter = 0;
@@ -221,7 +221,8 @@ void draw() {
       else player.img = imgL; //standing image
     }
     break;
-
+    
+    //Leaderboard
     /*play();//calls play() to play the game
      nameEntered = false;//sets nameEntered to false
      cName = "";// initializes current user's name
