@@ -1,19 +1,21 @@
-//Name: Hamza Osman
-//Brief Description: Blueprint for the Player class
+/*Player Class
+ Hamza Osman
+ 
+ */
 
-class Player { //extends Rectangle{
+class Player {
   PImage img;
   private float x;
   private float y;
   private float w;
   boolean inAir; 
   boolean moving; //L or Right
-  boolean right;
   private float gravity;
   private float yVelocity;
-  private float xVelocity;
+  float xVelocity;
 
   Player(float x, float y, float w, PImage img) {
+    // this template for the current Frog object
     this.img = img;
     this.x = x;
     this.y = y;
@@ -22,7 +24,6 @@ class Player { //extends Rectangle{
     gravity = 2.0;
     yVelocity = 0;
     xVelocity = 0;
-    right = true;
   }
 
   void update() {
@@ -68,8 +69,4 @@ class Player { //extends Rectangle{
   {
     this.xVelocity = xVelocity;
   }
-  
-  //float getxVelocity() {
-  //  return xVelocity;
-  //}
 }
