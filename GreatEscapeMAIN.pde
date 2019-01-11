@@ -34,7 +34,7 @@ Rectangle strip, textBox, searchBar;//white strip for menu design; textBox to ge
 
 void setup() {
   size(1000, 700);
-  
+
   imgR = loadImage("PlayerR.png");
   imgL = loadImage("PlayerL.png");
   jumpR = loadImage("JumpR.png");
@@ -48,7 +48,7 @@ void setup() {
 
   player = new Player(0, height-50, 50, imgR); //(x,y,width,image)
   counter = 0;
-  
+
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
   sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
@@ -64,11 +64,11 @@ void setup() {
   sConfirm = new SoundFile(this, "220168__gameaudio__button-spacey-confirm.mp3");//Sound effect when a button is pressed
   sDeny = new SoundFile(this, "220167__gameaudio__button-deny-spacey.mp3");
   sStart = new SoundFile(this, "243020__plasterbrain__game-start.mp3");//Sound effect when the start button is pressed
-  
+
   //Font
-  font = createFont("ssbFont.ttf",32);
+  font = createFont("ssbFont.ttf", 32);
   textFont(font);
-  
+
   //Buttons
   textSize(50);//size of button
   playB = new Button("PLAY", 50, 50, 150, textWidth("PLAY"), 50); //(text to be displayed, text size, x location, y location, width, height)
@@ -99,7 +99,7 @@ void setup() {
   //Rectangles
   strip = new Rectangle(0, 100, width, 3);//creates a thin white strip
   textBox = new Rectangle((width/2)-88, (height/2)-20, 195, 40);//creates a small rectangle with a white outline representing a text box
-  searchBar = new Rectangle(280,115,195, 40);
+  searchBar = new Rectangle(280, 115, 195, 40);
 
   //import all images
   background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
@@ -107,7 +107,7 @@ void setup() {
   background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for main menu
   background2.resize(width, height);
   mCursor = loadImage("cursor.jpg");
-  
+
   createScoreboard();//If there is no existing scoreboard, a new one is created
 }
 
@@ -192,49 +192,54 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    
-  background(0);
-  frameRate(60);
-  player.update();
 
-  if (player.xVelocity == 0 && !player.inAir) {
-    player.img = imgR;
-  } else if (player.xVelocity < 0 && !player.inAir) {
-    if (counter >= 5)
-      counter = 0;
+    background(0);
+    frameRate(60);
+    player.update();
 
-    if (counter%1 == 0)
-      player.img = playerImgL[(int)counter];
+    if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
+      if (counter >= 5)
+        counter = 0;
+      if (counter%1 == 0) //every increment of +1
+        player.img = playerImgL[(int)counter]; //Alternate between each image in array every loop
 
-    counter = counter + 0.5;
-  } else if (player.xVelocity > 0 && !player.inAir) {
-    if (counter >= 5)
-      counter = 0;
+      counter = counter + 0.5; //0.5 increment
+    } else if (player.xVelocity > 0 && !player.inAir) { //Moving right and not in the air
+      if (counter >= 5)
+        counter = 0;
+      if (counter%1 == 0)
+        player.img = playerImgR[(int)counter]; //Alternate between each image in array every loop
 
-    if (counter%1 == 0)
-      player.img = playerImgR[(int)counter];
-
-    counter = counter + 0.5;
-  }
-    
-    /*play();//calls play() to play the game
-    nameEntered = false;//sets nameEntered to false
-    cName = "";// initializes current user's name
-    if (continueB.getClick()) {//if the continue button is clicked
-      if (soundON.getActive()) {
-        sConfirm.play();
-      }
-      if (isScoreTop50())//If current user's score is in the top 50, which is checked by calling isScoreTop50
-        screen = 9;//set screen to 9 to go to the update scoreboard menu
-      else
-        screen = 2;//User did not make top 50 so sets screen to 2 to go back to the main menu
-      continueB.setClick(false);
+      counter = counter + 0.5;
+    } else if (player.right) { //Facing right
+      if (player.inAir)
+        player.img = jumpR; //jumping image
+      else player.img = imgR; //If not in air display standing image
+    } else if (player.right == false) { //Facing right
+      if (player.inAir)
+        player.img = jumpL; // jumping image
+      else player.img = imgL; //standing image
     }
+    break;
+
+    /*play();//calls play() to play the game
+     nameEntered = false;//sets nameEntered to false
+     cName = "";// initializes current user's name
+     if (continueB.getClick()) {//if the continue button is clicked
+     if (soundON.getActive()) {
+     sConfirm.play();
+     }
+     if (isScoreTop50())//If current user's score is in the top 50, which is checked by calling isScoreTop50
+     screen = 9;//set screen to 9 to go to the update scoreboard menu
+     else
+     screen = 2;//User did not make top 50 so sets screen to 2 to go back to the main menu
+     continueB.setClick(false);
+     }
      break;
-    */
-    
-    
-   
+     */
+
+
+
   case 4://How to play screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
@@ -460,42 +465,33 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
       }
     }
   } else if (screen == 3)
-  {
-  if (keyCode == 'W') {
-    while (player.inAir == false)
-    {
-      if (player.xVelocity > 0)
+    if (keyCode == 'W') {
+      while (player.inAir == false)
       {
-        player.img = jumpR;
-      } else if (player.xVelocity < 0)
-      {
-        player.img = jumpL;
+        player.inAir = true;
+        player.setyVelocity(-30);
       }
-      player.inAir = true;
-      player.setyVelocity(-30);
+    } else if (keyCode == 'D') {
+      player.right = true; 
+      player.moving = true;
+      player.setxVelocity(6);
+    } else if (keyCode == 'A') {
+      player.right = false;
+      player.moving = true;
+      player.setxVelocity(-6);
     }
-  } else if (keyCode == 'D') {
-    player.moving = true;
-    player.setxVelocity(6);
-  } else if (keyCode == 'A') {
-    player.moving = true;
-    player.setxVelocity(-6);
-  }
-  }
 }
 
 void keyReleased() {
   if (keyCode == 'D') {
-    player.img = imgR;
     player.setxVelocity(0);
     player.moving = false;
   } else if (keyCode == 'A') {
-    player.img = imgL;
     player.setxVelocity(0);
     player.moving = false;
-      }
-    } 
-    
+  }
+}
+
 //Searches for a name in the scoreboard specified by the user and shows corresponding rank and score
 int seqSearch (String[][] list, String item)
 {
@@ -534,7 +530,7 @@ void scoreboardMenu(int page) {//takes in an int paramater which lets the progra
   textAlign(LEFT);
   text(sName, 285, 145);//Draws the searched name inside the text box as letters are pressed on the keyboard
   fill(255);
-  textAlign(CENTER,CENTER);
+  textAlign(CENTER, CENTER);
   if (sName.length()>0) {//If the searched name contains atleast 1 character
     isSearching = true;
     searchPos = seqSearch(sbParts, sName); //sets search position to the value returned by the seqSearch method
@@ -679,7 +675,7 @@ void promptUser() {
   fill(255, 255, 0);//yellow 
   textAlign(LEFT);
   text(cName, 420, 362);//Draws the user's name inside the text box as letters are pressed on the keyboard
-  textAlign(CENTER,CENTER);
+  textAlign(CENTER, CENTER);
   if (nameEntered) {//If the user has entered their name, a return button is drawn
     returnB.showButton();
   } else {//IF the user has not entered their name yet, the program draws text to let the user know to press enter to confirm their name
