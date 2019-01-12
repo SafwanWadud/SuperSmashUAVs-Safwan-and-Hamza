@@ -10,6 +10,15 @@ import ddf.minim.*;
 import processing.sound.*;
 
 //Declaring variables
+PImage imgR; //Standard position facing right
+PImage imgL; //Standard position facing left
+PImage jumpR; //Jumping position facing right
+PImage jumpL; //Jumping position facing left
+PImage[] playerImgR = new PImage[5]; //Moving right array of images
+PImage[] playerImgL = new PImage[5]; //Moving right array of images
+Player player; //Player object
+float counter;
+
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
@@ -25,6 +34,20 @@ Rectangle strip, textBox, searchBar;//white strip for menu design; textBox to ge
 
 void setup() {
   size(1000, 700);
+
+  imgR = loadImage("PlayerR.png");
+  imgL = loadImage("PlayerL.png");
+  jumpR = loadImage("JumpR.png");
+  jumpL = loadImage("JumpL.png");
+
+  for (int i = 1; i <= playerImgR.length; i++)
+    playerImgR[i-1] = loadImage("Right" + i + ".png"); //Initialise each index of array to an image
+
+  for (int i = 1; i <= playerImgL.length; i++)
+    playerImgL[i-1] = loadImage("Left" + i + ".png");  //Initialise each index of array to an image
+
+  player = new Player(0, height-50, 50, imgR); //(x,y,width,image)
+  counter = 0;
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
@@ -177,20 +200,52 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    play();//calls play() to play the game
-    nameEntered = false;//sets nameEntered to false
-    cName = "";// initializes current user's name
-    if (continueB.getClick()) {//if the continue button is clicked
-      if (soundON.getActive()) {
-        sConfirm.play();
-      }
-      if (isScoreTop50())//If current user's score is in the top 50, which is checked by calling isScoreTop50
-        screen = 9;//set screen to 9 to go to the update scoreboard menu
-      else
-        screen = 2;//User did not make top 50 so sets screen to 2 to go back to the main menu
-      continueB.setClick(false);
+    background(0);
+    frameRate(60);
+    player.update();
+
+    if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
+      if (counter >= 5)
+        counter = 0;
+      if (counter%1 == 0) //every increment of +1
+        player.img = playerImgL[(int)counter]; //Alternate between each image in array every loop
+
+      counter = counter + 0.5; //0.5 increment
+    } else if (player.xVelocity > 0 && !player.inAir) { //Moving right and not in the air
+      if (counter >= 5)
+        counter = 0;
+      if (counter%1 == 0)
+        player.img = playerImgR[(int)counter]; //Alternate between each image in array every loop
+
+      counter = counter + 0.5;
+    } else if (player.right) { //Facing right
+      if (player.inAir)
+        player.img = jumpR; //jumping image
+      else player.img = imgR; //If not in air display standing image
+    } else if (player.right == false) { //Facing right
+      if (player.inAir)
+        player.img = jumpL; // jumping image
+      else player.img = imgL; //standing image
     }
     break;
+    
+    //Leaderboard
+    /*play();//calls play() to play the game
+     nameEntered = false;//sets nameEntered to false
+     cName = "";// initializes current user's name
+     if (continueB.getClick()) {//if the continue button is clicked
+     if (soundON.getActive()) {
+     sConfirm.play();
+     }
+     if (isScoreTop50())//If current user's score is in the top 50, which is checked by calling isScoreTop50
+     screen = 9;//set screen to 9 to go to the update scoreboard menu
+     else
+     screen = 2;//User did not make top 50 so sets screen to 2 to go back to the main menu
+     continueB.setClick(false);
+     }
+     break;
+     */
+
   case 4://How to play screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
@@ -449,6 +504,31 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
         sName = sName.substring(0, sName.length()-1);//searched name is set equal to the substring of itself minus the last character
       }
     }
+  } else if (screen == 3)
+    if (keyCode == 'W') {
+      while (player.inAir == false)
+      {
+        player.inAir = true;
+        player.setyVelocity(-30);
+      }
+    } else if (keyCode == 'D') {
+      player.right = true; 
+      player.moving = true;
+      player.setxVelocity(6);
+    } else if (keyCode == 'A') {
+      player.right = false;
+      player.moving = true;
+      player.setxVelocity(-6);
+    }
+}
+
+void keyReleased() {
+  if (keyCode == 'D') {
+    player.setxVelocity(0);
+    player.moving = false;
+  } else if (keyCode == 'A') {
+    player.setxVelocity(0);
+    player.moving = false;
   }
 }
 
