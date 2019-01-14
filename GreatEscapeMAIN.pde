@@ -1,6 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 11, 2019
+ Date: Jan 14, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -28,9 +28,10 @@ int screen, score, position, page=0;//variable to represent the different screen
 String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
 boolean played, nameEntered, isSearching, buttonClicked, searchClicked, tBoxClicked;//determines if the game was played once already; determines if a name was entered; determines if the user is searching for a name in the scoreboard
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
-Button startB, playB, controlsB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB;//buttons
+Button startB, playB, controlsB, scoreboardB, optionsB, creditsB, extrasB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB, oneB, twoB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
 Rectangle strip, textBox, searchBar;//white strip for menu design; textBox to get user's name; searchBar to get a name entered by user in scoreboard
+Recursion1 fractal1;//recursive fractal design
 
 void setup() {
   size(1000, 700);
@@ -76,12 +77,15 @@ void setup() {
   scoreboardB = new Button("SCOREBOARD", 50, 50, 270, textWidth("SCOREBOARD"), 50);
   optionsB = new Button("OPTIONS", 50, 50, 330, textWidth("OPTIONS"), 50);
   creditsB = new Button("CREDITS", 50, 50, 390, textWidth("CREDITS"), 50);
-  quitB = new Button("QUIT", 50, 50, 450, textWidth("QUIT"), 50);
+  extrasB = new Button("EXTRAS", 50, 50, 450, textWidth("EXTRAS"), 50);
+  quitB = new Button("QUIT", 50, 50, 510, textWidth("QUIT"), 50);
   textSize(40);
   startB = new Button("START", 40, width/2-(textWidth("START")/2), height/2-20, textWidth("START"), 40);
   yesB = new Button("YES", 40, width/2-(textWidth("YES")/2), (height/2)+25, textWidth("YES"), 40 );
   noB = new Button("NO", 40, width/2-(textWidth("NO")/2), (height/2)+100, textWidth("NO"), 40 );
   continueB = new Button("CONTINUE", 40, width/2-(textWidth("CONTINUE")/2), height/2, textWidth("CONTINUE"), 40);
+  oneB = new Button("ONE", 40, width/2-(textWidth("ONE")/2), (height/2)+25, textWidth("ONE"), 40 );
+  twoB = new Button("TWO", 40, width/2-(textWidth("TWO")/2), (height/2)+100, textWidth("TWO"), 40 );
   textSize(30);
   backB = new Button("BACK", 30, 10, height-40, textWidth("BACK"), 30);
   returnB = new Button("RETURN TO MAIN MENU", 30, width/2-(textWidth("RETURN TO MAIN MENU")/2), (height/2)+100, textWidth("RETURN TO MAIN MENU"), 30);
@@ -101,24 +105,29 @@ void setup() {
   textBox = new Rectangle((width/2)-88, (height/2)-20, 195, 40);//creates a small rectangle with a white outline representing a text box
   searchBar = new Rectangle(280, 115, 195, 40);
 
+  //Recursion
+  fractal1 = new Recursion1();
+
   //import all images
-  background1 = loadImage("master-chief-halo-5-guardians-768x432.jpg"); //background for startscreen
+  background1 = loadImage("MegamanSSB.jpg"); //background for startscreen
   background1.resize(width, height);//Changes size of image to fit the screen size
-  background2 = loadImage("b7f4b38132e6b9d8eba5af82c8156a98.jpg");//background for main menu
+  background2 = loadImage("MasterChiefBlue.jpg");//background for main menu
   background2.resize(width, height);
   mCursor1 = loadImage("cursor1.png");
+  mCursor1.resize(32,32);
   mCursor2 = loadImage("cursor2.png");
+  mCursor2.resize(32,32);
 
   createScoreboard();//If there is no existing scoreboard, a new one is created
 }
 
 void draw() {
-  if (buttonClicked) {
+  if (buttonClicked) {//Drops the framerate to show second mouse cursor when the mouse clicks on something
     frameRate(5);
-    cursor(mCursor2);
+    cursor(mCursor2,0,0);
     buttonClicked = false;
-  } else {
-    cursor(mCursor1);
+  } else {//show the first mouse cursor and put the framerate back to 60
+    cursor(mCursor1,0,0);
     frameRate(60);
   }
   switch (screen) {
@@ -154,6 +163,7 @@ void draw() {
         sConfirm.play();
       }
       screen = 3;//set screen to 3 so that it can go to the play game screen (case 3)
+      noTint();//Takes off the tint 
       playB.setClick(false);
     } else if (controlsB.getClick()) {//controls button
       if (soundON.getActive()) {
@@ -180,6 +190,12 @@ void draw() {
       }
       screen=7;//sets screen to 7 (credits screen)
       creditsB.setClick(false);
+    } else if (extrasB.getClick()) {//extras button
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      screen=10;//sets screen to 7 (extras menu screen)
+      extrasB.setClick(false);
     } else if (quitB.getClick()) {//quit button
       if (soundON.getActive()) {
         sConfirm.play();
@@ -231,7 +247,7 @@ void draw() {
     break;
 
     //Leaderboard
-   /*play();//calls play() to play the game
+    /*play();//calls play() to play the game
      nameEntered = false;//sets nameEntered to false
      cName = "";// initializes current user's name
      if (continueB.getClick()) {//if the continue button is clicked
@@ -390,6 +406,68 @@ void draw() {
     }
     played = false;//sets played to false
     break;
+  case 10://extras menu
+    if (!menuBM.isPlaying()) {
+      menuBM.rewind();
+    }
+    if (musicON.getActive()) {
+      menuBM.play();
+    }
+    extrasMenu();//Calls extrasMenu() and shows the extras menu
+    if (oneB.getClick()) {
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      screen = 11;
+      oneB.setClick(false);
+    } else if (twoB.getClick()) {
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      screen = 12;
+      twoB.setClick(false);
+    } else if (backB.getClick()) {//goes back to main menu if back is clicked
+      if (soundON.getActive()) {
+        sDeny.play();
+      }
+      screen=2;
+      backB.setClick(false);
+    }
+    break;
+  case 11:
+    if (!menuBM.isPlaying()) {
+      menuBM.rewind();
+    }
+    if (musicON.getActive()) {
+      menuBM.play();
+    }
+    fractal1.showFractal();
+    backB.showButton();
+    if (backB.getClick()) {//goes back to main menu if back is clicked
+      if (soundON.getActive()) {
+        sDeny.play();
+      }
+      screen=10;
+      backB.setClick(false);
+    }
+    break;
+  case 12:
+    if (!menuBM.isPlaying()) {
+      menuBM.rewind();
+    }
+    if (musicON.getActive()) {
+      menuBM.play();
+    }
+    //fractal2.showFractal();
+    backB.showButton();
+    if (backB.getClick()) {//goes back to main menu if back is clicked
+      if (soundON.getActive()) {
+        sDeny.play();
+      }
+      screen=10;
+      backB.setClick(false);
+    }
+    break;
   }
 }
 
@@ -397,7 +475,7 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   if (startB.isInside() && screen==1) {//If the mouse is within the start button and the screen is 1
     startB.setClick(true);//calls a mutator method to set its field, click, to true
     buttonClicked=true;
-  } else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6 || screen == 7)) {//if the mouse is within the back button and the screen is either 2,4,5,6, or 7
+  } else if (backB.isInside() && (screen ==2 || screen == 4 || screen == 5 || screen == 6 || screen == 7 || screen == 10 || screen == 11 || screen == 12)) {//if the mouse is within the back button and the screen is either 2,4,5,6,7,10,11 or 12
     backB.setClick(true);//set backB's click to true
     buttonClicked=true;
   } else if (playB.isInside() && screen == 2) {//if mouse is within play button and screen is 2
@@ -414,6 +492,9 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
     buttonClicked=true;
   } else if (creditsB.isInside() && screen ==2) {//if mouse is within credits button and screen is 2
     creditsB.setClick(true);
+    buttonClicked=true;
+  } else if (extrasB.isInside() && screen ==2) {//if mouse is within extras button and screen is 2
+    extrasB.setClick(true);
     buttonClicked=true;
   } else if (quitB.isInside() && screen ==2) {//if mouse is within quit button and screen is 2
     quitB.setClick(true);
@@ -465,6 +546,12 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (returnB.isInside() && screen == 9 && nameEntered) {//if mouse is within return button and screen is 9 and user has entered a name
     returnB.setClick(true);
     buttonClicked=true;
+  } else if (oneB.isInside() && screen == 10) {//If mouse is within one button and screen is 10
+    oneB.setClick(true);
+    buttonClicked = true;
+  } else if (twoB.isInside() && screen == 10) {//If mouse is within two button and screen is 10
+    twoB.setClick(true);
+    buttonClicked = true;
   }
 
   //checks to see if the search bar was clicked
@@ -548,6 +635,22 @@ void startScreen() {
   startB.showButton();//Draw the start button
 }
 
+//Displays the extras menu
+void extrasMenu() {
+  background(0);
+  tint(255, 100);
+  image(background2, 0, 0);
+  fill(255);
+  textSize(60);
+  text("EXTRAS", 150, 50);
+  textSize(30);
+  text("SELECT AN OPTION TO SHOW A RECURSIVE DESIGN", width/2, 300); 
+  strip.colorRect1();
+  oneB.showButton();
+  twoB.showButton();
+  backB.showButton();
+}
+
 //Displays the main mennu screen 
 void mainMenu() {
   image(background2, 0, 0);//Draws the second image
@@ -562,6 +665,7 @@ void mainMenu() {
   scoreboardB.showButton();
   optionsB.showButton();
   creditsB.showButton();
+  extrasB.showButton();
   quitB.showButton();
   backB.showButton();
 }
@@ -636,10 +740,12 @@ void scoreboardMenu(int page) {//takes in an int paramater which lets the progra
     }
   } else {//Draws the regular scoreboard
     isSearching = false;
-    for (int i = page; i<10+page; i++) { //Prints 10 scores depending on the page
+    int i = page;
+    while (i<10+page) {//Prints 10 scores depending on the page
       text(sbParts[0][i], 100, 225+((i%10)*35));//Prints the rank
       text(sbParts[1][i], width/2, 225+((i%10)*35));//Prints the name
       text(sbParts[2][i], width-100, 225+((i%10)*35));//Prints the score
+      i++;
     }
   }
   strip.colorRect1();
@@ -725,12 +831,14 @@ void promptUser() {
 //Boolean method to return true if the current user's score is in the top 50, or false otherwise
 boolean isScoreTop50() {
   boolean sPlaced = false;//variable to check if current player's score has been placed into the top 50
-  for (int i = 0; i<sbParts[2].length; i++) {//Goes through the scoreboard to check if current player's score has made top 100
+  int i = 0;
+  do {//Goes through the scoreboard to check if current player's score has made top 50
     if (Integer.parseInt(strScore)>Integer.parseInt(sbParts[2][i]) && !sPlaced) {//Modifies scoreboard if current player's score is greater than the score currently held AND player's score has not already been placed in a higher position 
       sPlaced = true;
       position = i;
     }
-  }
+    i++;
+  } while (i<sbParts[2].length);
   return sPlaced;
 }
 
@@ -813,7 +921,7 @@ String trimLine (String l) {
   return l.substring(l.indexOf(' ')).trim();
 }
 
-//Sorts the array, using the bubble sort algorithm, in alphebetical order and sorts the corresponding ranks and scores
+//Sorts the array, using the bubble sort algorithm, in alphabetical order and sorts the corresponding ranks and scores
 void bubbleSort (String[][] list)//Sorts the scoreboard in alphabetical order
 {
   for (int top = list[0].length-1; top > 0; top--)

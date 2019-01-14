@@ -27,13 +27,7 @@ class Rectangle {
   boolean isInside() {//Checks to see if mouse x,y coordinates are within the rectangle
     return (mouseX >= x && mouseX <= (x+w) && mouseY >= y & mouseY <= y+h);
   }
-  
-  void invisibleRect(){
-     noStroke();
-     noFill();
-     rect(x,y,w,h);
-  }
-  
+
   void colorRect1() {
     noStroke();
     fill(r, g, b);
