@@ -14,10 +14,12 @@ PImage imgR; //Standard position facing right
 PImage imgL; //Standard position facing left
 PImage jumpR; //Jumping position facing right
 PImage jumpL; //Jumping position facing left
+PImage laserImg; //Laser image
 PImage[] playerImgR = new PImage[5]; //Moving right array of images
 PImage[] playerImgL = new PImage[5]; //Moving right array of images
 Player player; //Player object
 float counter;
+Laser[] lasers;
 
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM;//background music
@@ -40,12 +42,17 @@ void setup() {
   imgL = loadImage("PlayerL.png");
   jumpR = loadImage("JumpR.png");
   jumpL = loadImage("JumpL.png");
+  laserImg = loadImage("LaserImg.png");
 
   for (int i = 1; i <= playerImgR.length; i++)
     playerImgR[i-1] = loadImage("Right" + i + ".png"); //Initialise each index of array to an image
 
   for (int i = 1; i <= playerImgL.length; i++)
     playerImgL[i-1] = loadImage("Left" + i + ".png");  //Initialise each index of array to an image
+
+  lasers = new Laser[4];
+  for (int i=0; i<lasers.length; i++) 
+    lasers[i]= new Laser(laserImg); //Initilise the laser array
 
   player = new Player(0, height-50, 50, imgR); //(x,y,width,image)
   counter = 0;
@@ -114,9 +121,9 @@ void setup() {
   background2 = loadImage("MasterChiefBlue.jpg");//background for main menu
   background2.resize(width, height);
   mCursor1 = loadImage("cursor1.png");
-  mCursor1.resize(32,32);
+  mCursor1.resize(32, 32);
   mCursor2 = loadImage("cursor2.png");
-  mCursor2.resize(32,32);
+  mCursor2.resize(32, 32);
 
   createScoreboard();//If there is no existing scoreboard, a new one is created
 }
@@ -124,10 +131,10 @@ void setup() {
 void draw() {
   if (buttonClicked) {//Drops the framerate to show second mouse cursor when the mouse clicks on something
     frameRate(5);
-    cursor(mCursor2,0,0);
+    cursor(mCursor2, 0, 0);
     buttonClicked = false;
   } else {//show the first mouse cursor and put the framerate back to 60
-    cursor(mCursor1,0,0);
+    cursor(mCursor1, 0, 0);
     frameRate(60);
   }
   switch (screen) {
@@ -220,6 +227,36 @@ void draw() {
     background(0);
     frameRate(60);
     player.update();
+
+    //Platforms
+    Rectangle platform = new Rectangle(800, 600, 200, 20);
+    platform.colorRect1();
+
+    switch(player.intersection(platform)) {
+    case 1: //Intersect from below
+      break;
+
+    case 2: //Intersect from top
+      player.setyVelocity(0);
+      player.inAir = false;
+      player.y = platform.y - player.h;
+      break;    
+
+    case 3: //Above ground and not intersecting
+      player.inAir = true;
+      break;
+
+    case 4: //No intersection
+      break;
+    }
+
+    //Lasers
+    for (int i=0; i<lasers.length; i++) {
+      if (lasers[i].shot==true) {
+        lasers[i].show();
+        lasers[i].move();
+      }
+    }
 
     if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
       if (counter >= 5)
@@ -623,6 +660,20 @@ void keyReleased() {
   } else if (keyCode == 'A') {
     player.setxVelocity(0);
     player.moving = false;
+  } else if (key==' ') {
+    for (int i=0; i<lasers.length; i++) {
+      if (!lasers[i].shot) {
+        lasers[i].shot=true;
+        lasers[i].right = player.right;
+        if (player.right)
+          lasers[i].x= player.getX() + player.getW();
+        else
+          lasers[i].x= player.getX() - player.getW();
+        lasers[i].y= player.getY();
+
+        break;
+      }
+    }
   }
 }
 
