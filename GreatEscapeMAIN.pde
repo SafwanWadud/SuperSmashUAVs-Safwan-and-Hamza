@@ -36,6 +36,7 @@ Button startB, playB, howToPlayB, scoreboardB, optionsB, creditsB, extrasB, quit
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
 Rectangle strip, textBox, searchBar;//white strip for menu design; textBox to get user's name; searchBar to get a name entered by user in scoreboard
 Recursion1 fractal1;//recursive fractal design
+Recursion2 fractal2;
 
 void setup() {
   size(1000, 700);
@@ -127,6 +128,8 @@ void setup() {
 
   //Recursion
   fractal1 = new Recursion1();
+  fractal2 = new Recursion2();
+
 
   //import all images
   background1 = loadImage("MegamanSSB.jpg"); //background for startscreen
@@ -560,7 +563,7 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    //fractal2.showFractal();
+    fractal2.showFractal();
     backB.showButton();
     if (backB.getClick()) {//goes back to main menu if back is clicked
       if (soundON.getActive()) {
