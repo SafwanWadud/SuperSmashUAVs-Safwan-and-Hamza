@@ -1,6 +1,6 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 14, 2019
+ Date: Jan 15, 2019
  Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
  avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
  */
@@ -25,8 +25,8 @@ Minim minim;//Minim object used to create background music; credit: http://code.
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PFont font;//text font
-PImage background1, background2, mCursor1, mCursor2;//Background images; image for mouse cursors
-int screen, score, position, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
+PImage background1, background2, mCursor1, mCursor2, pausedImage, gameStage;//Background images; image for mouse cursors
+int screen, score, position, gameState, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
 String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
 boolean played, nameEntered, isSearching, buttonClicked, searchClicked, tBoxClicked;//determines if the game was played once already; determines if a name was entered; determines if the user is searching for a name in the scoreboard
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
@@ -120,6 +120,8 @@ void setup() {
   background1.resize(width, height);//Changes size of image to fit the screen size
   background2 = loadImage("MasterChiefBlue.jpg");//background for main menu
   background2.resize(width, height);
+  gameStage = loadImage("stage.png");
+  gameStage.resize(width,height);
   mCursor1 = loadImage("cursor1.png");
   mCursor1.resize(32, 32);
   mCursor2 = loadImage("cursor2.png");
@@ -224,9 +226,14 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    background(0);
-    frameRate(60);
-    player.update();
+
+    switch (gameState) {
+    case 1:  
+      image(gameStage,0,0);
+      noTint();//Takes off the tint
+      frameRate(60);
+      player.update();
+      imageNotTaken = true;
 
     //Platforms
     Rectangle[] platforms = new Rectangle[3];
