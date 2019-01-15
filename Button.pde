@@ -35,4 +35,5 @@ class Button extends Rectangle {
   boolean getClick() {
     return click;
   }
+  
 }
