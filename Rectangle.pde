@@ -1,4 +1,4 @@
-//Name: Safwan Wadud
+//Name: Safwan Wadud & Hamza
 //Brief Description: Blueprint for rectangle class
 class Rectangle {
   protected float x, y, w, h;//x and y coordinates of top left corner, width, and height of rectangle
@@ -62,14 +62,13 @@ class Rectangle {
 
   int intersection(Rectangle b)
   { 
-    if (x + w > b.x && x < b.x + b.w && y > b.y + b.h)
+    if (x + w > b.x && x < b.x + b.w && y + h >= b.y - 20 && y + h <= b.y + b.h + 20)
       return 1;
-    else if (x + w > b.x && x < b.x + b.w && y + h >= b.y && y + h < b.y + b.h)
+    else if (x + w > b.x && x < b.x + b.w && y > b.y + b.h && y + h < b.y + b.h + h + 20)
       return 2;
-    else if (player.y < height-player.h)
-      return 3;
+    //else if (x + w > b.x && x < b.x + b.w)
+    //  return 3;
+
     return 4;
   }
 }
-
-//(x + w > b.x && x < b.x + b.w && y + h >= b.y && y + h < b.y + b.h)

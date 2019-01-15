@@ -28,10 +28,9 @@ PFont font;//text font
 PImage background1, background2, mCursor1, mCursor2, pausedImage, gameStage;//Background images; image for mouse cursors
 int screen, score, position, gameState, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
 String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
-boolean played, nameEntered, isSearching, buttonClicked;//determines if the game was played once already; determines if a name was entered;
-boolean searchClicked, tBoxClicked, imageNotTaken;// determines if the user is searching for a name in the scoreboard
+boolean played, nameEntered, isSearching, buttonClicked, searchClicked, tBoxClicked;//determines if the game was played once already; determines if a name was entered; determines if the user is searching for a name in the scoreboard
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
-Button startB, playB, howToPlayB, scoreboardB, optionsB, creditsB, extrasB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB, oneB, twoB, resumeB, controlsB, pOptionsB, pQuitB;//buttons
+Button startB, playB, controlsB, scoreboardB, optionsB, creditsB, extrasB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB, oneB, twoB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
 Rectangle strip, textBox, searchBar;//white strip for menu design; textBox to get user's name; searchBar to get a name entered by user in scoreboard
 Recursion1 fractal1;//recursive fractal design
@@ -60,7 +59,6 @@ void setup() {
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
-  gameState = 1;//initialized to 1 to represent the first game state (runs the game);
   sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
 
   //Music
@@ -82,12 +80,12 @@ void setup() {
   //Buttons
   textSize(50);//size of button
   playB = new Button("PLAY", 50, 50, 150, textWidth("PLAY"), 50); //(text to be displayed, text size, x location, y location, width, height)
-  howToPlayB = new Button("HOW TO PLAY", 50, 50, 210, textWidth("HOW TO PLAY"), 50);
+  controlsB = new Button("HOW TO PLAY", 50, 50, 210, textWidth("HOW TO PLAY"), 50);
   scoreboardB = new Button("SCOREBOARD", 50, 50, 270, textWidth("SCOREBOARD"), 50);
   optionsB = new Button("OPTIONS", 50, 50, 330, textWidth("OPTIONS"), 50);
   creditsB = new Button("CREDITS", 50, 50, 390, textWidth("CREDITS"), 50);
   extrasB = new Button("EXTRAS", 50, 50, 450, textWidth("EXTRAS"), 50);
-  quitB = new Button("QUIT GAME", 50, 50, 510, textWidth("QUIT GAME"), 50);
+  quitB = new Button("QUIT", 50, 50, 510, textWidth("QUIT"), 50);
   textSize(40);
   startB = new Button("START", 40, width/2-(textWidth("START")/2), height/2-20, textWidth("START"), 40);
   yesB = new Button("YES", 40, width/2-(textWidth("YES")/2), (height/2)+25, textWidth("YES"), 40 );
@@ -95,10 +93,6 @@ void setup() {
   continueB = new Button("CONTINUE", 40, width/2-(textWidth("CONTINUE")/2), height/2, textWidth("CONTINUE"), 40);
   oneB = new Button("ONE", 40, width/2-(textWidth("ONE")/2), (height/2)+25, textWidth("ONE"), 40 );
   twoB = new Button("TWO", 40, width/2-(textWidth("TWO")/2), (height/2)+100, textWidth("TWO"), 40 );
-  resumeB = new Button("RESUME", 40, width/2-(textWidth("RESUME")/2), (height/2)-100, textWidth("RESUME"), 40 );
-  controlsB = new Button("CONTROLS", 40, width/2-(textWidth("CONTROLS")/2), (height/2)-25, textWidth("CONTROLS"), 40 );
-  pOptionsB = new Button("OPTIONS", 40, width/2-(textWidth("OPTIONS")/2), (height/2)+50, textWidth("OPTIONS"), 40 );
-  pQuitB = new Button("QUIT", 40, width/2-(textWidth("QUIT")/2), (height/2)+125, textWidth("QUIT"), 40 );
   textSize(30);
   backB = new Button("BACK", 30, 10, height-40, textWidth("BACK"), 30);
   returnB = new Button("RETURN TO MAIN MENU", 30, width/2-(textWidth("RETURN TO MAIN MENU")/2), (height/2)+100, textWidth("RETURN TO MAIN MENU"), 30);
@@ -178,13 +172,14 @@ void draw() {
         sConfirm.play();
       }
       screen = 3;//set screen to 3 so that it can go to the play game screen (case 3)
+      noTint();//Takes off the tint 
       playB.setClick(false);
-    } else if (howToPlayB.getClick()) {//controls button
+    } else if (controlsB.getClick()) {//controls button
       if (soundON.getActive()) {
         sConfirm.play();
       }
       screen =4;//sets screen to 4 to go to case 4 (how to play menu)
-      howToPlayB.setClick(false);
+      controlsB.setClick(false);
     } else if (scoreboardB.getClick()) {//scoreboard button
       if (soundON.getActive()) {
         sConfirm.play();
@@ -231,6 +226,7 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
+
     switch (gameState) {
     case 1:  
       image(gameStage,0,0);
@@ -238,97 +234,82 @@ void draw() {
       frameRate(60);
       player.update();
       imageNotTaken = true;
-    
-      //Platforms
-      Rectangle platform = new Rectangle(800, 595, 200, 20);
-      platform.colorRect1();
 
-      switch(player.intersection(platform)) {
-      case 1: //Intersect from below
-        player.setyVelocity(0); //Need to fix
-        break;
+    //Platforms
+    Rectangle[] platforms = new Rectangle[3];
+    platforms[0] = new Rectangle(350, 500, 300, 20);
+    platforms[1] = new Rectangle(600, 300, 250, 20);
+    platforms[2] = new Rectangle(150, 300, 250, 20);
+    boolean intersects = false;
 
-      case 2: //Intersect from top
+    for (int i = 0; i < platforms.length; i ++) {
+      platforms[i].colorRect1();
+      switch(player.intersection(platforms[i])) {
+      case 1: //Intersect from top
         player.setyVelocity(0);
+        intersects = true;
         player.inAir = false;
-        player.y = platform.y - player.h;
-        break;    
+        player.y = platforms[i].y - player.h;
+        break;  
 
-      case 3: //Above ground and not intersecting
-        player.inAir = true;
-        break;
+      case 2: //Intersect from below
+        if (player.yVelocity < 0) // If still rising
+          player.setyVelocity(2);
+        break; 
 
+        //case 3: //In air and not intersecting
+        //  player.inAir = true;
+        //  break;
+
+        //reach from sides
+        //case 4:
       case 4: //No intersection
+        if (player.y < height - player.w && intersects == false)
+          player.inAir = true;
         break;
       }
+    }
 
-      //Lasers
-      for (int i=0; i<lasers.length; i++) {
-        if (lasers[i].shot==true) {
-          lasers[i].show();
-          lasers[i].move();
-        }
-      }
+    //Lasers
+    for (int i=0; i<lasers.length; i++) {
+      if (lasers[i].shot==true) {
+        lasers[i].show();
+        lasers[i].move();
 
-      if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
-        if (counter >= 5)
-          counter = 0;
-        if (counter%1 == 0) //every increment of +1
-          player.img = playerImgL[(int)counter]; //Alternate between each image in array every loop
-  
-        counter = counter + 0.5; //0.5 increment
-      } else if (player.xVelocity > 0 && !player.inAir) { //Moving right and not in the air
-        if (counter >= 5)
-          counter = 0;
-        if (counter%1 == 0)
-          player.img = playerImgR[(int)counter]; //Alternate between each image in array every loop
+        //        switch(lasers[i].intersection(platforms[i])) {
+        //        case 3:
+        //          lasers[i].x = width;
+        //          //break;
+      }
+    }
 
-        counter = counter + 0.5;
-      } else if (player.right) { //Facing right
-        if (player.inAir)
-          player.img = jumpR; //jumping image
-        else player.img = imgR; //If not in air display standing image
-      } else if (player.right == false) { //Facing right
-        if (player.inAir)
-          player.img = jumpL; // jumping image
-        else player.img = imgL; //standing image
-      }
-      break;
-    case 2:
-      if (imageNotTaken) {//If an image of the current screen was not taken yet
-        pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
-        imageNotTaken = false;
-      }
-      pauseMenu();//Shows pause menu
-      if (resumeB.getClick()) {//resume button
-        if (soundON.getActive()) {
-          sConfirm.play();
-        }
-        gameState = 1;//sets game state to 1 (returns to game)
-        resumeB.setClick(false);
-      } else if (controlsB.getClick()) {//controls button
-        if (soundON.getActive()) {
-          sConfirm.play();
-        }
-        screen=4;//sets screen to 4 (controls screen)
-        controlsB.setClick(false);
-      } else if (pOptionsB.getClick()) {//options button
-        if (soundON.getActive()) {
-          sConfirm.play();
-        }
-        screen=6;//sets screen to 6 (options screen)
-        pOptionsB.setClick(false);
-      } else if (pQuitB.getClick()) {//quit button
-        if (soundON.getActive()) {
-          sConfirm.play();
-        }
-        screen=2;//sets screen to 2 (main menu screen)
-        gameState=1;
-        pQuitB.setClick(false);
-      }
-      break;
+
+
+    if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
+      if (counter >= 5)
+        counter = 0;
+      if (counter%1 == 0) //every increment of +1
+        player.img = playerImgL[(int)counter]; //Alternate between each image in array every loop
+
+      counter = counter + 0.5; //0.5 increment
+    } else if (player.xVelocity > 0 && !player.inAir) { //Moving right and not in the air
+      if (counter >= 5)
+        counter = 0;
+      if (counter%1 == 0)
+        player.img = playerImgR[(int)counter]; //Alternate between each image in array every loop
+
+      counter = counter + 0.5;
+    } else if (player.right) { //Facing right
+      if (player.inAir)
+        player.img = jumpR; //jumping image
+      else player.img = imgR; //If not in air display standing image
+    } else if (player.right == false) { //Facing right
+      if (player.inAir)
+        player.img = jumpL; // jumping image
+      else player.img = imgL; //standing image
     }
     break;
+
     //Leaderboard
     /*play();//calls play() to play the game
      nameEntered = false;//sets nameEntered to false
@@ -357,10 +338,7 @@ void draw() {
       if (soundON.getActive()) {
         sDeny.play();
       }
-      if (gameState == 2)//goes back to pause menu
-        screen =3;
-      else
-        screen=2;//goes back to main menu
+      screen=2;
       backB.setClick(false);
     }
     break;
@@ -442,10 +420,7 @@ void draw() {
       if (soundON.getActive()) {
         sDeny.play();
       }
-      if (gameState ==2)//Goes back to pause menu
-        screen =3;
-      else
-        screen=2;//goes back to main menu
+      screen=2;
       backB.setClick(false);
     }
     break;
@@ -570,8 +545,8 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (playB.isInside() && screen == 2) {//if mouse is within play button and screen is 2
     playB.setClick(true);//set playB's click to true
     buttonClicked=true;
-  } else if (howToPlayB.isInside() && screen ==2) {//if mouse is within controls button and screen is 2
-    howToPlayB.setClick(true);
+  } else if (controlsB.isInside() && screen ==2) {//if mouse is within controls button and screen is 2
+    controlsB.setClick(true);
     buttonClicked=true;
   } else if (scoreboardB.isInside() && screen ==2) {//if mouse is within scoreboard button and screen is 2
     scoreboardB.setClick(true);
@@ -641,18 +616,6 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (twoB.isInside() && screen == 10) {//If mouse is within two button and screen is 10
     twoB.setClick(true);
     buttonClicked = true;
-  } else if (resumeB.isInside() && gameState == 2) {
-    resumeB.setClick(true);
-    buttonClicked = true;
-  } else if (controlsB.isInside() && gameState == 2) {
-    controlsB.setClick(true);
-    buttonClicked = true;
-  } else if (pOptionsB.isInside() && gameState ==2) {
-    pOptionsB.setClick(true);
-    buttonClicked = true;
-  } else if (pQuitB.isInside() && gameState == 2) {
-    pQuitB.setClick(true);
-    buttonClicked = true;
   }
 
   //checks to see if the search bar was clicked
@@ -699,35 +662,29 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
         sName = sName.substring(0, sName.length()-1);//searched name is set equal to the substring of itself minus the last character
       }
     }
-  } else if (screen == 3) {
-    if (keyCode == 'W') {
+  } else if (screen == 3)
+    if (keyCode == 'W' || keyCode == UP) {
       while (player.inAir == false)
       {
         player.inAir = true;
         player.setyVelocity(-30);
       }
-    } else if (keyCode == 'D') {
+    } else if (keyCode == 'D' || keyCode == RIGHT) {
       player.right = true; 
       player.moving = true;
       player.setxVelocity(6);
-    } else if (keyCode == 'A') {
+    } else if (keyCode == 'A' || keyCode == LEFT) {
       player.right = false;
       player.moving = true;
       player.setxVelocity(-6);
-    } else if (keyCode == 'P') {
-      if (soundON.getActive() && gameState==1) {
-        sDeny.play();
-      }
-      gameState = 2;
     }
-  }
 }
 
 void keyReleased() {
-  if (keyCode == 'D') {
+  if (keyCode == 'D' || keyCode == RIGHT) {
     player.setxVelocity(0);
     player.moving = false;
-  } else if (keyCode == 'A') {
+  } else if (keyCode == 'A' || keyCode == LEFT) {
     player.setxVelocity(0);
     player.moving = false;
   } else if (key==' ') {
@@ -747,21 +704,6 @@ void keyReleased() {
   }
 }
 
-void pauseMenu() {
-  background(0);
-  tint(255, 100);
-  image(pausedImage, 0, 0);
-  fill(255);
-  textSize(60);
-  text("PAUSE MENU", 225, 50);
-  textSize(30);
-  strip.colorRect1();
-  resumeB.showButton();
-  controlsB.showButton();
-  pOptionsB.showButton();
-  pQuitB.showButton();
-}
-
 //Displays the start screen when called upon
 void startScreen() {
   image(background1, 0, 0);//draws the first image
@@ -769,6 +711,22 @@ void startScreen() {
   textSize(60);//sets text size to 60
   text("CUE'S GREAT ESCAPE", width/2, 100);//draws text to screen at specified x and y locations
   startB.showButton();//Draw the start button
+}
+
+//Displays the extras menu
+void extrasMenu() {
+  background(0);
+  tint(255, 100);
+  image(background2, 0, 0);
+  fill(255);
+  textSize(60);
+  text("EXTRAS", 150, 50);
+  textSize(30);
+  text("SELECT AN OPTION TO SHOW A RECURSIVE DESIGN", width/2, 300); 
+  strip.colorRect1();
+  oneB.showButton();
+  twoB.showButton();
+  backB.showButton();
 }
 
 //Displays the main mennu screen 
@@ -781,7 +739,7 @@ void mainMenu() {
   textAlign(LEFT);
   strip.colorRect1();//Draws a white rectangular strip near the top of the screen
   playB.showButton();//Draw 7 buttons 
-  howToPlayB.showButton();
+  controlsB.showButton();
   scoreboardB.showButton();
   optionsB.showButton();
   creditsB.showButton();
@@ -910,22 +868,6 @@ void credits() {
   text("ICS4U SUMMATIVE PROJECT", width/2, 250);
   text("JAN 21, 2019", width/2, 300);
   strip.colorRect1();
-  backB.showButton();
-}
-
-//Displays the extras menu
-void extrasMenu() {
-  background(0);
-  tint(255, 100);
-  image(background2, 0, 0);
-  fill(255);
-  textSize(60);
-  text("EXTRAS", 150, 50);
-  textSize(30);
-  text("SELECT AN OPTION TO SHOW A RECURSIVE DESIGN", width/2, 300); 
-  strip.colorRect1();
-  oneB.showButton();
-  twoB.showButton();
   backB.showButton();
 }
 
