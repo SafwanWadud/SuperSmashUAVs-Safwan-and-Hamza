@@ -229,11 +229,12 @@ void draw() {
     player.update();
 
     //Platforms
-    Rectangle platform = new Rectangle(800, 600, 200, 20);
+    Rectangle platform = new Rectangle(800, 595, 200, 20);
     platform.colorRect1();
 
     switch(player.intersection(platform)) {
     case 1: //Intersect from below
+      player.setyVelocity(0); //Need to fix
       break;
 
     case 2: //Intersect from top
