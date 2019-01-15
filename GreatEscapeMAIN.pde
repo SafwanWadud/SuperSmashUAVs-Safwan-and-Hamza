@@ -23,11 +23,11 @@ Minim minim;//Minim object used to create background music; credit: http://code.
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PFont font;//text font
-PImage background1, background2, mCursor1, mCursor2;//Background images; image for mouse cursors
-int screen, score, position, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
+PImage background1, background2, mCursor1, mCursor2, pausedImage;//Background images; image for mouse cursors
+int screen, score, position, gameState, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
 String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
 boolean played, nameEntered, isSearching, buttonClicked;//determines if the game was played once already; determines if a name was entered;
-boolean searchClicked, tBoxClicked, paused;// determines if the user is searching for a name in the scoreboard
+boolean searchClicked, tBoxClicked, imageNotTaken;// determines if the user is searching for a name in the scoreboard
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
 Button startB, playB, howToPlayB, scoreboardB, optionsB, creditsB, extrasB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB, oneB, twoB, resumeB, controlsB, pOptionsB, pQuitB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
@@ -53,6 +53,7 @@ void setup() {
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
+  gameState = 1;//initialized to 1 to represent the first game state (runs the game);
   sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
 
   //Music
@@ -87,10 +88,10 @@ void setup() {
   continueB = new Button("CONTINUE", 40, width/2-(textWidth("CONTINUE")/2), height/2, textWidth("CONTINUE"), 40);
   oneB = new Button("ONE", 40, width/2-(textWidth("ONE")/2), (height/2)+25, textWidth("ONE"), 40 );
   twoB = new Button("TWO", 40, width/2-(textWidth("TWO")/2), (height/2)+100, textWidth("TWO"), 40 );
-  resumeB = new Button("RESUME", 40, width/2-(textWidth("RESUME")/2), (height/2)-50, textWidth("RESUME"), 40 );
-  controlsB = new Button("CONTROLS", 40, width/2-(textWidth("CONTROLS")/2), (height/2), textWidth("CONTROLS"), 40 );
+  resumeB = new Button("RESUME", 40, width/2-(textWidth("RESUME")/2), (height/2)-100, textWidth("RESUME"), 40 );
+  controlsB = new Button("CONTROLS", 40, width/2-(textWidth("CONTROLS")/2), (height/2)-25, textWidth("CONTROLS"), 40 );
   pOptionsB = new Button("OPTIONS", 40, width/2-(textWidth("OPTIONS")/2), (height/2)+50, textWidth("OPTIONS"), 40 );
-  pQuitB = new Button("QUIT", 40, width/2-(textWidth("QUIT")/2), (height/2)+100, textWidth("QUIT"), 40 );
+  pQuitB = new Button("QUIT", 40, width/2-(textWidth("QUIT")/2), (height/2)+125, textWidth("QUIT"), 40 );
   textSize(30);
   backB = new Button("BACK", 30, 10, height-40, textWidth("BACK"), 30);
   returnB = new Button("RETURN TO MAIN MENU", 30, width/2-(textWidth("RETURN TO MAIN MENU")/2), (height/2)+100, textWidth("RETURN TO MAIN MENU"), 30);
@@ -119,9 +120,9 @@ void setup() {
   background2 = loadImage("MasterChiefBlue.jpg");//background for main menu
   background2.resize(width, height);
   mCursor1 = loadImage("cursor1.png");
-  mCursor1.resize(32,32);
+  mCursor1.resize(32, 32);
   mCursor2 = loadImage("cursor2.png");
-  mCursor2.resize(32,32);
+  mCursor2.resize(32, 32);
 
   createScoreboard();//If there is no existing scoreboard, a new one is created
 }
@@ -129,10 +130,10 @@ void setup() {
 void draw() {
   if (buttonClicked) {//Drops the framerate to show second mouse cursor when the mouse clicks on something
     frameRate(5);
-    cursor(mCursor2,0,0);
+    cursor(mCursor2, 0, 0);
     buttonClicked = false;
   } else {//show the first mouse cursor and put the framerate back to 60
-    cursor(mCursor1,0,0);
+    cursor(mCursor1, 0, 0);
     frameRate(60);
   }
   switch (screen) {
@@ -168,7 +169,6 @@ void draw() {
         sConfirm.play();
       }
       screen = 3;//set screen to 3 so that it can go to the play game screen (case 3)
-      noTint();//Takes off the tint 
       playB.setClick(false);
     } else if (howToPlayB.getClick()) {//controls button
       if (soundON.getActive()) {
@@ -222,35 +222,72 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    background(0);
-    frameRate(60);
-    player.update();
+    switch (gameState) {
+    case 1:  
+      background(0);
+      noTint();//Takes off the tint
+      frameRate(60);
+      player.update();
+      imageNotTaken = true;
 
-    if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
-      if (counter >= 5)
-        counter = 0;
-      if (counter%1 == 0) //every increment of +1
-        player.img = playerImgL[(int)counter]; //Alternate between each image in array every loop
+      if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
+        if (counter >= 5)
+          counter = 0;
+        if (counter%1 == 0) //every increment of +1
+          player.img = playerImgL[(int)counter]; //Alternate between each image in array every loop
 
-      counter = counter + 0.5; //0.5 increment
-    } else if (player.xVelocity > 0 && !player.inAir) { //Moving right and not in the air
-      if (counter >= 5)
-        counter = 0;
-      if (counter%1 == 0)
-        player.img = playerImgR[(int)counter]; //Alternate between each image in array every loop
+        counter = counter + 0.5; //0.5 increment
+      } else if (player.xVelocity > 0 && !player.inAir) { //Moving right and not in the air
+        if (counter >= 5)
+          counter = 0;
+        if (counter%1 == 0)
+          player.img = playerImgR[(int)counter]; //Alternate between each image in array every loop
 
-      counter = counter + 0.5;
-    } else if (player.right) { //Facing right
-      if (player.inAir)
-        player.img = jumpR; //jumping image
-      else player.img = imgR; //If not in air display standing image
-    } else if (player.right == false) { //Facing right
-      if (player.inAir)
-        player.img = jumpL; // jumping image
-      else player.img = imgL; //standing image
+        counter = counter + 0.5;
+      } else if (player.right) { //Facing right
+        if (player.inAir)
+          player.img = jumpR; //jumping image
+        else player.img = imgR; //If not in air display standing image
+      } else if (player.right == false) { //Facing right
+        if (player.inAir)
+          player.img = jumpL; // jumping image
+        else player.img = imgL; //standing image
+      }
+      break;
+    case 2:
+      if (imageNotTaken) {//If an image of the current screen was not taken yet
+        pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
+        imageNotTaken = false;
+      }
+      pauseMenu();//Shows pause menu
+      if (resumeB.getClick()) {//resume button
+        if (soundON.getActive()) {
+          sConfirm.play();
+        }
+        gameState = 1;//sets game state to 1 (returns to game)
+        resumeB.setClick(false);
+      } else if (controlsB.getClick()) {//controls button
+        if (soundON.getActive()) {
+          sConfirm.play();
+        }
+        screen=4;//sets screen to 4 (controls screen)
+        controlsB.setClick(false);
+      } else if (pOptionsB.getClick()) {//options button
+        if (soundON.getActive()) {
+          sConfirm.play();
+        }
+        screen=6;//sets screen to 6 (options screen)
+        pOptionsB.setClick(false);
+      } else if (pQuitB.getClick()) {//quit button
+        if (soundON.getActive()) {
+          sConfirm.play();
+        }
+        screen=2;//sets screen to 2 (main menu screen)
+        pQuitB.setClick(false);
+      }
+      break;
     }
     break;
-
     //Leaderboard
     /*play();//calls play() to play the game
      nameEntered = false;//sets nameEntered to false
@@ -279,7 +316,10 @@ void draw() {
       if (soundON.getActive()) {
         sDeny.play();
       }
-      screen=2;
+      if (gameState == 2)//goes back to pause menu
+        screen =3;
+      else
+        screen=2;//goes back to main menu
       backB.setClick(false);
     }
     break;
@@ -361,7 +401,10 @@ void draw() {
       if (soundON.getActive()) {
         sDeny.play();
       }
-      screen=2;
+      if (gameState ==2)//Goes back to pause menu
+        screen =3;
+      else
+        screen=2;//goes back to main menu
       backB.setClick(false);
     }
     break;
@@ -557,6 +600,18 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (twoB.isInside() && screen == 10) {//If mouse is within two button and screen is 10
     twoB.setClick(true);
     buttonClicked = true;
+  } else if (resumeB.isInside() && gameState == 2) {
+    resumeB.setClick(true);
+    buttonClicked = true;
+  } else if (controlsB.isInside() && gameState == 2) {
+    controlsB.setClick(true);
+    buttonClicked = true;
+  } else if (pOptionsB.isInside() && gameState ==2) {
+    pOptionsB.setClick(true);
+    buttonClicked = true;
+  } else if (pQuitB.isInside() && gameState == 2) {
+    pQuitB.setClick(true);
+    buttonClicked = true;
   }
 
   //checks to see if the search bar was clicked
@@ -603,7 +658,7 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
         sName = sName.substring(0, sName.length()-1);//searched name is set equal to the substring of itself minus the last character
       }
     }
-  } else if (screen == 3){
+  } else if (screen == 3) {
     if (keyCode == 'W') {
       while (player.inAir == false)
       {
@@ -618,9 +673,12 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
       player.right = false;
       player.moving = true;
       player.setxVelocity(-6);
+    } else if (keyCode == 'P') {
+      if (soundON.getActive()) {
+        sDeny.play();
+      }
+      gameState = 2;
     }
-  } else if (screen == 3 && keyCode == 'P'){///////////////////////////////////////////////////////
-    paused = true;
   }
 }
 
@@ -634,13 +692,13 @@ void keyReleased() {
   }
 }
 
-void pauseMenu(){
+void pauseMenu() {
   background(0);
   tint(255, 100);
-  //image(pausedImage, 0, 0);
+  image(pausedImage, 0, 0);
   fill(255);
   textSize(60);
-  text("PAUSE MENU", 150, 50);
+  text("PAUSE MENU", 200, 50);
   textSize(30);
   strip.colorRect1();
   resumeB.showButton();
