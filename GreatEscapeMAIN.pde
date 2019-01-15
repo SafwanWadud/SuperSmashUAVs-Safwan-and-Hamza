@@ -323,6 +323,7 @@ void draw() {
           sConfirm.play();
         }
         screen=2;//sets screen to 2 (main menu screen)
+        gameState=1;
         pQuitB.setClick(false);
       }
       break;
@@ -714,7 +715,7 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
       player.moving = true;
       player.setxVelocity(-6);
     } else if (keyCode == 'P') {
-      if (soundON.getActive()) {
+      if (soundON.getActive() && gameState==1) {
         sDeny.play();
       }
       gameState = 2;
@@ -752,7 +753,7 @@ void pauseMenu() {
   image(pausedImage, 0, 0);
   fill(255);
   textSize(60);
-  text("PAUSE MENU", 200, 50);
+  text("PAUSE MENU", 225, 50);
   textSize(30);
   strip.colorRect1();
   resumeB.showButton();
