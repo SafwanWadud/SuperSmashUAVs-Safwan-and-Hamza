@@ -1,3 +1,6 @@
+//Name: Hamza Osman
+//Brief Description: Blueprint for the Player class
+
 class Laser extends Rectangle {
   PImage img;
   boolean shot;
