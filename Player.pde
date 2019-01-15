@@ -64,7 +64,19 @@ class Player extends Rectangle {
     this.xVelocity = xVelocity;
   }
 
-  //float getxVelocity() {
-  //  return xVelocity;
-  //}
+  float getxVelocity() {
+    return xVelocity;
+  }
+
+  float getX() {
+    return x;
+  }
+
+  float getY() {
+    return y;
+  }
+
+  float getW() {
+    return w;
+  }
 }
