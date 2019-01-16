@@ -53,7 +53,6 @@ class Player extends Rectangle {
     }
   }
 
-
   void setyVelocity(float yVelocity) 
   {
     this.yVelocity = yVelocity;

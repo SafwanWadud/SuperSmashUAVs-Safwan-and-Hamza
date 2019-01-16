@@ -15,12 +15,14 @@ PImage imgL; //Standard position facing left
 PImage jumpR; //Jumping position facing right
 PImage jumpL; //Jumping position facing left
 PImage laserImg; //Laser image
+PImage planeImg;// Plane image
 PImage[] playerImgR = new PImage[5]; //Moving right array of images
 PImage[] playerImgL = new PImage[5]; //Moving right array of images
 Player player; //Player object
 float counter;
 Laser[] lasers;
-
+Rectangle[] platforms;
+UAV[] uavs;
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
@@ -35,6 +37,7 @@ Button startB, playB, howToPlayB, scoreboardB, optionsB, creditsB, extrasB, quit
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
 Rectangle strip, textBox, searchBar;//white strip for menu design; textBox to get user's name; searchBar to get a name entered by user in scoreboard
 Recursion1 fractal1;//recursive fractal design
+Recursion2 fractal2;
 
 void setup() {
   size(1000, 700);
@@ -44,7 +47,8 @@ void setup() {
   jumpR = loadImage("JumpR.png");
   jumpL = loadImage("JumpL.png");
   laserImg = loadImage("LaserImg.png");
-
+  planeImg = loadImage("plane.png");
+  planeImg.resize(60, 30);
   for (int i = 1; i <= playerImgR.length; i++)
     playerImgR[i-1] = loadImage("Right" + i + ".png"); //Initialise each index of array to an image
 
@@ -55,7 +59,18 @@ void setup() {
   for (int i=0; i<lasers.length; i++) 
     lasers[i]= new Laser(laserImg); //Initilise the laser array
 
-  player = new Player(0, height-50, 50, imgR); //(x,y,width,image)
+  uavs = new UAV[2];  
+  for (int i=0; i<uavs.length; i++) {
+    uavs[i]= new UAV(width-(i*400), 370, 60, 30, planeImg); //Initilise the laser array
+  }
+
+  platforms = new Rectangle[4];
+  platforms[0] = new Rectangle(190, 428, 605, 25);
+  platforms[1] = new Rectangle(245, 283, 145, 15);
+  platforms[2] = new Rectangle(595, 283, 145, 15);
+  platforms[3] = new Rectangle(414, 141, 158, 25);
+
+  player = new Player(platforms[0].x + platforms[0].w/2-25, platforms[0].y - 50, 50, imgR); //(x,y,width,image)
   counter = 0;
 
   //Initializing variables
@@ -120,6 +135,8 @@ void setup() {
 
   //Recursion
   fractal1 = new Recursion1();
+  fractal2 = new Recursion2();
+
 
   //import all images
   background1 = loadImage("MegamanSSB.jpg"); //background for startscreen
@@ -127,13 +144,92 @@ void setup() {
   background2 = loadImage("MasterChiefBlue.jpg");//background for main menu
   background2.resize(width, height);
   gameStage = loadImage("stage.png");
-  gameStage.resize(width,height);
+  gameStage.resize(width, height);
   mCursor1 = loadImage("cursor1.png");
   mCursor1.resize(32, 32);
   mCursor2 = loadImage("cursor2.png");
   mCursor2.resize(32, 32);
 
   createScoreboard();//If there is no existing scoreboard, a new one is created
+}
+
+void playGame() {
+  image(gameStage, 0, 0);
+  noTint();//Takes off the tint
+  frameRate(60);
+  player.update();
+  imageNotTaken = true;
+  boolean intersects = false;
+
+  for (UAV uav : uavs) {
+    uav.show();
+    uav.update();
+    //if (uav.intersects(player)) {
+    //  exit();//GAMEOVER
+    //}
+    for (Laser laser : lasers) {
+      if (laser.intersection(uav, player) == 1||laser.intersection(uav, player) == 2 ) {
+        laser.setShot(false);
+        uav.setX(width);
+        // uav.setSpeed(0);
+        laser.setX(0);
+      }
+    }
+  }
+
+  for (int i = 0; i < platforms.length; i ++) {
+    //platforms[i].colorRect1();
+    switch(player.intersection(platforms[i])) {
+    case 1: //Intersect from top
+      player.setyVelocity(0);
+      intersects = true;
+      player.inAir = false;
+      player.y = platforms[i].y - player.h;
+      break;  
+
+    case 2: //Intersect from below
+      if (player.yVelocity < 0) // If still rising
+        player.setyVelocity(2);
+      break; 
+
+    case 4: //No intersection
+      if (player.y < height - player.w && intersects == false)
+        player.inAir = true;
+      break;
+    }
+  }
+
+  //Lasers
+  for (int i=0; i<lasers.length; i++) {
+    if (lasers[i].shot==true) {
+      lasers[i].show();
+      lasers[i].move();
+    }
+  }
+
+  if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
+    if (counter >= 5)
+      counter = 0;
+    if (counter%1 == 0) //every increment of +1
+      player.img = playerImgL[(int)counter]; //Alternate between each image in array every loop
+
+    counter = counter + 0.5; //0.5 increment
+  } else if (player.xVelocity > 0 && !player.inAir) { //Moving right and not in the air
+    if (counter >= 5)
+      counter = 0;
+    if (counter%1 == 0)
+      player.img = playerImgR[(int)counter]; //Alternate between each image in array every loop
+
+    counter = counter + 0.5;
+  } else if (player.right) { //Facing right
+    if (player.inAir)
+      player.img = jumpR; //jumping image
+    else player.img = imgR; //If not in air display standing image
+  } else if (player.right == false) { //Facing right
+    if (player.inAir)
+      player.img = jumpL; // jumping image
+    else player.img = imgL; //standing image
+  }
 }
 
 void draw() {
@@ -225,6 +321,9 @@ void draw() {
     }
     break;
   case 3://play game screen
+    // println("X,Y" + mouseX + "  " + mouseY);
+    // println(player.x + "" + player.y);
+
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -232,67 +331,8 @@ void draw() {
       menuBM.play();
     }
     switch (gameState) {
-    case 1:  
-      image(gameStage,0,0);
-      noTint();//Takes off the tint
-      frameRate(60);
-      player.update();
-      imageNotTaken = true;
-    
-      //Platforms
-      Rectangle platform = new Rectangle(800, 595, 200, 20);
-      platform.colorRect1();
-
-      switch(player.intersection(platform)) {
-      case 1: //Intersect from below
-        player.setyVelocity(0); //Need to fix
-        break;
-
-      case 2: //Intersect from top
-        player.setyVelocity(0);
-        player.inAir = false;
-        player.y = platform.y - player.h;
-        break;    
-
-      case 3: //Above ground and not intersecting
-        player.inAir = true;
-        break;
-
-      case 4: //No intersection
-        break;
-      }
-
-      //Lasers
-      for (int i=0; i<lasers.length; i++) {
-        if (lasers[i].shot==true) {
-          lasers[i].show();
-          lasers[i].move();
-        }
-      }
-
-      if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
-        if (counter >= 5)
-          counter = 0;
-        if (counter%1 == 0) //every increment of +1
-          player.img = playerImgL[(int)counter]; //Alternate between each image in array every loop
-  
-        counter = counter + 0.5; //0.5 increment
-      } else if (player.xVelocity > 0 && !player.inAir) { //Moving right and not in the air
-        if (counter >= 5)
-          counter = 0;
-        if (counter%1 == 0)
-          player.img = playerImgR[(int)counter]; //Alternate between each image in array every loop
-
-        counter = counter + 0.5;
-      } else if (player.right) { //Facing right
-        if (player.inAir)
-          player.img = jumpR; //jumping image
-        else player.img = imgR; //If not in air display standing image
-      } else if (player.right == false) { //Facing right
-        if (player.inAir)
-          player.img = jumpL; // jumping image
-        else player.img = imgL; //standing image
-      }
+    case 1: 
+      playGame();
       break;
     case 2:
       if (imageNotTaken) {//If an image of the current screen was not taken yet
@@ -330,8 +370,7 @@ void draw() {
     }
     break;
     //Leaderboard
-    /*play();//calls play() to play the game
-     nameEntered = false;//sets nameEntered to false
+    /*nameEntered = false;//sets nameEntered to false
      cName = "";// initializes current user's name
      if (continueB.getClick()) {//if the continue button is clicked
      if (soundON.getActive()) {
@@ -547,7 +586,7 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-    //fractal2.showFractal();
+    fractal2.showFractal();
     backB.showButton();
     if (backB.getClick()) {//goes back to main menu if back is clicked
       if (soundON.getActive()) {
@@ -641,16 +680,16 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (twoB.isInside() && screen == 10) {//If mouse is within two button and screen is 10
     twoB.setClick(true);
     buttonClicked = true;
-  } else if (resumeB.isInside() && gameState == 2) {
+  } else if (resumeB.isInside() && gameState == 2 && screen==3) {
     resumeB.setClick(true);
     buttonClicked = true;
-  } else if (controlsB.isInside() && gameState == 2) {
+  } else if (controlsB.isInside() && gameState == 2 && screen==3) {
     controlsB.setClick(true);
     buttonClicked = true;
-  } else if (pOptionsB.isInside() && gameState ==2) {
+  } else if (pOptionsB.isInside() && gameState ==2 && screen==3) {
     pOptionsB.setClick(true);
     buttonClicked = true;
-  } else if (pQuitB.isInside() && gameState == 2) {
+  } else if (pQuitB.isInside() && gameState == 2  && screen==3) {
     pQuitB.setClick(true);
     buttonClicked = true;
   }

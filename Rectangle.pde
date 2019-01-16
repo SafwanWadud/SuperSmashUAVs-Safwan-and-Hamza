@@ -60,11 +60,12 @@ class Rectangle {
     this.b = b;
   } 
 
-  int intersection(Rectangle b)
+  int intersection(Object o)
   { 
+    Rectangle b = (Rectangle)o;
     if (x + w > b.x && x < b.x + b.w && y + h >= b.y - 20 && y + h <= b.y + b.h + 20)
       return 1;
-    else if (x + w > b.x && x < b.x + b.w && y > b.y + b.h && y + h < b.y + b.h + h + 20)
+    else if (x + w > b.x && x < b.x + b.w && y > b.y + b.h && y < b.y + b.h + 20)
       return 2;
     //else if (x + w > b.x && x < b.x + b.w)
     //  return 3;
