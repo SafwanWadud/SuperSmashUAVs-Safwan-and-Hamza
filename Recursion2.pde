@@ -67,7 +67,6 @@ class Recursion2 {
     }
   }
 
-
   void showFractal() {  
     background(0);//black background
     //drawCircle(x,y,diameter)
