@@ -168,7 +168,7 @@ void playGame() {
     //  exit();//GAMEOVER
     //}
     for (Laser laser : lasers) {
-      if (laser.intersection(uav, player) == 1||laser.intersection(uav, player) == 2 ) {
+      if ( laser.intersection(uav, player) == 1||laser.intersection(uav, player) == 2 && laser.getShot() ) {
         laser.setShot(false);
         uav.setX(width);
         // uav.setSpeed(0);
