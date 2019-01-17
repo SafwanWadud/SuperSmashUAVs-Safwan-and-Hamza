@@ -35,9 +35,9 @@ class Laser extends Rectangle {
     Rectangle b = (Rectangle)o;
     Rectangle p = (Rectangle)o2;
     if (x>0 && x<width) {
-      if (right && x+w>=b.x && p.x+p.w<b.x && y+h<=b.y+b.h && y>=b.y)
+      if (right && x+w>=b.x && p.x+p.w<b.x+b.w && y+h<=b.y+b.h && y>=b.y)
         return 1;
-      else if (!right && x<=b.x+b.w && p.x>b.x+b.w && y+h<=b.y+b.h && y>=b.y)
+      else if (!right && x<=b.x+b.w && p.x+p.w>b.x+b.w && y+h<=b.y+b.h && y>=b.y)
         return 2;
     }
     return 3;
@@ -45,6 +45,10 @@ class Laser extends Rectangle {
 
   void setX(float x) {
     this.x =x;
+  }
+
+  boolean getShot() {
+    return shot;
   }
 
   void setShot(boolean b) {

@@ -28,9 +28,9 @@ AudioPlayer menuBM, startBM;//background music
 SoundFile sConfirm, sDeny, sStart;//sound effects
 PFont font;//text font
 PImage background1, background2, mCursor1, mCursor2, pausedImage, gameStage;//Background images; image for mouse cursors
-int screen, score, position, gameState, page=0;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
+int screen, score, position, gameState, page=0, uavsDestroyed;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
 String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
-boolean played, nameEntered, isSearching, buttonClicked;//determines if the game was played once already; determines if a name was entered;
+boolean gameEnded, nameEntered, isSearching, buttonClicked;//determines if the game was played once already; determines if a name was entered;
 boolean searchClicked, tBoxClicked, imageNotTaken;// determines if the user is searching for a name in the scoreboard
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
 Button startB, playB, howToPlayB, scoreboardB, optionsB, creditsB, extrasB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB, oneB, twoB, resumeB, controlsB, pOptionsB, pQuitB;//buttons
@@ -59,9 +59,10 @@ void setup() {
   for (int i=0; i<lasers.length; i++) 
     lasers[i]= new Laser(laserImg); //Initilise the laser array
 
-  uavs = new UAV[2];  
-  for (int i=0; i<uavs.length; i++) {
-    uavs[i]= new UAV(width-(i*400), 370, 60, 30, planeImg); //Initilise the laser array
+  uavs = new UAV[10];  
+  for (int i=0; i<uavs.length; i+=2) {
+    uavs[i]= new UAV(width+(i*400), 370, 50, 40, planeImg); //Initilise the laser array
+    uavs[i+1]= new UAV(width+(i*400), 230, 50, 40, planeImg); //Initilise the laser array
   }
 
   platforms = new Rectangle[4];
@@ -153,49 +154,68 @@ void setup() {
   createScoreboard();//If there is no existing scoreboard, a new one is created
 }
 
+void gameOver() {
+  background(0);
+  tint(255, 100);
+  image(pausedImage, 0, 0);
+  fill(255);
+  textSize(60);
+  text("GAME OVER", width/2, height/2);
+  textSize(30);
+  score = uavsDestroyed*100;
+  strScore = String.valueOf(score);//converts to string
+  gameEnded = false;
+  strip.colorRect1();
+  continueB.showButton();
+}
+
 void playGame() {
   image(gameStage, 0, 0);
   noTint();//Takes off the tint
   frameRate(60);
-  player.update();
   imageNotTaken = true;
   boolean intersects = false;
 
-  for (UAV uav : uavs) {
-    uav.show();
-    uav.update();
-    //if (uav.intersects(player)) {
-    //  exit();//GAMEOVER
-    //}
-    for (Laser laser : lasers) {
-      if ( laser.intersection(uav, player) == 1||laser.intersection(uav, player) == 2 && laser.getShot() ) {
-        laser.setShot(false);
-        uav.setX(width);
-        // uav.setSpeed(0);
-        laser.setX(0);
+  if (!gameEnded) {
+    player.update();
+    for (UAV uav : uavs) {
+      uav.show();
+      uav.update();
+      if (uav.intersects(player)) {
+        gameEnded =true;
+        break;
+      }
+      for (Laser laser : lasers) {
+        if ( laser.intersection(uav, player) == 1||laser.intersection(uav, player) == 2 && laser.getShot() ) {
+          laser.setShot(false);
+          uav.setX(width);
+          uavsDestroyed+=100;
+          // uav.setSpeed(0);
+          laser.setX(0);
+        }
       }
     }
-  }
 
-  for (int i = 0; i < platforms.length; i ++) {
-    //platforms[i].colorRect1();
-    switch(player.intersection(platforms[i])) {
-    case 1: //Intersect from top
-      player.setyVelocity(0);
-      intersects = true;
-      player.inAir = false;
-      player.y = platforms[i].y - player.h;
-      break;  
+    for (int i = 0; i < platforms.length; i ++) {
+      //platforms[i].colorRect1();
+      switch(player.intersection(platforms[i])) {
+      case 1: //Intersect from top
+        player.setyVelocity(0);
+        intersects = true;
+        player.inAir = false;
+        player.y = platforms[i].y - player.h;
+        break;  
 
-    case 2: //Intersect from below
-      if (player.yVelocity < 0) // If still rising
-        player.setyVelocity(2);
-      break; 
+      case 2: //Intersect from below
+        if (player.yVelocity < 0) // If still rising
+          player.setyVelocity(2);
+        break; 
 
-    case 4: //No intersection
-      if (player.y < height - player.w && intersects == false)
-        player.inAir = true;
-      break;
+      case 4: //No intersection
+        if (player.y < height - player.w && intersects == false)
+          player.inAir = true;
+        break;
+      }
     }
   }
 
@@ -274,6 +294,7 @@ void draw() {
         sConfirm.play();
       }
       screen = 3;//set screen to 3 so that it can go to the play game screen (case 3)
+      gameEnded =false;
       playB.setClick(false);
     } else if (howToPlayB.getClick()) {//controls button
       if (soundON.getActive()) {
@@ -333,6 +354,9 @@ void draw() {
     switch (gameState) {
     case 1: 
       playGame();
+      if (gameEnded) {
+        screen = 13;
+      }
       break;
     case 2:
       if (imageNotTaken) {//If an image of the current screen was not taken yet
@@ -532,7 +556,6 @@ void draw() {
       screen=2;//sets screen to 2 to go back to the main menu
       returnB.setClick(false);
     }
-    played = false;//sets played to false
     break;
   case 10://extras menu
     if (!menuBM.isPlaying()) {
@@ -595,6 +618,17 @@ void draw() {
       screen=10;
       backB.setClick(false);
     }
+    break;
+  case 13:
+    if (!menuBM.isPlaying()) {
+      menuBM.rewind();
+    }
+    if (musicON.getActive()) {
+      menuBM.play();
+    }
+
+
+
     break;
   }
 }
@@ -827,23 +861,6 @@ void mainMenu() {
   extrasB.showButton();
   quitB.showButton();
   backB.showButton();
-}
-
-//Displays the play game screen
-void play() {
-  image(background2, 0, 0);
-  fill(255);
-  textSize(60);
-  text("PLAY", 100, 50);
-  textSize(20);
-  if (!played) {//If played is false
-    score = (int)(99999*Math.random()); //Temporary get a random score for the user
-    strScore = String.valueOf(score);//converts to string
-    played = true;//set played to true
-  }
-  text("YOUR SCORE IS " + score, width/2, 200);//Let user know their score
-  strip.colorRect1();
-  continueB.showButton();//Draw continue button
 }
 
 //Displays the controls screen

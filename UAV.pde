@@ -8,7 +8,7 @@ class UAV extends Rectangle {
   UAV(float x, float y, float w, float h, PImage img) {
     super(x, y, w, h);
     this.img = img;
-    speed = -4;
+    speed = -6;
   }
 
   void update() {
@@ -25,8 +25,6 @@ class UAV extends Rectangle {
   }
   
   void show() {
-    fill(255);
-    colorRect1();
     image(img, x, y);
   }
 
