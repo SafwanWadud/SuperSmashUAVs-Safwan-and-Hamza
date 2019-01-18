@@ -24,8 +24,8 @@ Laser[] lasers;
 Rectangle[] platforms;
 UAV[] uavs;
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
-AudioPlayer menuBM, startBM;//background music
-SoundFile sConfirm, sDeny, sStart;//sound effects
+AudioPlayer menuBM, startBM, gameBM;//background music
+SoundFile sConfirm, sDeny, sStart, sLaser;//sound effects
 PFont font;//text font
 PImage background1, background2, mCursor1, mCursor2, pausedImage, gameStage;//Background images; image for mouse cursors
 int screen, score, position, gameState, page=0, uavsDestroyed;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
@@ -67,12 +67,14 @@ void setup() {
   minim = new Minim(this);
   menuBM = minim.loadFile("1-03 Menu 1.mp3");//Background music for the main menu
   startBM = minim.loadFile("Fortnite-Battle-Royale-OST-Season-2_64kbs.mp3");//Background music for the start screen
+  gameBM = minim.loadFile("FinalDestination.mp3");//Background music for the game
 
   //Sound
   //Loads the sound files from the data folder
   sConfirm = new SoundFile(this, "220168__gameaudio__button-spacey-confirm.mp3");//Sound effect when a button is pressed
   sDeny = new SoundFile(this, "220167__gameaudio__button-deny-spacey.mp3");
   sStart = new SoundFile(this, "243020__plasterbrain__game-start.mp3");//Sound effect when the start button is pressed
+  sLaser = new SoundFile(this, "laser.mp3");//Sound effect when a laser is shot
 
   //Font
   font = createFont("ssbFont.ttf", 32);
@@ -144,10 +146,11 @@ void initializeGame() {
   for (int i=0; i<lasers.length; i++) 
     lasers[i]= new Laser(laserImg); //Initilise the laser array
 
-  uavs = new UAV[10];  
-  for (int i=0; i<uavs.length; i+=2) {
-    uavs[i]= new UAV(width+(i*400), 370, 50, 40, planeImg); //Initilise the laser array
-    uavs[i+1]= new UAV(width+(i*400), 230, 50, 40, planeImg); //Initilise the laser array
+  uavs = new UAV[30];  
+  for (int i=0; i<uavs.length; i+=3) {
+    uavs[i]= new UAV(width+(i*800), 370, 50, 40, planeImg); //Initilise the uav array
+    uavs[i+1]= new UAV(width+(i*800), 230, 50, 40, planeImg);
+    uavs[i+2]= new UAV(width+(i*800), 80, 50, 40, planeImg);
   }
 
   platforms = new Rectangle[4];
@@ -291,7 +294,9 @@ void draw() {
     break;
   case 2://main menu screen
     startBM.rewind();//Rewinds the start screen music
-    startBM.pause();//Stops the start screen music 
+    startBM.pause();//Stops the start screen music
+    gameBM.rewind();//Rewinds the game music
+    gameBM.pause();//Stops the game music 
     if (!menuBM.isPlaying()) {//if the menu music is not playing, rewind it
       menuBM.rewind();
     }
@@ -352,11 +357,13 @@ void draw() {
     }
     break;
   case 3://play game screen
-    if (!menuBM.isPlaying()) {
-      menuBM.rewind();
+    menuBM.rewind();//Rewinds the menu music
+    menuBM.pause();//Stops the menu music 
+    if (!gameBM.isPlaying()) {//if the game music is not playing, rewind it
+      gameBM.rewind();
     }
-    if (musicON.getActive()) {
-      menuBM.play();
+    if (musicON.getActive()) {//If the music on button is activated, play menu music
+      gameBM.play();
     }
     switch (gameState) {
     case 1: 
@@ -399,6 +406,8 @@ void draw() {
     }
     break;
   case 4://How to play screen
+    if (gameBM.isPlaying())
+      gameBM.pause();//Stops the game music 
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -466,6 +475,8 @@ void draw() {
     }
     break;
   case 6://options menu screen
+    if (gameBM.isPlaying())
+      gameBM.pause();//Stops the game music 
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -537,6 +548,12 @@ void draw() {
     }
     break;
   case 9://update scoreboard menu
+    if (!gameBM.isPlaying()) {//if the game music is not playing, rewind it
+      gameBM.rewind();
+    }
+    if (musicON.getActive()) {//If the music on button is activated, play menu music
+      gameBM.play();
+    }
     promptUser();//gets user's name
     if (returnB.getClick()) {//If the "return to main menu" button is clicked
       modScoreboard();//Updates the scoreboard
@@ -610,12 +627,12 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 13:
-    if (!menuBM.isPlaying()) {
-      menuBM.rewind();
+  case 13:    
+    if (!gameBM.isPlaying()) {//if the game music is not playing, rewind it
+      gameBM.rewind();
     }
-    if (musicON.getActive()) {
-      menuBM.play();
+    if (musicON.getActive()) {//If the music on button is activated, play menu music
+      gameBM.play();
     }
     gameOver();
     nameEntered = false;//sets nameEntered to false
@@ -628,7 +645,7 @@ void draw() {
         screen = 9;//set screen to 9 to go to the update scoreboard menu
       else
         screen = 2;//User did not make top 50 so sets screen to 2 to go back to the main menu
-        initializeGame();
+      initializeGame();
       continueB.setClick(false);
     }
     break;
@@ -806,6 +823,9 @@ void keyReleased() {
     player.setxVelocity(0);
     player.moving = false;
   } else if (key==' ') {
+    if (soundON.getActive()) {//if the sound on button is activated, play the 'laser' sound effect
+      sLaser.play();
+    }
     for (int i=0; i<lasers.length; i++) {
       if (!lasers[i].shot) {
         lasers[i].shot=true;
@@ -815,7 +835,6 @@ void keyReleased() {
         else
           lasers[i].x= player.getX() - player.getW();
         lasers[i].y= player.getY();
-
         break;
       }
     }
