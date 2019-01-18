@@ -93,7 +93,7 @@ void setup() {
   startB = new Button("START", 40, width/2-(textWidth("START")/2), height/2-20, textWidth("START"), 40);
   yesB = new Button("YES", 40, width/2-(textWidth("YES")/2), (height/2)+25, textWidth("YES"), 40 );
   noB = new Button("NO", 40, width/2-(textWidth("NO")/2), (height/2)+100, textWidth("NO"), 40 );
-  continueB = new Button("CONTINUE", 40, width/2-(textWidth("CONTINUE")/2), height/2, textWidth("CONTINUE"), 40);
+  continueB = new Button("CONTINUE", 40, width/2-(textWidth("CONTINUE")/2), height/2+100, textWidth("CONTINUE"), 40);
   oneB = new Button("ONE", 40, width/2-(textWidth("ONE")/2), (height/2)+25, textWidth("ONE"), 40 );
   twoB = new Button("TWO", 40, width/2-(textWidth("TWO")/2), (height/2)+100, textWidth("TWO"), 40 );
   resumeB = new Button("RESUME", 40, width/2-(textWidth("RESUME")/2), (height/2)-100, textWidth("RESUME"), 40 );
@@ -168,12 +168,11 @@ void gameOver() {
   image(pausedImage, 0, 0);
   fill(255);
   textSize(60);
-  text("GAME OVER", width/2, height/2);
+  text("GAME OVER", width/2, height/2-100);
   textSize(30);
   score = uavsDestroyed*100;
   strScore = String.valueOf(score);//converts to string
   gameEnded = false;
-  strip.colorRect1();
   continueB.showButton();
 }
 
