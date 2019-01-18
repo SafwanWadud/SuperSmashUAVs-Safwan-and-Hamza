@@ -55,24 +55,7 @@ void setup() {
   for (int i = 1; i <= playerImgL.length; i++)
     playerImgL[i-1] = loadImage("Left" + i + ".png");  //Initialise each index of array to an image
 
-  lasers = new Laser[4];
-  for (int i=0; i<lasers.length; i++) 
-    lasers[i]= new Laser(laserImg); //Initilise the laser array
-
-  uavs = new UAV[10];  
-  for (int i=0; i<uavs.length; i+=2) {
-    uavs[i]= new UAV(width+(i*400), 370, 50, 40, planeImg); //Initilise the laser array
-    uavs[i+1]= new UAV(width+(i*400), 230, 50, 40, planeImg); //Initilise the laser array
-  }
-
-  platforms = new Rectangle[4];
-  platforms[0] = new Rectangle(190, 428, 605, 25);
-  platforms[1] = new Rectangle(245, 283, 145, 15);
-  platforms[2] = new Rectangle(595, 283, 145, 15);
-  platforms[3] = new Rectangle(414, 141, 158, 25);
-
-  player = new Player(platforms[0].x + platforms[0].w/2-25, platforms[0].y - 50, 50, imgR); //(x,y,width,image)
-  counter = 0;
+  initializeGame();//calls on method to initialize the variables/arrays for the game
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
@@ -138,7 +121,6 @@ void setup() {
   fractal1 = new Recursion1();
   fractal2 = new Recursion2();
 
-
   //import all images
   background1 = loadImage("MegamanSSB.jpg"); //background for startscreen
   background1.resize(width, height);//Changes size of image to fit the screen size
@@ -152,6 +134,29 @@ void setup() {
   mCursor2.resize(32, 32);
 
   createScoreboard();//If there is no existing scoreboard, a new one is created
+}
+
+void initializeGame() {
+  score =0;
+  uavsDestroyed=0;
+
+  lasers = new Laser[4];
+  for (int i=0; i<lasers.length; i++) 
+    lasers[i]= new Laser(laserImg); //Initilise the laser array
+
+  uavs = new UAV[10];  
+  for (int i=0; i<uavs.length; i+=2) {
+    uavs[i]= new UAV(width+(i*400), 370, 50, 40, planeImg); //Initilise the laser array
+    uavs[i+1]= new UAV(width+(i*400), 230, 50, 40, planeImg); //Initilise the laser array
+  }
+
+  platforms = new Rectangle[4];
+  platforms[0] = new Rectangle(190, 428, 605, 25);
+  platforms[1] = new Rectangle(245, 283, 145, 15);
+  platforms[2] = new Rectangle(595, 283, 145, 15);
+  platforms[3] = new Rectangle(414, 141, 158, 25);
+
+  player = new Player(platforms[0].x + platforms[0].w/2-25, platforms[0].y - 50, 50, imgR); //(x,y,width,image)
 }
 
 void gameOver() {
@@ -183,13 +188,18 @@ void playGame() {
       uav.update();
       if (uav.intersects(player)) {
         gameEnded =true;
+        if (imageNotTaken) {//If an image of the current screen was not taken yet
+          pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
+          imageNotTaken = false;
+        }
+        screen =13;
         break;
       }
       for (Laser laser : lasers) {
         if ( laser.intersection(uav, player) == 1||laser.intersection(uav, player) == 2 && laser.getShot() ) {
           laser.setShot(false);
           uav.setX(width);
-          uavsDestroyed+=100;
+          uavsDestroyed+=1;
           // uav.setSpeed(0);
           laser.setX(0);
         }
@@ -342,9 +352,6 @@ void draw() {
     }
     break;
   case 3://play game screen
-    // println("X,Y" + mouseX + "  " + mouseY);
-    // println(player.x + "" + player.y);
-
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
     }
@@ -354,9 +361,6 @@ void draw() {
     switch (gameState) {
     case 1: 
       playGame();
-      if (gameEnded) {
-        screen = 13;
-      }
       break;
     case 2:
       if (imageNotTaken) {//If an image of the current screen was not taken yet
@@ -387,27 +391,13 @@ void draw() {
           sConfirm.play();
         }
         screen=2;//sets screen to 2 (main menu screen)
+        initializeGame();
         gameState=1;
         pQuitB.setClick(false);
       }
       break;
     }
     break;
-    //Leaderboard
-    /*nameEntered = false;//sets nameEntered to false
-     cName = "";// initializes current user's name
-     if (continueB.getClick()) {//if the continue button is clicked
-     if (soundON.getActive()) {
-     sConfirm.play();
-     }
-     if (isScoreTop50())//If current user's score is in the top 50, which is checked by calling isScoreTop50
-     screen = 9;//set screen to 9 to go to the update scoreboard menu
-     else
-     screen = 2;//User did not make top 50 so sets screen to 2 to go back to the main menu
-     continueB.setClick(false);
-     }
-     break;
-     */
   case 4://How to play screen
     if (!menuBM.isPlaying()) {
       menuBM.rewind();
@@ -554,6 +544,7 @@ void draw() {
         sConfirm.play();
       }
       screen=2;//sets screen to 2 to go back to the main menu
+      initializeGame();
       returnB.setClick(false);
     }
     break;
@@ -626,9 +617,20 @@ void draw() {
     if (musicON.getActive()) {
       menuBM.play();
     }
-
-
-
+    gameOver();
+    nameEntered = false;//sets nameEntered to false
+    cName = "";// initializes current user's name
+    if (continueB.getClick()) {//if the continue button is clicked
+      if (soundON.getActive()) {
+        sConfirm.play();
+      }
+      if (isScoreTop50())//If current user's score is in the top 50, which is checked by calling isScoreTop50
+        screen = 9;//set screen to 9 to go to the update scoreboard menu
+      else
+        screen = 2;//User did not make top 50 so sets screen to 2 to go back to the main menu
+        initializeGame();
+      continueB.setClick(false);
+    }
     break;
   }
 }
@@ -661,7 +663,7 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (quitB.isInside() && screen ==2) {//if mouse is within quit button and screen is 2
     quitB.setClick(true);
     buttonClicked=true;
-  } else if (continueB.isInside() && screen ==3) {//if mouse is within continue button and screen is 3
+  } else if (continueB.isInside() && screen ==13) {//if mouse is within continue button and screen is 3
     continueB.setClick(true);
     buttonClicked=true;
   } else if (sortName.isInside() && screen==5) {//if mouse is within sortName switch and screen is 5
