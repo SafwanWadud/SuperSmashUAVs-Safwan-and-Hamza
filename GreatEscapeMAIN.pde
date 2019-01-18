@@ -10,12 +10,14 @@ import ddf.minim.*;
 import processing.sound.*;
 
 //Declaring variables
+PImage fire; //fire at bottom
 PImage imgR; //Standard position facing right
 PImage imgL; //Standard position facing left
 PImage jumpR; //Jumping position facing right
 PImage jumpL; //Jumping position facing left
 PImage laserImg; //Laser image
 PImage planeImg;// Plane image
+PImage planeImg2;// Plane image
 PImage[] playerImgR = new PImage[5]; //Moving right array of images
 PImage[] playerImgL = new PImage[5]; //Moving right array of images
 Player player; //Player object
@@ -42,6 +44,7 @@ Recursion2 fractal2;
 void setup() {
   size(1000, 700);
 
+  fire = loadImage("fire.png");
   imgR = loadImage("PlayerR.png");
   imgL = loadImage("PlayerL.png");
   jumpR = loadImage("JumpR.png");
@@ -49,6 +52,10 @@ void setup() {
   laserImg = loadImage("LaserImg.png");
   planeImg = loadImage("plane.png");
   planeImg.resize(60, 30);
+  planeImg2 = loadImage("plane2.png");
+  planeImg2.resize(60, 30);
+
+
   for (int i = 1; i <= playerImgR.length; i++)
     playerImgR[i-1] = loadImage("Right" + i + ".png"); //Initialise each index of array to an image
 
@@ -183,11 +190,31 @@ void playGame() {
   imageNotTaken = true;
   boolean intersects = false;
 
+
   if (!gameEnded) {
     player.update();
+
+    image(fire, 0, height - 40, width, 40);
+
+    if (player.getY() == height - player.h)
+    {
+      gameEnded =true;
+      if (imageNotTaken) {//If an image of the current screen was not taken yet
+        pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
+        imageNotTaken = false;
+      }
+      screen =13;
+    }
+
     for (UAV uav : uavs) {
       uav.show();
       uav.update();
+
+      if (uav.getSpeed() > 0)
+        uav.setImg(planeImg2);
+      else
+        uav.setImg(planeImg);
+
       if (uav.intersects(player)) {
         gameEnded =true;
         if (imageNotTaken) {//If an image of the current screen was not taken yet
@@ -233,11 +260,16 @@ void playGame() {
 
   //Lasers
   for (int i=0; i<lasers.length; i++) {
+    for (int j=0; j<platforms.length; j++) {
+      if (lasers[i].intersection(platforms[j]) ==1)
+        lasers[i].setShot(false);
+    }
     if (lasers[i].shot==true) {
       lasers[i].show();
       lasers[i].move();
     }
   }
+
 
   if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
     if (counter >= 5)
@@ -262,6 +294,12 @@ void playGame() {
       player.img = jumpL; // jumping image
     else player.img = imgL; //standing image
   }
+
+  //Display Score
+  textSize(30);
+  textAlign(LEFT);
+  text("SCORE:", 0, 30);
+  text(uavsDestroyed * 100, 115, 30);
 }
 
 void draw() {
