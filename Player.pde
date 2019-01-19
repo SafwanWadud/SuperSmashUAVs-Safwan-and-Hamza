@@ -10,8 +10,8 @@ class Player extends Rectangle {
   private float yVelocity;
   private float xVelocity;
 
-  Player(float x, float y, float w, PImage img) {
-    super(x, y, w, w);
+  Player(float x, float y, float w, float h, PImage img) {
+    super(x, y, w, h);
     this.img = img;
     inAir = false;
     gravity = 2.0;
@@ -25,13 +25,20 @@ class Player extends Rectangle {
       yVelocity += gravity;
       y+= yVelocity;
 
-      if (y >= height-w)
+      if (y >= height-h)
       {
         inAir = false;
         yVelocity = 0;
-        y = height-w;
+        y = height-h;
       }
-      image(img, x, y, w, w);
+      
+      if (y < 0)
+      {
+        yVelocity = 0;
+        y = 0;
+      }
+      
+      image(img, x, y, w, h);
     } 
 
     if (moving && xVelocity != 0) {
@@ -44,12 +51,12 @@ class Player extends Rectangle {
         x=0;
 
       if (!inAir)
-        image(img, x, y, w, w);
+        image(img, x, y, w, h);
     }
 
     if (!(inAir || moving))
     {
-      image(img, x, y, w, w);
+      image(img, x, y, w, h);
     }
   }
 

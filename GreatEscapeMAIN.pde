@@ -1,8 +1,8 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 15, 2019
- Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
- avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
+ Date: Jan 19, 2019
+ Brief Description: This program is the main class for a single player game where the user will control a character and attempt avoid obstacles and enemies, 
+ for as long as they can. Player scores are kept track of on a leader board.
  */
 
 //Import Libraries
@@ -184,11 +184,14 @@ void gameOver() {
   image(pausedImage, 0, 0);
   fill(255);
   textSize(60);
-  text("GAME OVER", width/2, height/2-100);
+  text("GAME OVER", width/2, height/2-200);
   textSize(30);
   score = uavsDestroyed*100;
   strScore = String.valueOf(score);//converts to string
   gameEnded = false;
+  text("UAVS DESTROYED: " + uavsDestroyed, width/2, height/2-100);
+  text("TIME SURVIVED: ", width/2, height/2-50);
+  text("FINAL SCORE: " + score, width/2, height/2);
   continueB.showButton();
 }
 
@@ -259,8 +262,10 @@ void playGame() {
       }
 
       for (Laser laser : lasers) {
-        if (laser.intersection(fireball, player) == 1||laser.intersection(fireball, player) == 2 && laser.getShot() ) 
+        if (laser.intersection(fireball, player) == 1||laser.intersection(fireball, player) == 2 && laser.getShot() ) {
           laser.setShot(false);
+          laser.setX(0);
+        }
       }
     }
 
@@ -859,7 +864,7 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
         sName = sName.substring(0, sName.length()-1);//searched name is set equal to the substring of itself minus the last character
       }
     }
-  } else if (screen == 3) {
+  } else if (screen == 3 && gameState ==1) {
     if (keyCode == 'W' || keyCode == UP) {
       while (player.inAir == false)
       {
@@ -875,7 +880,7 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
       player.moving = true;
       player.setxVelocity(-6);
     } else if (keyCode == 'P') {
-      if (soundON.getActive() && gameState==1) {
+      if (soundON.getActive()) {
         sDeny.play();
       }
       gameState = 2;
@@ -884,27 +889,29 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
 }
 
 void keyReleased() {
-  if (keyCode == 'D' || keyCode == RIGHT) {
-    player.setxVelocity(0);
-    player.moving = false;
-  } else if (keyCode == 'A' || keyCode == LEFT) {
-    player.setxVelocity(0);
-    player.moving = false;
-  } else if (key==' ' && screen == 3) {
+  if (gameState ==1) {
+    if (keyCode == 'D' || keyCode == RIGHT) {
+      player.setxVelocity(0);
+      player.moving = false;
+    } else if (keyCode == 'A' || keyCode == LEFT) {
+      player.setxVelocity(0);
+      player.moving = false;
+    } else if (key==' ' && screen == 3) {
 
-    for (int i=0; i<lasers.length; i++) {      
-      if (!lasers[i].shot) {
-        if (soundON.getActive()) {//if the sound on button is activated, play the 'laser' sound effect
-          sLaser.play();
-        }     
-        lasers[i].shot=true;
-        lasers[i].right = player.right;
-        if (player.right)
-          lasers[i].x= player.getX() + player.getW();
-        else
-          lasers[i].x= player.getX() - player.getW();
-        lasers[i].y= player.getY();
-        break;
+      for (int i=0; i<lasers.length; i++) {      
+        if (!lasers[i].shot) {
+          if (soundON.getActive()) {//if the sound on button is activated, play the 'laser' sound effect
+            sLaser.play();
+          }     
+          lasers[i].shot=true;
+          lasers[i].right = player.right;
+          if (player.right)
+            lasers[i].x= player.getX() + player.getW();
+          else
+            lasers[i].x= player.getX() - player.getW();
+          lasers[i].y= player.getY();
+          break;
+        }
       }
     }
   }
