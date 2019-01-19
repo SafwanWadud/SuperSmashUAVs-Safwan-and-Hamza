@@ -18,6 +18,7 @@ PImage jumpL; //Jumping position facing left
 PImage laserImg; //Laser image
 PImage planeImg;// Plane image
 PImage planeImg2;// Plane image
+PImage fireballImg; //Fireball image
 PImage[] playerImgR = new PImage[5]; //Moving right array of images
 PImage[] playerImgL = new PImage[5]; //Moving right array of images
 Player player; //Player object
@@ -25,6 +26,8 @@ float counter;
 Laser[] lasers;
 Rectangle[] platforms;
 UAV[] uavs;
+Fireball[] fireballs;
+
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM, gameBM;//background music
 SoundFile sConfirm, sDeny, sStart, sLaser;//sound effects
@@ -54,6 +57,9 @@ void setup() {
   planeImg.resize(60, 30);
   planeImg2 = loadImage("plane2.png");
   planeImg2.resize(60, 30);
+  fireballImg = loadImage("fireball.png");
+  fireballImg.resize(60, 30);
+
 
 
   for (int i = 1; i <= playerImgR.length; i++)
@@ -160,6 +166,12 @@ void initializeGame() {
     uavs[i+2]= new UAV(width+(i*800), 80, 50, 40, planeImg);
   }
 
+  fireballs = new Fireball[3];
+  fireballs[0]= new Fireball(0, 370, 50, 40, fireballImg); //Initilise the uav array
+  fireballs[1]= new Fireball(0-300, 230, 50, 40, fireballImg);
+  fireballs[2]= new Fireball(0-500, 80, 50, 40, fireballImg);
+
+
   platforms = new Rectangle[4];
   platforms[0] = new Rectangle(190, 428, 605, 25);
   platforms[1] = new Rectangle(245, 283, 145, 15);
@@ -232,6 +244,26 @@ void playGame() {
           // uav.setSpeed(0);
           laser.setX(0);
         }
+      }
+    }
+
+    for (Fireball fireball : fireballs) {
+      fireball.show();
+      fireball.update();
+
+      if (fireball.intersects(player)) {
+        gameEnded =true;
+        if (imageNotTaken) {//If an image of the current screen was not taken yet
+          pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
+          imageNotTaken = false;
+        }
+        screen =13;
+        break;
+      }
+
+      for (Laser laser : lasers) {
+        if (laser.intersection(fireball, player) == 1||laser.intersection(fireball, player) == 2 && laser.getShot() ) 
+          laser.setShot(false);
       }
     }
 
@@ -829,17 +861,17 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
       }
     }
   } else if (screen == 3) {
-    if (keyCode == 'W') {
+    if (keyCode == 'W' || keyCode == UP) {
       while (player.inAir == false)
       {
         player.inAir = true;
         player.setyVelocity(-30);
       }
-    } else if (keyCode == 'D') {
+    } else if (keyCode == 'D' || keyCode == RIGHT) {
       player.right = true; 
       player.moving = true;
       player.setxVelocity(6);
-    } else if (keyCode == 'A') {
+    } else if (keyCode == 'A' || keyCode == LEFT) {
       player.right = false;
       player.moving = true;
       player.setxVelocity(-6);
@@ -853,18 +885,19 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
 }
 
 void keyReleased() {
-  if (keyCode == 'D') {
+  if (keyCode == 'D' || keyCode == RIGHT) {
     player.setxVelocity(0);
     player.moving = false;
-  } else if (keyCode == 'A') {
+  } else if (keyCode == 'A' || keyCode == LEFT) {
     player.setxVelocity(0);
     player.moving = false;
-  } else if (key==' ') {
-    if (soundON.getActive()) {//if the sound on button is activated, play the 'laser' sound effect
-      sLaser.play();
-    }
-    for (int i=0; i<lasers.length; i++) {
+  } else if (key==' ' && screen == 3) {
+
+    for (int i=0; i<lasers.length; i++) {      
       if (!lasers[i].shot) {
+        if (soundON.getActive()) {//if the sound on button is activated, play the 'laser' sound effect
+          sLaser.play();
+        }     
         lasers[i].shot=true;
         lasers[i].right = player.right;
         if (player.right)

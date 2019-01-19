@@ -2,8 +2,8 @@
 //Brief Description: Blueprint for the UAV class
 
 class UAV extends Rectangle {
-  private PImage img;
-  private float speed;
+  protected PImage img;
+  protected float speed;
 
   UAV(float x, float y, float w, float h, PImage img) {
     super(x, y, w, h);
