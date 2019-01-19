@@ -1,8 +1,8 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 15, 2019
- Brief Description: This program is the main class for a single player/ multiplayer game where the user(s) will control a character and attempt to reach the end of mazes while
- avoiding obstacles and enemies, in the least amount of time. Player scores are kept track of on a leader board.
+ Date: Jan 19, 2019
+ Brief Description: This program is the main class for a single player game where the user will control a character and attempt avoid obstacles and enemies, 
+ for as long as they can. Player scores are kept track of on a leader board.
  */
 
 //Import Libraries
@@ -10,12 +10,15 @@ import ddf.minim.*;
 import processing.sound.*;
 
 //Declaring variables
+PImage fire; //fire at bottom
 PImage imgR; //Standard position facing right
 PImage imgL; //Standard position facing left
 PImage jumpR; //Jumping position facing right
 PImage jumpL; //Jumping position facing left
 PImage laserImg; //Laser image
 PImage planeImg;// Plane image
+PImage planeImg2;// Plane image
+PImage fireballImg; //Fireball image
 PImage[] playerImgR = new PImage[5]; //Moving right array of images
 PImage[] playerImgL = new PImage[5]; //Moving right array of images
 Player player; //Player object
@@ -23,6 +26,8 @@ float counter;
 Laser[] lasers;
 Rectangle[] platforms;
 UAV[] uavs;
+Fireball[] fireballs;
+
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM, gameBM;//background music
 SoundFile sConfirm, sDeny, sStart, sLaser;//sound effects
@@ -42,6 +47,7 @@ Recursion2 fractal2;
 void setup() {
   size(1000, 700);
 
+  fire = loadImage("fire.png");
   imgR = loadImage("PlayerR.png");
   imgL = loadImage("PlayerL.png");
   jumpR = loadImage("JumpR.png");
@@ -49,6 +55,11 @@ void setup() {
   laserImg = loadImage("LaserImg.png");
   planeImg = loadImage("plane.png");
   planeImg.resize(60, 30);
+  planeImg2 = loadImage("plane2.png");
+  planeImg2.resize(60, 30);
+  fireballImg = loadImage("fireball.png");
+  fireballImg.resize(60, 30);
+
   for (int i = 1; i <= playerImgR.length; i++)
     playerImgR[i-1] = loadImage("Right" + i + ".png"); //Initialise each index of array to an image
 
@@ -153,13 +164,18 @@ void initializeGame() {
     uavs[i+2]= new UAV(width+(i*800), 80, 50, 40, planeImg);
   }
 
+  fireballs = new Fireball[3];
+  fireballs[0]= new Fireball(0, 370, 50, 40, fireballImg); //Initilise the fireball array
+  fireballs[1]= new Fireball(0-600, 230, 50, 40, fireballImg);
+  fireballs[2]= new Fireball(0-200, 80, 50, 40, fireballImg);
+
   platforms = new Rectangle[4];
-  platforms[0] = new Rectangle(190, 428, 605, 25);
-  platforms[1] = new Rectangle(245, 283, 145, 15);
-  platforms[2] = new Rectangle(595, 283, 145, 15);
+  platforms[0] = new Rectangle(185, 428, 615, 25);
+  platforms[1] = new Rectangle(235, 283, 170, 15);
+  platforms[2] = new Rectangle(582, 283, 170, 15);
   platforms[3] = new Rectangle(414, 141, 158, 25);
 
-  player = new Player(platforms[0].x + platforms[0].w/2-25, platforms[0].y - 50, 50, imgR); //(x,y,width,image)
+  player = new Player(platforms[0].x + platforms[0].w/2-25, platforms[0].y - 50, 50, 50, imgR); //(x,y,width,image)
 }
 
 void gameOver() {
@@ -168,11 +184,14 @@ void gameOver() {
   image(pausedImage, 0, 0);
   fill(255);
   textSize(60);
-  text("GAME OVER", width/2, height/2-100);
+  text("GAME OVER", width/2, height/2-200);
   textSize(30);
   score = uavsDestroyed*100;
   strScore = String.valueOf(score);//converts to string
   gameEnded = false;
+  text("UAVS DESTROYED: " + uavsDestroyed, width/2, height/2-100);
+  text("TIME SURVIVED: ", width/2, height/2-50);
+  text("FINAL SCORE: " + score, width/2, height/2);
   continueB.showButton();
 }
 
@@ -182,12 +201,32 @@ void playGame() {
   frameRate(60);
   imageNotTaken = true;
   boolean intersects = false;
+  int index = 0;
 
   if (!gameEnded) {
     player.update();
+
+    image(fire, 0, height - 40, width, 40);
+
+    if (player.getY() == height - player.h)
+    {
+      gameEnded =true;
+      if (imageNotTaken) {//If an image of the current screen was not taken yet
+        pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
+        imageNotTaken = false;
+      }
+      screen =13;
+    }
+
     for (UAV uav : uavs) {
       uav.show();
       uav.update();
+
+      if (uav.getSpeed() > 0)
+        uav.setImg(planeImg2);
+      else
+        uav.setImg(planeImg);
+
       if (uav.intersects(player)) {
         gameEnded =true;
         if (imageNotTaken) {//If an image of the current screen was not taken yet
@@ -203,6 +242,28 @@ void playGame() {
           uav.setX(width);
           uavsDestroyed+=1;
           // uav.setSpeed(0);
+          laser.setX(0);
+        }
+      }
+    }
+
+    for (Fireball fireball : fireballs) {
+      fireball.show();
+      fireball.update();
+
+      if (fireball.intersects(player)) {
+        gameEnded =true;
+        if (imageNotTaken) {//If an image of the current screen was not taken yet
+          pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
+          imageNotTaken = false;
+        }
+        screen =13;
+        break;
+      }
+
+      for (Laser laser : lasers) {
+        if (laser.intersection(fireball, player) == 1||laser.intersection(fireball, player) == 2 && laser.getShot() ) {
+          laser.setShot(false);
           laser.setX(0);
         }
       }
@@ -232,12 +293,19 @@ void playGame() {
   }
 
   //Lasers
-  for (int i=0; i<lasers.length; i++) {
-    if (lasers[i].shot==true) {
-      lasers[i].show();
-      lasers[i].move();
+  do {
+    for (int j=0; j<platforms.length; j++) {
+      if (lasers[index].intersection(platforms[j]) ==1)
+        lasers[index].setShot(false);
     }
-  }
+    if (lasers[index].shot==true) {
+      lasers[index].show();
+      lasers[index].move();
+    } 
+    index++;
+    // }
+  } while (index<lasers.length);
+
 
   if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
     if (counter >= 5)
@@ -262,6 +330,12 @@ void playGame() {
       player.img = jumpL; // jumping image
     else player.img = imgL; //standing image
   }
+
+  //Display Score
+  textSize(30);
+  textAlign(LEFT);
+  text("SCORE:", 10, 40);
+  text(uavsDestroyed * 100, 125, 40);
 }
 
 void draw() {
@@ -790,23 +864,23 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
         sName = sName.substring(0, sName.length()-1);//searched name is set equal to the substring of itself minus the last character
       }
     }
-  } else if (screen == 3) {
-    if (keyCode == 'W') {
+  } else if (screen == 3 && gameState ==1) {
+    if (keyCode == 'W' || keyCode == UP) {
       while (player.inAir == false)
       {
         player.inAir = true;
         player.setyVelocity(-30);
       }
-    } else if (keyCode == 'D') {
+    } else if (keyCode == 'D' || keyCode == RIGHT) {
       player.right = true; 
       player.moving = true;
       player.setxVelocity(6);
-    } else if (keyCode == 'A') {
+    } else if (keyCode == 'A' || keyCode == LEFT) {
       player.right = false;
       player.moving = true;
       player.setxVelocity(-6);
     } else if (keyCode == 'P') {
-      if (soundON.getActive() && gameState==1) {
+      if (soundON.getActive()) {
         sDeny.play();
       }
       gameState = 2;
@@ -815,26 +889,29 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
 }
 
 void keyReleased() {
-  if (keyCode == 'D') {
-    player.setxVelocity(0);
-    player.moving = false;
-  } else if (keyCode == 'A') {
-    player.setxVelocity(0);
-    player.moving = false;
-  } else if (key==' ') {
-    if (soundON.getActive()) {//if the sound on button is activated, play the 'laser' sound effect
-      sLaser.play();
-    }
-    for (int i=0; i<lasers.length; i++) {
-      if (!lasers[i].shot) {
-        lasers[i].shot=true;
-        lasers[i].right = player.right;
-        if (player.right)
-          lasers[i].x= player.getX() + player.getW();
-        else
-          lasers[i].x= player.getX() - player.getW();
-        lasers[i].y= player.getY();
-        break;
+  if (gameState ==1) {
+    if (keyCode == 'D' || keyCode == RIGHT) {
+      player.setxVelocity(0);
+      player.moving = false;
+    } else if (keyCode == 'A' || keyCode == LEFT) {
+      player.setxVelocity(0);
+      player.moving = false;
+    } else if (key==' ' && screen == 3) {
+
+      for (int i=0; i<lasers.length; i++) {      
+        if (!lasers[i].shot) {
+          if (soundON.getActive()) {//if the sound on button is activated, play the 'laser' sound effect
+            sLaser.play();
+          }     
+          lasers[i].shot=true;
+          lasers[i].right = player.right;
+          if (player.right)
+            lasers[i].x= player.getX() + player.getW();
+          else
+            lasers[i].x= player.getX() - player.getW();
+          lasers[i].y= player.getY();
+          break;
+        }
       }
     }
   }
