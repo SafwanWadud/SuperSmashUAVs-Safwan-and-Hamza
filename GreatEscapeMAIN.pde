@@ -60,8 +60,6 @@ void setup() {
   fireballImg = loadImage("fireball.png");
   fireballImg.resize(60, 30);
 
-
-
   for (int i = 1; i <= playerImgR.length; i++)
     playerImgR[i-1] = loadImage("Right" + i + ".png"); //Initialise each index of array to an image
 
@@ -167,18 +165,17 @@ void initializeGame() {
   }
 
   fireballs = new Fireball[3];
-  fireballs[0]= new Fireball(0, 370, 50, 40, fireballImg); //Initilise the uav array
-  fireballs[1]= new Fireball(0-300, 230, 50, 40, fireballImg);
-  fireballs[2]= new Fireball(0-500, 80, 50, 40, fireballImg);
-
+  fireballs[0]= new Fireball(0, 370, 50, 40, fireballImg); //Initilise the fireball array
+  fireballs[1]= new Fireball(0-600, 230, 50, 40, fireballImg);
+  fireballs[2]= new Fireball(0-200, 80, 50, 40, fireballImg);
 
   platforms = new Rectangle[4];
-  platforms[0] = new Rectangle(190, 428, 605, 25);
-  platforms[1] = new Rectangle(245, 283, 145, 15);
-  platforms[2] = new Rectangle(595, 283, 145, 15);
+  platforms[0] = new Rectangle(185, 428, 615, 25);
+  platforms[1] = new Rectangle(235, 283, 170, 15);
+  platforms[2] = new Rectangle(582, 283, 170, 15);
   platforms[3] = new Rectangle(414, 141, 158, 25);
 
-  player = new Player(platforms[0].x + platforms[0].w/2-25, platforms[0].y - 50, 50, imgR); //(x,y,width,image)
+  player = new Player(platforms[0].x + platforms[0].w/2-25, platforms[0].y - 50, 50, 50, imgR); //(x,y,width,image)
 }
 
 void gameOver() {
@@ -201,7 +198,7 @@ void playGame() {
   frameRate(60);
   imageNotTaken = true;
   boolean intersects = false;
-
+  int index = 0;
 
   if (!gameEnded) {
     player.update();
@@ -291,16 +288,18 @@ void playGame() {
   }
 
   //Lasers
-  for (int i=0; i<lasers.length; i++) {
+  do {
     for (int j=0; j<platforms.length; j++) {
-      if (lasers[i].intersection(platforms[j]) ==1)
-        lasers[i].setShot(false);
+      if (lasers[index].intersection(platforms[j]) ==1)
+        lasers[index].setShot(false);
     }
-    if (lasers[i].shot==true) {
-      lasers[i].show();
-      lasers[i].move();
-    }
-  }
+    if (lasers[index].shot==true) {
+      lasers[index].show();
+      lasers[index].move();
+    } 
+    index++;
+    // }
+  } while (index<lasers.length);
 
 
   if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
@@ -330,8 +329,8 @@ void playGame() {
   //Display Score
   textSize(30);
   textAlign(LEFT);
-  text("SCORE:", 0, 30);
-  text(uavsDestroyed * 100, 115, 30);
+  text("SCORE:", 10, 40);
+  text(uavsDestroyed * 100, 125, 40);
 }
 
 void draw() {
