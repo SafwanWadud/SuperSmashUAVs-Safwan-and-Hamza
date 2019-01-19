@@ -11,20 +11,24 @@ class Button extends Rectangle {
     txtSize = ts;
     click = false;
   }
-
+  
+  String toString(){
+    return label;
+  }
+  
   void showButton() {
     textAlign(CENTER, CENTER);
     textSize(txtSize);
     if (!isInside()) {
       fill(0);
-      text(label, x+(w/2)+2, y+(h/2)-2);//Creates a shadow for the text
+      text(this.toString(), x+(w/2)+2, y+(h/2)-2);//Creates a shadow for the text
       fill(255);
-      text(label, x+(w/2), y+(h/2)-5);
+      text(this.toString(), x+(w/2), y+(h/2)-5);
     } else if (isInside()) {
       fill(0);
-      text(label, x+(w/2)+2, y+(h/2)-5);
+      text(this.toString(), x+(w/2)+2, y+(h/2)-5);
       fill(255, 246, 0);//changes text color to yellow
-      text(label, x+(w/2), y+(h/2)-8);
+      text(this.toString(), x+(w/2), y+(h/2)-8);
     }
   }
 

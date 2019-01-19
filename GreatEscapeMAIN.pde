@@ -33,7 +33,7 @@ AudioPlayer menuBM, startBM, gameBM;//background music
 SoundFile sConfirm, sDeny, sStart, sLaser;//sound effects
 PFont font;//text font
 PImage background1, background2, mCursor1, mCursor2, pausedImage, gameStage;//Background images; image for mouse cursors
-int screen, score, position, gameState, page=0, uavsDestroyed;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
+int screen, score, position, gameState, page, uavsDestroyed;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
 String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
 boolean gameEnded, nameEntered, isSearching, buttonClicked;//determines if the game was played once already; determines if a name was entered;
 boolean searchClicked, tBoxClicked, imageNotTaken;// determines if the user is searching for a name in the scoreboard
@@ -70,6 +70,7 @@ void setup() {
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
+  page = 0;
   gameState = 1;//initialized to 1 to represent the first game state (runs the game);
   sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
 
@@ -187,6 +188,8 @@ void gameOver() {
   text("GAME OVER", width/2, height/2-200);
   textSize(30);
   score = uavsDestroyed*100;
+  if (score>99999)//high score limit
+    score = 99999;
   strScore = String.valueOf(score);//converts to string
   gameEnded = false;
   text("UAVS DESTROYED: " + uavsDestroyed, width/2, height/2-100);
