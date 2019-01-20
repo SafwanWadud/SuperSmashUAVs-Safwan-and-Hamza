@@ -1,3 +1,5 @@
+//Name: Hamza Osman
+//Brief Description: Blueprint for the fireball class
 class Fireball extends UAV {
 
   Fireball(float x, float y, float w, float h, PImage img) {

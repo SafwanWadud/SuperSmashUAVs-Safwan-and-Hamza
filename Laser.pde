@@ -1,4 +1,4 @@
-//Name: Hamza Osman
+//Name: Hamza Osman && Safwan Wadud
 //Brief Description: Blueprint for the Player class
 
 class Laser extends Rectangle {

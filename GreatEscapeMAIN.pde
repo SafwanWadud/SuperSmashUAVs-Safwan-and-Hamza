@@ -27,20 +27,22 @@ Laser[] lasers;
 Rectangle[] platforms;
 UAV[] uavs;
 Fireball[] fireballs;
+Timer timer;
 
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM, gameBM;//background music
 SoundFile sConfirm, sDeny, sStart, sLaser;//sound effects
 PFont font;//text font
-PImage background1, background2, mCursor1, mCursor2, pausedImage, gameStage;//Background images; image for mouse cursors
-int screen, score, position, gameState, page=0, uavsDestroyed;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
-String strScore, cName, sName;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard 
-boolean gameEnded, nameEntered, isSearching, buttonClicked;//determines if the game was played once already; determines if a name was entered;
-boolean searchClicked, tBoxClicked, imageNotTaken;// determines if the user is searching for a name in the scoreboard
+PImage[] cursors = new PImage[2];//images for mouse cursor
+PImage background1, background2, pausedImage, gameStage;//Background images 
+int screen, score, position, gameState, page, uavsDestroyed;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
+String strScore, cName, sName, sRank;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard;hold's the rank searched by the user in the scoreboard  
+boolean gameEnded, nameEntered, searchingName, searchingRank, buttonClicked;//determines if the game was played once already; determines if a name was entered;
+boolean nSearchClicked, rSearchClicked, tBoxClicked, imageNotTaken;// determines if the user is searching for a name or a rank in the scoreboard; determines if the user clicked on the textBox
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
 Button startB, playB, howToPlayB, scoreboardB, optionsB, creditsB, extrasB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB, oneB, twoB, resumeB, controlsB, pOptionsB, pQuitB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
-Rectangle strip, textBox, searchBar;//white strip for menu design; textBox to get user's name; searchBar to get a name entered by user in scoreboard
+Rectangle strip, textBox, searchBar1, searchBar2;//white strip for menu design; textBox to get user's name; searchBar to get a name entered by user in scoreboard
 Recursion1 fractal1;//recursive fractal design
 Recursion2 fractal2;
 
@@ -66,10 +68,12 @@ void setup() {
   for (int i = 1; i <= playerImgL.length; i++)
     playerImgL[i-1] = loadImage("Left" + i + ".png");  //Initialise each index of array to an image
 
+  timer = new Timer();//Creates new timer object
   initializeGame();//calls on method to initialize the variables/arrays for the game
 
   //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
+  page = 0;
   gameState = 1;//initialized to 1 to represent the first game state (runs the game);
   sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
 
@@ -128,7 +132,8 @@ void setup() {
   //Rectangles
   strip = new Rectangle(0, 100, width, 3);//creates a thin white strip
   textBox = new Rectangle((width/2)-88, (height/2)-20, 195, 40);//creates a small rectangle with a white outline representing a text box
-  searchBar = new Rectangle(280, 115, 195, 40);
+  searchBar1 = new Rectangle(517, 117, 140, 30);
+  searchBar2 = new Rectangle(222, 117, 65, 30);
 
   //Recursion
   fractal1 = new Recursion1();
@@ -141,10 +146,10 @@ void setup() {
   background2.resize(width, height);
   gameStage = loadImage("stage.png");
   gameStage.resize(width, height);
-  mCursor1 = loadImage("cursor1.png");
-  mCursor1.resize(32, 32);
-  mCursor2 = loadImage("cursor2.png");
-  mCursor2.resize(32, 32);
+  cursors[0] = loadImage("cursor1.png");
+  cursors[0].resize(32, 32);
+  cursors[1] = loadImage("cursor2.png");
+  cursors[1].resize(32, 32);
 
   createScoreboard();//If there is no existing scoreboard, a new one is created
 }
@@ -159,9 +164,9 @@ void initializeGame() {
 
   uavs = new UAV[30];  
   for (int i=0; i<uavs.length; i+=3) {
-    uavs[i]= new UAV(width+(i*800), 370, 50, 40, planeImg); //Initilise the uav array
-    uavs[i+1]= new UAV(width+(i*800), 230, 50, 40, planeImg);
-    uavs[i+2]= new UAV(width+(i*800), 80, 50, 40, planeImg);
+    uavs[i]= new UAV(width+(i*1000), 370, 50, 40, planeImg); //Initilise the uav array
+    uavs[i+1]= new UAV(width+(i*1000), 230, 50, 40, planeImg);
+    uavs[i+2]= new UAV(width+(i*1000), 80, 50, 40, planeImg);
   }
 
   fireballs = new Fireball[3];
@@ -186,11 +191,10 @@ void gameOver() {
   textSize(60);
   text("GAME OVER", width/2, height/2-200);
   textSize(30);
-  score = uavsDestroyed*100;
   strScore = String.valueOf(score);//converts to string
   gameEnded = false;
   text("UAVS DESTROYED: " + uavsDestroyed, width/2, height/2-100);
-  text("TIME SURVIVED: ", width/2, height/2-50);
+  text("TIME SURVIVED: " + timer, width/2, height/2-50);
   text("FINAL SCORE: " + score, width/2, height/2);
   continueB.showButton();
 }
@@ -204,8 +208,22 @@ void playGame() {
   int index = 0;
 
   if (!gameEnded) {
+    timer.updateTime();
     player.update();
 
+    //Display Score
+    textSize(30);
+    textAlign(LEFT);
+    text("SCORE:", 10, 40);
+    score = (uavsDestroyed * 50)+(3*timer.gameTime/1000);
+    if (score>99999)//high score limit
+      score = 99999;
+    text(score, 125, 40);
+
+    //Display Timer
+    text("Time: " + timer.toString(), 780, 40);
+
+    //Fire on ground
     image(fire, 0, height - 40, width, 40);
 
     if (player.getY() == height - player.h)
@@ -239,9 +257,8 @@ void playGame() {
       for (Laser laser : lasers) {
         if ( laser.intersection(uav, player) == 1||laser.intersection(uav, player) == 2 && laser.getShot() ) {
           laser.setShot(false);
-          uav.setX(width);
+          uav.setX(width+random(100, 1000));//respawn location
           uavsDestroyed+=1;
-          // uav.setSpeed(0);
           laser.setX(0);
         }
       }
@@ -330,21 +347,15 @@ void playGame() {
       player.img = jumpL; // jumping image
     else player.img = imgL; //standing image
   }
-
-  //Display Score
-  textSize(30);
-  textAlign(LEFT);
-  text("SCORE:", 10, 40);
-  text(uavsDestroyed * 100, 125, 40);
 }
 
 void draw() {
   if (buttonClicked) {//Drops the framerate to show second mouse cursor when the mouse clicks on something
     frameRate(5);
-    cursor(mCursor2, 0, 0);
+    cursor(cursors[1], 0, 0);
     buttonClicked = false;
   } else {//show the first mouse cursor and put the framerate back to 60
-    cursor(mCursor1, 0, 0);
+    cursor(cursors[0], 0, 0);
     frameRate(60);
   }
   switch (screen) {
@@ -395,6 +406,7 @@ void draw() {
         sConfirm.play();
       }
       sName = "";// initializes searched name
+      sRank = "";// initializes the searched rank
       screen =5;//sets screen to 5 (scoreboard menu)
       scoreboardB.setClick(false);
     } else if (optionsB.getClick()) {//options button
@@ -438,6 +450,7 @@ void draw() {
     if (musicON.getActive()) {//If the music on button is activated, play menu music
       gameBM.play();
     }
+
     switch (gameState) {
     case 1: 
       playGame();
@@ -735,6 +748,9 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (playB.isInside() && screen == 2) {//if mouse is within play button and screen is 2
     playB.setClick(true);//set playB's click to true
     buttonClicked=true;
+    timer.timeElapsed=millis();
+    timer.pausedTime = 0;
+    timer.notPaused=true;
   } else if (howToPlayB.isInside() && screen ==2) {//if mouse is within controls button and screen is 2
     howToPlayB.setClick(true);
     buttonClicked=true;
@@ -766,10 +782,10 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
     sortScore.setActive(true);//Activates the sortScore switch
     sortName.setActive(false);//Deactivates the sortName switch
     buttonClicked=true;
-  } else if (nextB.isInside() && screen ==5 && page<40 && !isSearching) {//if mouse is within next button and screen is 5 and it isn't the last page of the scoreboard and user is not searching a name in the scoreboard
+  } else if (nextB.isInside() && screen ==5 && page<40 && !searchingName && !searchingRank) {//if mouse is within next button and screen is 5 and it isn't the last page of the scoreboard and user is not searching a name in the scoreboard
     nextB.setClick(true);
     buttonClicked=true;
-  } else if (previousB.isInside() && screen ==5 && page>0 && !isSearching) {//if mouse is within previous button and screen is 5 and it isn't the first page of the scoreboard and user is not searching a name in the scoreboard
+  } else if (previousB.isInside() && screen ==5 && page>0 && !searchingName && !searchingRank) {//if mouse is within previous button and screen is 5 and it isn't the first page of the scoreboard and user is not searching a name in the scoreboard
     previousB.setClick(true);
     buttonClicked=true;
   } else if (musicON.isInside() && screen==6) {//if mouse is within musicON switch and screen is 6
@@ -809,6 +825,10 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (resumeB.isInside() && gameState == 2 && screen==3) {
     resumeB.setClick(true);
     buttonClicked = true;
+    if (!timer.notPaused) {
+      timer.timeElapsed=millis();
+      timer.notPaused = true;
+    }
   } else if (controlsB.isInside() && gameState == 2 && screen==3) {
     controlsB.setClick(true);
     buttonClicked = true;
@@ -820,14 +840,24 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
     buttonClicked = true;
   }
 
-  //checks to see if the search bar was clicked
-  if (searchBar.isInside() && screen ==5) {
-    searchBar.setColor(255, 246, 0);//if so, change outline to yellow
-    searchClicked = true;//sets searchClicked to true
+  //checks to see if the name search bar was clicked
+  if (searchBar1.isInside() && screen ==5) {
+    searchBar1.setColor(255, 246, 0);//if so, change outline to yellow
+    nSearchClicked = true;//sets searchClicked to true
     buttonClicked = true;
-  } else if (!searchBar.isInside() && screen == 5) {
-    searchClicked = false;//sets searchClicked to false
-    searchBar.setColor(255, 255, 255);//change colour back to white
+  } else if (!searchBar1.isInside() && screen == 5) {
+    nSearchClicked = false;//sets searchClicked to false
+    searchBar1.setColor(255, 255, 255);//change colour back to white
+  }
+
+  //checks to see if the rank search bar was clicked
+  if (searchBar2.isInside() && screen ==5) {
+    searchBar2.setColor(255, 246, 0);//if so, change outline to yellow
+    rSearchClicked = true;//sets searchClicked to true
+    buttonClicked = true;
+  } else if (!searchBar2.isInside() && screen == 5) {
+    rSearchClicked = false;//sets searchClicked to false
+    searchBar2.setColor(255, 255, 255);//change colour back to white
   }
 
   //checks to see if textBox was clicked
@@ -835,7 +865,7 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
     textBox.setColor(255, 246, 0);
     tBoxClicked = true;
     buttonClicked = true;
-  } else if (!searchBar.isInside() && screen == 9) {
+  } else if (!textBox.isInside() && screen == 9) {
     tBoxClicked = false;
     textBox.setColor(255, 255, 255);
   }
@@ -856,12 +886,23 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
         cName = "";//sets current user's name to null (empty string)
       }
     }
-  } else if (screen==5 && searchClicked) {//If the screen is 5 and the search bar was clicked
-    if (key>='a'&&key<='z' && sName.length()<6) {//If a letter is pressed and the searched name has less than 6 characters
-      sName = (sName+key).toUpperCase();//Adds the key to searched name and changes it to upper case
-    } else if (key == BACKSPACE) {//If backspace is pressed
-      if (sName.length() > 0) {//If the searched name contains 1 or more characters
-        sName = sName.substring(0, sName.length()-1);//searched name is set equal to the substring of itself minus the last character
+  } else if (screen==5) {//If the screen is 5
+    if (nSearchClicked) {//If the name search bar was clicked
+      if (key>='a'&&key<='z' && sName.length()<6) {//If a letter is pressed and the searched name has less than 6 characters
+        sName = (sName+key).toUpperCase();//Adds the key to searched name and changes it to upper case
+      } else if (key == BACKSPACE) {//If backspace is pressed
+        if (sName.length() > 0) {//If the searched name contains 1 or more characters
+          sName = sName.substring(0, sName.length()-1);//searched name is set equal to the substring of itself minus the last character
+        }
+      }
+    }
+    if (rSearchClicked) {//If the rank search bar was clicked
+      if (key>= '0' &&key<= '9' && sRank.length()<2) {//If a number is pressed and the searched rank has less than 2 characters
+        sRank += key;//Adds the key to searched rank
+      } else if (key == BACKSPACE) {//If backspace is pressed
+        if (sRank.length() > 0) {//If the searched name contains 1 or more characters
+          sRank = sRank.substring(0, sRank.length()-1);//searched rank is set equal to the substring of itself minus the last character
+        }
       }
     }
   } else if (screen == 3 && gameState ==1) {
@@ -880,6 +921,10 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
       player.moving = true;
       player.setxVelocity(-6);
     } else if (keyCode == 'P') {
+      if (timer.notPaused) {
+        timer.pausedTime+=millis()-timer.timeElapsed;
+        timer.notPaused = false;
+      }
       if (soundON.getActive()) {
         sDeny.play();
       }
@@ -937,7 +982,7 @@ void startScreen() {
   image(background1, 0, 0);//draws the first image
   fill(255);//255 = white  
   textSize(60);//sets text size to 60
-  text("CUE'S GREAT ESCAPE", width/2, 100);//draws text to screen at specified x and y locations
+  text("SUPER SMASH UAVS", width/2, 100);//draws text to screen at specified x and y locations
   startB.showButton();//Draw the start button
 }
 
@@ -992,27 +1037,42 @@ void scoreboardMenu(int page) {//takes in an int paramater which lets the progra
   fill(255);
   textSize(60);
   text("SCOREBOARD", 225, 50);
-  textSize(40);
+  textSize(30);
   text("RANK", 100, 175);
   text("NAME", width/2, 175);
   text("SCORE", width-100, 175);
-  textSize(30);
-  text("SORT BY: ", 740, 130);
-  text("SEARCH NAME: ", 158, 130); 
-  searchBar.colorRect3();//Draws a small rectangle with a white stroke to represent a search bar
+  textSize(20);
+  text("SORT BY: ", 760, 130);
+  text("SEARCH RANK: ", 135, 130);
+  text("SEARCH NAME: ", 430, 130);
+  searchBar1.colorRect3();//Draws a small rectangle with a white stroke to represent a search bar
+  searchBar2.colorRect3();
   fill(255, 255, 0);//yellow 
   textAlign(LEFT);
-  text(sName, 285, 145);//Draws the searched name inside the text box as letters are pressed on the keyboard
+  text(sRank, 230, 140);//Draws the searched rank inside the text box as keys are pressed on the keyboard
+  text(sName, 525, 140);//Draws the searched name
   fill(255);
+  textSize(30);
   textAlign(CENTER, CENTER);
   if (sName.length()>0) {//If the searched name contains atleast 1 character
-    isSearching = true;
+    searchingName = true;
     searchPos = seqSearch(sbParts, sName); //sets search position to the value returned by the seqSearch method
     if (searchPos == -1) {//Indicates that the sequential search found no match
       text("NO MATCH FOUND", width/2, 225);//Prints the name
     }
+  } else if (sRank.length()>0) {//If the searched rank contains atleast 1 character
+    searchingRank = true;
+    int loc = seqSearch(sbParts, Integer.parseInt(sRank));
+    if (loc == -1) //Indicates that the sequential search found no match
+      text("NO MATCH FOUND", width/2, 225);//Prints the name
+    else {
+      text(sbParts[0][loc], 100, 225);//Prints the rank
+      text(sbParts[1][loc], width/2, 225);//Prints the name
+      text(sbParts[2][loc], width-100, 225);//Prints the score
+    }
   } else {//Draws the regular scoreboard
-    isSearching = false;
+    searchingName = false;
+    searchingRank = false;
     int i = page;
     while (i<10+page) {//Prints 10 scores depending on the page
       text(sbParts[0][i], 100, 225+((i%10)*35));//Prints the rank
@@ -1022,9 +1082,9 @@ void scoreboardMenu(int page) {//takes in an int paramater which lets the progra
     }
   }
   strip.colorRect1();
-  if (page<40 && !isSearching)//If page is less than 40 (not at the last page) and the user is not searching, draw the next button
+  if (page<40 && !searchingName && !searchingRank)//If page is less than 40 (not at the last page) and the user is not searching, draw the next button
     nextB.showButton();
-  if (page>0 && !isSearching)//If page is greater than 0 (not at first page) and the user is not searching, draw the previous button
+  if (page>0 && !searchingName && !searchingRank)//If page is greater than 0 (not at first page) and the user is not searching, draw the previous button
     previousB.showButton();
   sortName.showSwitch();//Draw the sortName switch
   sortScore.showSwitch();//Draw the sortScore switch
@@ -1100,6 +1160,8 @@ void quitGame() {
 //Displays a post-game screen where if the current user made it to the top 50, a text box is drawn to get the user's name 
 void promptUser() {
   background(0);
+  tint(255, 100);
+  image(pausedImage, 0, 0);
   textBox.colorRect3();//Draws a small rectangle with a white stroke to represent a text box
   textSize(30);
   fill(255);
@@ -1281,6 +1343,18 @@ int seqSearch (String[][] list, String item)
       text(sbParts[2][i], width-100, row);//Prints the score
       row+=35;//Increases row by 35 to prevent overlapping of scores
     }
+  }
+  return location;
+}
+
+//Searches for a rank in the scoreboard specified by the user and shows corresponding name and score
+int seqSearch (String[][] list, int item)
+{
+  int location = -1;
+  for (int i = 0; i < list[0].length; i++)
+  {
+    if (Integer.parseInt(list[0][i].substring(0, (list[0][i].length()-2))) == item)//Checks to see if the value of list[1][i] is equal to item and that row is not greater than 540 so only the first ten results would show up
+      location = i;
   }
   return location;
 }
