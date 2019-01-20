@@ -68,6 +68,7 @@ void setup() {
   for (int i = 1; i <= playerImgL.length; i++)
     playerImgL[i-1] = loadImage("Left" + i + ".png");  //Initialise each index of array to an image
 
+  timer = new Timer();//Creates new timer object
   initializeGame();//calls on method to initialize the variables/arrays for the game
 
   //Initializing variables
@@ -151,7 +152,6 @@ void setup() {
   cursors[1].resize(32, 32);
 
   createScoreboard();//If there is no existing scoreboard, a new one is created
-  timer = new Timer();
 }
 
 void initializeGame() {
@@ -164,9 +164,9 @@ void initializeGame() {
 
   uavs = new UAV[30];  
   for (int i=0; i<uavs.length; i+=3) {
-    uavs[i]= new UAV(width+(i*800), 370, 50, 40, planeImg); //Initilise the uav array
-    uavs[i+1]= new UAV(width+(i*800), 230, 50, 40, planeImg);
-    uavs[i+2]= new UAV(width+(i*800), 80, 50, 40, planeImg);
+    uavs[i]= new UAV(width+(i*1000), 370, 50, 40, planeImg); //Initilise the uav array
+    uavs[i+1]= new UAV(width+(i*1000), 230, 50, 40, planeImg);
+    uavs[i+2]= new UAV(width+(i*1000), 80, 50, 40, planeImg);
   }
 
   fireballs = new Fireball[3];
@@ -191,13 +191,10 @@ void gameOver() {
   textSize(60);
   text("GAME OVER", width/2, height/2-200);
   textSize(30);
-  score = uavsDestroyed*100;
-  if (score>99999)//high score limit
-    score = 99999;
   strScore = String.valueOf(score);//converts to string
   gameEnded = false;
   text("UAVS DESTROYED: " + uavsDestroyed, width/2, height/2-100);
-  text("TIME SURVIVED: ", width/2, height/2-50);
+  text("TIME SURVIVED: " + timer, width/2, height/2-50);
   text("FINAL SCORE: " + score, width/2, height/2);
   continueB.showButton();
 }
@@ -211,21 +208,20 @@ void playGame() {
   int index = 0;
 
   if (!gameEnded) {
-    if (!timer.running) {
-      timer.startTime();
-      timer.running = true;
-    }
+    timer.updateTime();
     player.update();
 
     //Display Score
     textSize(30);
     textAlign(LEFT);
     text("SCORE:", 10, 40);
-    text(uavsDestroyed * 100, 125, 40);
+    score = (uavsDestroyed * 50)+(3*timer.gameTime/1000);
+    if (score>99999)//high score limit
+      score = 99999;
+    text(score, 125, 40);
 
     //Display Timer
-    textAlign(RIGHT);
-    text(timer.toString(), width-10, 40);
+    text("Time: " + timer.toString(), 780, 40);
 
     //Fire on ground
     image(fire, 0, height - 40, width, 40);
@@ -261,9 +257,8 @@ void playGame() {
       for (Laser laser : lasers) {
         if ( laser.intersection(uav, player) == 1||laser.intersection(uav, player) == 2 && laser.getShot() ) {
           laser.setShot(false);
-          uav.setX(width);
+          uav.setX(width+random(100, 1000));//respawn location
           uavsDestroyed+=1;
-          // uav.setSpeed(0);
           laser.setX(0);
         }
       }
@@ -352,8 +347,6 @@ void playGame() {
       player.img = jumpL; // jumping image
     else player.img = imgL; //standing image
   }
-
-  
 }
 
 void draw() {
@@ -457,6 +450,7 @@ void draw() {
     if (musicON.getActive()) {//If the music on button is activated, play menu music
       gameBM.play();
     }
+
     switch (gameState) {
     case 1: 
       playGame();
@@ -754,6 +748,9 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (playB.isInside() && screen == 2) {//if mouse is within play button and screen is 2
     playB.setClick(true);//set playB's click to true
     buttonClicked=true;
+    timer.timeElapsed=millis();
+    timer.pausedTime = 0;
+    timer.notPaused=true;
   } else if (howToPlayB.isInside() && screen ==2) {//if mouse is within controls button and screen is 2
     howToPlayB.setClick(true);
     buttonClicked=true;
@@ -828,6 +825,10 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (resumeB.isInside() && gameState == 2 && screen==3) {
     resumeB.setClick(true);
     buttonClicked = true;
+    if (!timer.notPaused) {
+      timer.timeElapsed=millis();
+      timer.notPaused = true;
+    }
   } else if (controlsB.isInside() && gameState == 2 && screen==3) {
     controlsB.setClick(true);
     buttonClicked = true;
@@ -920,6 +921,10 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
       player.moving = true;
       player.setxVelocity(-6);
     } else if (keyCode == 'P') {
+      if (timer.notPaused) {
+        timer.pausedTime+=millis()-timer.timeElapsed;
+        timer.notPaused = false;
+      }
       if (soundON.getActive()) {
         sDeny.play();
       }
@@ -977,7 +982,7 @@ void startScreen() {
   image(background1, 0, 0);//draws the first image
   fill(255);//255 = white  
   textSize(60);//sets text size to 60
-  text("CUE'S GREAT ESCAPE", width/2, 100);//draws text to screen at specified x and y locations
+  text("SUPER SMASH UAVS", width/2, 100);//draws text to screen at specified x and y locations
   startB.showButton();//Draw the start button
 }
 
