@@ -30,7 +30,7 @@ Fireball[] fireballs;
 Timer timer;
 
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
-AudioPlayer menuBM, startBM, gameBM;//background music
+AudioPlayer menuBM, startBM, gameBM, deathBM;//background music
 SoundFile sConfirm, sDeny, sStart, sLaser;//sound effects
 PFont font;//text font
 PImage[] cursors = new PImage[2];//images for mouse cursor
@@ -83,6 +83,8 @@ void setup() {
   menuBM = minim.loadFile("1-03 Menu 1.mp3");//Background music for the main menu
   startBM = minim.loadFile("Fortnite-Battle-Royale-OST-Season-2_64kbs.mp3");//Background music for the start screen
   gameBM = minim.loadFile("FinalDestination.mp3");//Background music for the game
+  deathBM = minim.loadFile("deathBM.mp3");//Background music for the death 
+
 
   //Sound
   //Loads the sound files from the data folder
@@ -381,6 +383,9 @@ void draw() {
     startBM.pause();//Stops the start screen music
     gameBM.rewind();//Rewinds the game music
     gameBM.pause();//Stops the game music 
+    deathBM.rewind(); //Rewinds the death music
+    deathBM.pause(); //Stops the death music 
+
     if (!menuBM.isPlaying()) {//if the menu music is not playing, rewind it
       menuBM.rewind();
     }
@@ -634,11 +639,11 @@ void draw() {
     }
     break;
   case 9://update scoreboard menu
-    if (!gameBM.isPlaying()) {//if the game music is not playing, rewind it
-      gameBM.rewind();
+    if (!deathBM.isPlaying()) {//if the game music is not playing, rewind it
+      deathBM.rewind();
     }
     if (musicON.getActive()) {//If the music on button is activated, play menu music
-      gameBM.play();
+      deathBM.play();
     }
     promptUser();//gets user's name
     if (returnB.getClick()) {//If the "return to main menu" button is clicked
@@ -714,11 +719,13 @@ void draw() {
     }
     break;
   case 13:    
-    if (!gameBM.isPlaying()) {//if the game music is not playing, rewind it
-      gameBM.rewind();
+    gameBM.rewind();//Rewinds the game music
+    gameBM.pause();//Stops the game music 
+    if (!deathBM.isPlaying()) {//if the game music is not playing, rewind it
+      deathBM.rewind();
     }
     if (musicON.getActive()) {//If the music on button is activated, play menu music
-      gameBM.play();
+      deathBM.play();
     }
     gameOver();
     nameEntered = false;//sets nameEntered to false
