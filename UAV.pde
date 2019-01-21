@@ -18,7 +18,7 @@ class UAV extends Rectangle {
     }
   }
 
-  boolean intersects(Object o) {
+  boolean equals (Object o) {
     Rectangle b = (Rectangle)o;
     return (x+w>=b.x && x<=b.x+b.w && y+h>=b.y&& y<=b.y+b.h);
   }

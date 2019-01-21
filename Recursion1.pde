@@ -1,14 +1,14 @@
 //Name: Safwan Wadud
 //Brief Description: Blueprint for recursion1 class
 class Recursion1 {
-  private float r,g,b;
-  
-  Recursion1(){
+  private float r, g, b;
+
+  Recursion1() {
     r = 0;
     g = 0;
     b = 0;
   }
-  
+
   //First recursive function; forms the horizontal-vertical pattern
   void fractal1(long x, long y, long w, long h) {
     if (w>0) {//Exit condition; recursion ends when w is not greater than 0

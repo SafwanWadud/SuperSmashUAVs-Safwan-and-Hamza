@@ -11,11 +11,11 @@ class Button extends Rectangle {
     txtSize = ts;
     click = false;
   }
-  
-  String toString(){
+
+  String toString() {
     return label;
   }
-  
+
   void showButton() {
     textAlign(CENTER, CENTER);
     textSize(txtSize);
@@ -39,5 +39,4 @@ class Button extends Rectangle {
   boolean getClick() {
     return click;
   }
-  
 }

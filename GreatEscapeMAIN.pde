@@ -247,7 +247,7 @@ void playGame() {
       else
         uav.setImg(planeImg);
 
-      if (uav.intersects(player)) {
+      if (uav.equals(player)) {
         gameEnded =true;
         if (imageNotTaken) {//If an image of the current screen was not taken yet
           pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
@@ -257,7 +257,7 @@ void playGame() {
         break;
       }
       for (Laser laser : lasers) {
-        if ( laser.intersection(uav, player) == 1||laser.intersection(uav, player) == 2 && laser.getShot() ) {
+        if ( laser.equals(uav, player) && laser.getShot() ) {
           laser.setShot(false);
           uav.setX(width+random(100, 1000));//respawn location
           uavsDestroyed+=1;
@@ -270,7 +270,7 @@ void playGame() {
       fireball.show();
       fireball.update();
 
-      if (fireball.intersects(player)) {
+      if (fireball.equals(player)) {
         gameEnded =true;
         if (imageNotTaken) {//If an image of the current screen was not taken yet
           pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
@@ -281,7 +281,7 @@ void playGame() {
       }
 
       for (Laser laser : lasers) {
-        if (laser.intersection(fireball, player) == 1||laser.intersection(fireball, player) == 2 && laser.getShot() ) {
+        if (laser.equals(fireball, player) && laser.getShot() ) {
           laser.setShot(false);
           laser.setX(0);
         }

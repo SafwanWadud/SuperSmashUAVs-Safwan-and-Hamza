@@ -9,9 +9,9 @@ class Fireball extends UAV {
 
   void update() {
     x+=speed;
-    if(x > width) {
-    x = -w;
-    speed = random(2,4);
+    if (x > width) {
+      x = -w;
+      speed = random(2, 4);
     }
   }
 }

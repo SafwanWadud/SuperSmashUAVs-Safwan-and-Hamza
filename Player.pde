@@ -31,13 +31,13 @@ class Player extends Rectangle {
         yVelocity = 0;
         y = height-h;
       }
-      
+
       if (y < 0)
       {
         yVelocity = 0;
         y = 0;
       }
-      
+
       image(img, x, y, w, h);
     } 
 
