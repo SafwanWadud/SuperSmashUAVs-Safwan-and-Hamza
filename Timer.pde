@@ -1,37 +1,41 @@
+//Name: Hamza Osman & Safwan Wadud 
+//Brief Description: Blueprint for timer class
 class Timer {
-  float startTime;
-  float pausedTime;
-  float gameTime;
-  int minutes;
-  int seconds;
-  boolean running;
+  int gameTime, timeElapsed, pausedTime, minutes, seconds, millis;
+  boolean notPaused;
 
+  //Constructor Method that initialises fields of object
+  //Pre: none
+  //Post: none
   Timer() {
-    startTime = 0;
-    pausedTime = 0;
     gameTime = 0;
+    timeElapsed = 0;
+    pausedTime = 0;
     minutes = 0;
     seconds = 0;
-    running = false;
+    millis = 0;
+    notPaused = false;
   }
 
-  void startTime() {
-    startTime = millis();
+  /*Instance Method updates the timer
+   * Pre: None
+   * Post: updates the timer minutes,seconds and miliseconds
+   */
+  void updateTime() {
+    gameTime = millis()-timeElapsed+pausedTime;
+    millis = (gameTime/10)%100;
+    seconds = (gameTime/1000)%60;
+    minutes = (gameTime/1000)/60;
   }
 
-  //void pausedTime() {
-  //  pausedTime = millis() - gameTime - startTime;
-  //}
-
-
+  /*Instance Method that outputs the time
+   * Pre: None
+   * Post: Outputs the fields of the timer object
+   */
   String toString() {
-    gameTime = (millis() - startTime - pausedTime)/60000;
-    minutes = floor(gameTime);
-    seconds = floor(gameTime * 60) % 60;
-
-    if (minutes > 0)
-      return "Time: " + str(minutes) + ':' + nf(seconds, 2);
-
-    return "Time: " + nf(seconds, 2);
+    if (notPaused) {
+      return nf(minutes, 2) + ':' + nf(seconds, 2) + ":" + nf(millis);
+    } else 
+    return "" +pausedTime;
   }
 }
