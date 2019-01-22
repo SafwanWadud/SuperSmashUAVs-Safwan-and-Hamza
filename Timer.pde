@@ -1,29 +1,37 @@
-//Name: Hamza Osman & Safwan Wadud 
-//Brief Description: Blueprint for timer class
 class Timer {
-  int gameTime, timeElapsed, pausedTime, minutes, seconds, millis;
-  boolean notPaused;
+  float startTime;
+  float pausedTime;
+  float gameTime;
+  int minutes;
+  int seconds;
+  boolean running;
+
   Timer() {
-    gameTime = 0;
-    timeElapsed = 0;
+    startTime = 0;
     pausedTime = 0;
+    gameTime = 0;
     minutes = 0;
     seconds = 0;
-    millis = 0;
-    notPaused = false;
+    running = false;
   }
 
-  void updateTime() {
-    gameTime = millis()-timeElapsed+pausedTime;
-    millis = (gameTime/10)%100;
-    seconds = (gameTime/1000)%60;
-    minutes = (gameTime/1000)/60;
+  void startTime() {
+    startTime = millis();
   }
+
+  //void pausedTime() {
+  //  pausedTime = millis() - gameTime - startTime;
+  //}
+
 
   String toString() {
-    if (notPaused) {
-      return nf(minutes, 2) + ':' + nf(seconds, 2) + ":" + nf(millis);
-    } else 
-    return "" +pausedTime;
+    gameTime = (millis() - startTime - pausedTime)/60000;
+    minutes = floor(gameTime);
+    seconds = floor(gameTime * 60) % 60;
+
+    if (minutes > 0)
+      return "Time: " + str(minutes) + ':' + nf(seconds, 2);
+
+    return "Time: " + nf(seconds, 2);
   }
 }
