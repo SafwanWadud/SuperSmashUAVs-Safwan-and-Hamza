@@ -65,6 +65,7 @@ void setup() {
   fireballImg = loadImage("fireball.png");
   fireballImg.resize(60, 30);
 
+  //Megaman images taken https://www.deviantart.com/lucarioshirona/art/Megaman-Custom-sprites-Updated-377683787 and http://carbon-fighters.wikia.com/wiki/File:Megaman_Sprite_Sheet.png
   for (int i = 1; i <= playerImgR.length; i++)
     playerImgR[i-1] = loadImage("Right" + i + ".png"); //Initialise each index of array to an image
 
@@ -703,6 +704,8 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
         player.inAir = true;
         player.setyVelocity(-30);
       }
+    } else if (keyCode == 'S' || keyCode == DOWN) {
+      player.setyVelocity(20);
     } else if (keyCode == 'D' || keyCode == RIGHT) {
       player.right = true; 
       player.moving = true;
@@ -904,7 +907,6 @@ void playGame() {
       lasers[index].move();
     } 
     index++;
-    // }
   } while (index<lasers.length);
 
 
@@ -976,15 +978,17 @@ void howToPlay() {
   text("HOW TO PLAY", 230, 50);
   textSize(40);
   text("W", width/2-150, 200);
-  text("A", width/2-150, 280);
-  text("D", width/2-150, 360);
-  text("SPACEBAR", width/2-150, 440);
-  text("P", width/2-150, 520);
+  text("S", width/2-150, 280);
+  text("A", width/2-150, 360);
+  text("D", width/2-150, 440);
+  text("SPACEBAR", width/2-150, 520);
+  text("P", width/2-150, 600);
   text("JUMP", width/2+150, 200);
-  text("MOVE RIGHT", width/2+150, 280);
+  text("DOWN", width/2+150, 280);
   text("MOVE LEFT", width/2+150, 360);
-  text("SHOOT", width/2+150, 440);
-  text("PAUSE", width/2+150, 520);
+  text("MOVE RIGHT", width/2+150, 440);
+  text("SHOOT", width/2+150, 520);
+  text("PAUSE", width/2+150, 600);
   strip.colorRect1();
   backB.showButton();
 }
@@ -1269,7 +1273,8 @@ void selectSort (String[][] list)
     int largeLoc = 0; // location of largest element
     // assume list[0][0] is largest to start
     for (int i = 1; i <= top; i++) // check list[0][1] to list[0][top]
-      if (Integer.parseInt(list[0][i].substring(0, (list[0][i].length()-2))) > Integer.parseInt(list[0][largeLoc].substring(0, (list[0][largeLoc].length()-2))))//Gets rid of the prefixes and compares the numbers
+      if (Integer.parseInt(list[0][i].substring(0, (list[0][i].length()-2))) > Integer.parseInt(list[0][largeLoc].substring(0, (list[0][largeLoc].length()-2))))
+        //Gets rid of the prefixes and compares the numbers
         largeLoc = i;
 
     //Swap ranks
@@ -1314,7 +1319,7 @@ int seqSearch (String[][] list, int item)
   int location = -1;
   for (int i = 0; i < list[0].length; i++)
   {
-    if (Integer.parseInt(list[0][i].substring(0, (list[0][i].length()-2))) == item)//Checks to see if the value of list[1][i] is equal to item and that row is not greater than 540 so only the first ten results would show up
+    if (Integer.parseInt(list[0][i].substring(0, (list[0][i].length()-2))) == item)//Checks to see if the value of list[1][i] is equal to item
       location = i;
   }
   return location;
