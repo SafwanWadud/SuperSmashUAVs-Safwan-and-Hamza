@@ -3,7 +3,7 @@
 class Switch extends Button {
   private boolean active; 
 
-  Switch (String lbl, boolean active, float x, float y, float w,float h) {
+  Switch (String lbl, boolean active, float x, float y, float w, float h) {
     super(lbl, 20, x, y, w, h);
     this.active = active;
   }
@@ -18,7 +18,7 @@ class Switch extends Button {
 
   void showSwitch() {
     if (active) {
-      setColor(255,255,255);
+      setColor(255, 255, 255);
       colorRect2();
       fill(255);
     } else {
@@ -31,7 +31,7 @@ class Switch extends Button {
     text(label, x+(w/2), y+(h/2)-5);
 
     if (isInside()) {
-      setColor(255,246,0);
+      setColor(255, 246, 0);
       colorRect2();
       fill(255, 246, 0);//changes color to yellow
       text(label, x+(w/2), y+(h/2)-5);

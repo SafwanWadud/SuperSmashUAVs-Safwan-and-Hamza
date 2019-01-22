@@ -18,7 +18,7 @@ class UAV extends Rectangle {
     }
   }
 
-  boolean intersects(Object o) {
+  boolean equals (Object o) {
     Rectangle b = (Rectangle)o;
     return (x+w>=b.x && x<=b.x+b.w && y+h>=b.y&& y<=b.y+b.h);
   }
@@ -32,31 +32,11 @@ class UAV extends Rectangle {
     this.speed = speed;
   }
 
-  void setX(float x) {
-    this.x=x;
-  }
-
   void setImg(PImage img) {
     this.img=img;
   }
 
   float getSpeed() {
     return speed;
-  }
-
-  float getX() {
-    return x;
-  }
-
-  float getY() {
-    return y;
-  }
-
-  float getW() {
-    return w;
-  }
-
-  float getH() {
-    return h;
   }
 }

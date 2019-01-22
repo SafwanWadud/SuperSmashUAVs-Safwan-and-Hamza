@@ -31,13 +31,13 @@ class Player extends Rectangle {
         yVelocity = 0;
         y = height-h;
       }
-      
+
       if (y < 0)
       {
         yVelocity = 0;
         y = 0;
       }
-      
+
       image(img, x, y, w, h);
     } 
 
@@ -72,17 +72,5 @@ class Player extends Rectangle {
 
   float getxVelocity() {
     return xVelocity;
-  }
-
-  float getX() {
-    return x;
-  }
-
-  float getY() {
-    return y;
-  }
-
-  float getW() {
-    return w;
   }
 }
