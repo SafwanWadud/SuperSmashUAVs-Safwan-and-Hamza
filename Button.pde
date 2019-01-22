@@ -1,9 +1,9 @@
 //Name: Safwan Wadud
 //Brief Description: Blueprint for Button class
 class Button extends Rectangle {
-  protected String label;
-  private boolean click;
-  protected float txtSize;
+  protected String label;//text of button
+  private boolean click;//determines if button was clicked
+  protected float txtSize;//text size of label
 
   //Constructor Method that initialises fields of object
   //Pre: Assumes ts is a valid text size in processing
@@ -24,7 +24,7 @@ class Button extends Rectangle {
   
   //Procedure to display a button
   //Pre: none
-  //Post: creates a button
+  //Post: creates and shows a button
   void showButton() {
     textAlign(CENTER, CENTER);
     textSize(txtSize);
@@ -41,7 +41,7 @@ class Button extends Rectangle {
     }
   }
   
-  //Procedure to chenage whats held inside the variable click
+  //Procedure to change whats held inside the variable click
   //Pre: Assumes parameter is a boolean
   //Post: sets click equal to the value of the boolean variable passed on
   void setClick(boolean b) {
