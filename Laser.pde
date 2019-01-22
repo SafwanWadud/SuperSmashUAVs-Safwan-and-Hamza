@@ -47,7 +47,7 @@ class Laser extends Rectangle {
     return ( x>0 && x<width && (right && x+w>=b.x && p.x+p.w<b.x+b.w && y+h<=b.y+b.h && y>=b.y) || (!right && x<=b.x+b.w && p.x+p.w>b.x+b.w && y+h<=b.y+b.h && y>=b.y));
   }
 
-  //Accessor method to access private left variable
+  //Accessor method to access private shot variable
   //Pre: none
   //Post: returns shot
   boolean getShot() {
