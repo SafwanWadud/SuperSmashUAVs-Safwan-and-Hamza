@@ -338,7 +338,8 @@ void draw() {
       }
       if (gameState == 2) {//goes back to pause menu
         screen =3;
-        gameBM.play();
+        if (musicON.getActive())
+          gameBM.play();
       } else
         screen=2;//goes back to main menu
       backB.setClick(false);
@@ -416,7 +417,8 @@ void draw() {
       }
       if (gameState ==2) {//Goes back to pause menu
         screen =3;
-        gameBM.play();
+        if (musicON.getActive())
+          gameBM.play();
       } else
         screen=2;//goes back to main menu
       backB.setClick(false);
