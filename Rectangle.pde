@@ -104,6 +104,9 @@ class Rectangle {
     return 3;
   }
 
+  //Mutator method
+  //Pre: none
+  //Post: changes the x field 
   void setX(float x) {
     this.x=x;
   }
