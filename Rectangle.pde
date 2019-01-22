@@ -111,28 +111,28 @@ class Rectangle {
     this.x=x;
   }
 
-  //Accessor method to access private x variable
+  //Accessor method to access protected x variable
   //Pre: none
   //Post: returns x
   float getX() {
     return x;
   }
 
-  //Accessor method to access private y variable
+  //Accessor method to access protected y variable
   //Pre: none
   //Post: returns y
   float getY() {
     return y;
   }
 
-  //Accessor method to access private width variable
+  //Accessor method to access protected width variable
   //Pre: none
   //Post: returns width
   float getW() {
     return w;
   }
 
-  //Accessor method to access private height variable
+  //Accessor method to access protected height variable
   //Pre: none
   //Post: returns height
   float getH() {
