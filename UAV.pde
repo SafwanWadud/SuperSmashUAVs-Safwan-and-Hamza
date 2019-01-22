@@ -25,7 +25,7 @@ class UAV extends Rectangle {
 
   //Boolean function to compare the coordinates of a uav to another object that inherits from a rectangle
   //Pre: Assumes object inherits from the rectangle class
-  //Post: returns true if the objects intersect, false otherwiae
+  //Post: returns true if the objects intersect, false otherwise
   boolean equals (Object o) {
     Rectangle b = (Rectangle)o;
     return (x+w>=b.x && x<=b.x+b.w && y+h>=b.y&& y<=b.y+b.h);
