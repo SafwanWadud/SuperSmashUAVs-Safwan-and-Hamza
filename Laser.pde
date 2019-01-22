@@ -2,9 +2,9 @@
 //Brief Description: Blueprint for the laser class
 
 class Laser extends Rectangle {
-  PImage img;
-  boolean shot;
-  boolean right;
+  PImage img; 
+  boolean shot; //Boolean if laser has been shot
+  boolean right; //Boolean if shot in right direction
 
   //Constructor Method that initialises fields of object
   //Pre: none
