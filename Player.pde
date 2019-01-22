@@ -73,7 +73,7 @@ class Player extends Rectangle {
     this.xVelocity = xVelocity;
   }
 
-  //Accessor method to access private left variable
+  //Accessor method to access private xvelocity variable
   //Pre: none
   //Post: returns xVelocity
   float getxVelocity() {
