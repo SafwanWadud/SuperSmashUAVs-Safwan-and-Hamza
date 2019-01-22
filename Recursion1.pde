@@ -3,13 +3,18 @@
 class Recursion1 {
   private float r, g, b;
 
+  //Constructor Method that initialises fields of object
+  //Pre: none
+  //Post: none
   Recursion1() {
     r = 0;
     g = 0;
     b = 0;
   }
 
-  //First recursive function; forms the horizontal-vertical pattern
+  //Procedure that forms a horizontal-vertical pattern
+  //Pre: Assumes all values coming in are long values
+  //Post: none 
   void fractal1(long x, long y, long w, long h) {
     if (w>0) {//Exit condition; recursion ends when w is not greater than 0
       w /=2;//width and height cut in half
@@ -31,7 +36,9 @@ class Recursion1 {
     }
   }
 
-  //Second recursive function; forms the vertical pattern
+  //Procedure that forms a vertical pattern
+  //Pre: Assumes all values coming in are long values
+  //Post: none
   void fractal2(long x, long y, long w, long h) {
     if (w>0) {
       w /=2;
@@ -51,7 +58,9 @@ class Recursion1 {
     }
   }
 
-  //Third recursive function; forms the vertical-horizontal pattern
+  //Procedure that forms a vertical-horizontal pattern
+  //Pre: Assumes all values coming in are long values
+  //Post: none
   void fractal3(long x, long y, long w, long h) {
     if (w>0) {
       w /=2;
@@ -73,6 +82,9 @@ class Recursion1 {
     }
   }
 
+  //Procedure that creates and shows the recursive design
+  //Pre: none
+  //Post: creates 2 recursive designs to make a fractal design
   void showFractal() {
     background(0);//black background
     frameRate(5);//refreshes 5 times a second

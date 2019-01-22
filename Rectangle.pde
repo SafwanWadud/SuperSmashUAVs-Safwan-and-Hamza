@@ -1,4 +1,4 @@
-//Name: Safwan Wadud & Hamza
+//Name: Safwan Wadud & Hamza Osman
 //Brief Description: Blueprint for rectangle class
 class Rectangle {
   protected float x, y, w, h;//x and y coordinates of top left corner, width, and height of rectangle
@@ -67,9 +67,27 @@ class Rectangle {
       return 1;
     else if (x + w > b.x && x < b.x + b.w && y > b.y + b.h && y < b.y + b.h + 20)
       return 2;
-    //else if (x + w > b.x && x < b.x + b.w)
-    //  return 3;
 
-    return 4;
+    return 3;
+  }
+
+  void setX(float x) {
+    this.x=x;
+  }
+  
+  float getX() {
+    return x;
+  }
+
+  float getY() {
+    return y;
+  }
+
+  float getW() {
+    return w;
+  }
+
+  float getH() {
+    return h;
   }
 }

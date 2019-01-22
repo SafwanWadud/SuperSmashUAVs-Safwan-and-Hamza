@@ -32,31 +32,11 @@ class UAV extends Rectangle {
     this.speed = speed;
   }
 
-  void setX(float x) {
-    this.x=x;
-  }
-
   void setImg(PImage img) {
     this.img=img;
   }
 
   float getSpeed() {
     return speed;
-  }
-
-  float getX() {
-    return x;
-  }
-
-  float getY() {
-    return y;
-  }
-
-  float getW() {
-    return w;
-  }
-
-  float getH() {
-    return h;
   }
 }

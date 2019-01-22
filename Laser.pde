@@ -1,5 +1,5 @@
 //Name: Hamza Osman && Safwan Wadud
-//Brief Description: Blueprint for the Player class
+//Brief Description: Blueprint for the laser class
 
 class Laser extends Rectangle {
   PImage img;
@@ -35,10 +35,6 @@ class Laser extends Rectangle {
     Rectangle b = (Rectangle)o;
     Rectangle p = (Rectangle)o2;
     return ( x>0 && x<width && (right && x+w>=b.x && p.x+p.w<b.x+b.w && y+h<=b.y+b.h && y>=b.y) || (!right && x<=b.x+b.w && p.x+p.w>b.x+b.w && y+h<=b.y+b.h && y>=b.y));
-  }
-
-  void setX(float x) {
-    this.x =x;
   }
 
   boolean getShot() {
