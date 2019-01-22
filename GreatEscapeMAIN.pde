@@ -1,13 +1,13 @@
 /* Names: Safwan Wadud & Hamza Osman
  Course: ICS4U
- Date: Jan 19, 2019
+ Date: Jan 21, 2019
  Brief Description: This program is the main class for a single player game where the user will control a character and attempt avoid obstacles and enemies, 
  for as long as they can. Player scores are kept track of on a leader board.
  */
 
 //Import Libraries
-import ddf.minim.*;
-import processing.sound.*;
+import ddf.minim.*;//used for music
+import processing.sound.*;//used for sound
 
 //Declaring variables
 PImage fire; //fire at bottom
@@ -27,7 +27,7 @@ Laser[] lasers;
 Rectangle[] platforms;
 UAV[] uavs;
 Fireball[] fireballs;
-Timer timer;
+Timer timer;//timer object to hold game time
 
 Minim minim;//Minim object used to create background music; credit: http://code.compartmental.net/minim/audioplayer_class_audioplayer.html
 AudioPlayer menuBM, startBM, gameBM, deathBM;//background music
@@ -35,28 +35,31 @@ SoundFile sConfirm, sDeny, sStart, sLaser;//sound effects
 PFont font;//text font
 PImage[] cursors = new PImage[2];//images for mouse cursor
 PImage background1, background2, pausedImage, gameStage;//Background images 
-int screen, score, position, gameState, page, uavsDestroyed;//variable to represent the different screens/menus; holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard
+int screen, gameState; //represents the different screens/ game state(paused or unpaused)
+int score, position, page, uavsDestroyed;//holds user's score; position on scoreboard when checking if user made top 50; represents the page on the scoreboard; holds number of uavs destroyed by the user
 String strScore, cName, sName, sRank;//holds user score as a string; holds user's current name; hold's the name searched by the user in the scoreboard;hold's the rank searched by the user in the scoreboard  
-boolean gameEnded, nameEntered, searchingName, searchingRank, buttonClicked;//determines if the game was played once already; determines if a name was entered;
-boolean nSearchClicked, rSearchClicked, tBoxClicked, imageNotTaken;// determines if the user is searching for a name or a rank in the scoreboard; determines if the user clicked on the textBox
+boolean searchingName, searchingRank;//determines if the user is searching for a name or a rank in the scoreboard
+boolean gameEnded, nameEntered, buttonClicked;//determines if the game has ended; determines if a name was entered; determines if any button/switch/textbox was clicked
+boolean nSearchClicked, rSearchClicked; //determines if the user clicked on the name search bar/rank search bar
+boolean tBoxClicked, imageNotTaken;//determines if the user clicked on the textBox in the prompt user screen; determines if a screenshot of the canvas was taken or not
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
 Button startB, playB, howToPlayB, scoreboardB, optionsB, creditsB, extrasB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB, oneB, twoB, resumeB, controlsB, pOptionsB, pQuitB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
-Rectangle strip, textBox, searchBar1, searchBar2;//white strip for menu design; textBox to get user's name; searchBar to get a name entered by user in scoreboard
+Rectangle strip, textBox, searchBar1, searchBar2;//white strip for menu design; textBox to get user's name; searchBar to get a name/rank entered by user in scoreboard
 Recursion1 fractal1;//recursive fractal design
 Recursion2 fractal2;
 
 void setup() {
-  size(1000, 700);
+  size(1000, 700);//canvas size
 
-  fire = loadImage("fire.png");
+  fire = loadImage("fire.png");//loading images
   imgR = loadImage("PlayerR.png");
   imgL = loadImage("PlayerL.png");
   jumpR = loadImage("JumpR.png");
   jumpL = loadImage("JumpL.png");
   laserImg = loadImage("LaserImg.png");
   planeImg = loadImage("plane.png");
-  planeImg.resize(60, 30);
+  planeImg.resize(60, 30);//resizing width and height of images
   planeImg2 = loadImage("plane2.png");
   planeImg2.resize(60, 30);
   fireballImg = loadImage("fireball.png");
@@ -71,9 +74,8 @@ void setup() {
   timer = new Timer();//Creates new timer object
   initializeGame();//calls on method to initialize the variables/arrays for the game
 
-  //Initializing variables
   screen = 1;//initialized to 1 representing the first screen (startscreen)
-  page = 0;
+  page = 0;//initialized to 0 to represent the first page of the scoreboard
   gameState = 1;//initialized to 1 to represent the first game state (runs the game);
   sbParts = new String[3][50];//3 representing the 3 columns: rank, name and score, and the 50 representing 50 scores
 
@@ -134,21 +136,21 @@ void setup() {
   //Rectangles
   strip = new Rectangle(0, 100, width, 3);//creates a thin white strip
   textBox = new Rectangle((width/2)-88, (height/2)-20, 195, 40);//creates a small rectangle with a white outline representing a text box
-  searchBar1 = new Rectangle(517, 117, 140, 30);
+  searchBar1 = new Rectangle(517, 117, 140, 30);//Creates a rectangle with a white outline and grey fill to represent searchbars
   searchBar2 = new Rectangle(222, 117, 65, 30);
 
   //Recursion
   fractal1 = new Recursion1();
   fractal2 = new Recursion2();
 
-  //import all images
+  //import images
   background1 = loadImage("MegamanSSB.jpg"); //background for startscreen
   background1.resize(width, height);//Changes size of image to fit the screen size
   background2 = loadImage("MasterChiefBlue.jpg");//background for main menu
   background2.resize(width, height);
-  gameStage = loadImage("stage.png");
+  gameStage = loadImage("stage.png");//background for game
   gameStage.resize(width, height);
-  cursors[0] = loadImage("cursor1.png");
+  cursors[0] = loadImage("cursor1.png");//images for cursor
   cursors[0].resize(32, 32);
   cursors[1] = loadImage("cursor2.png");
   cursors[1].resize(32, 32);
@@ -156,6 +158,7 @@ void setup() {
   createScoreboard();//If there is no existing scoreboard, a new one is created
 }
 
+//Procedure to initialize all variables/arrays/objects used for the game 
 void initializeGame() {
   score =0;
   uavsDestroyed=0;
@@ -177,177 +180,21 @@ void initializeGame() {
   fireballs[2]= new Fireball(0-200, 80, 50, 40, fireballImg);
 
   platforms = new Rectangle[4];
-  platforms[0] = new Rectangle(185, 428, 615, 25);
+  platforms[0] = new Rectangle(185, 428, 615, 25);//Initilise the platform array
   platforms[1] = new Rectangle(235, 283, 170, 15);
   platforms[2] = new Rectangle(582, 283, 170, 15);
   platforms[3] = new Rectangle(414, 141, 158, 25);
 
-  player = new Player(platforms[0].x + platforms[0].w/2-25, platforms[0].y - 50, 50, 50, imgR); //(x,y,width,image)
+  player = new Player(platforms[0].x + platforms[0].w/2-25, platforms[0].y - 50, 50, 50, imgR); //(x,y,width,height,image)
 }
 
-void gameOver() {
-  background(0);
-  tint(255, 100);
-  image(pausedImage, 0, 0);
-  fill(255);
-  textSize(60);
-  text("GAME OVER", width/2, height/2-200);
-  textSize(30);
-  strScore = String.valueOf(score);//converts to string
-  gameEnded = false;
-  text("UAVS DESTROYED: " + uavsDestroyed, width/2, height/2-100);
-  text("TIME SURVIVED: " + timer, width/2, height/2-50);
-  text("FINAL SCORE: " + score, width/2, height/2);
-  continueB.showButton();
-}
-
-void playGame() {
-  image(gameStage, 0, 0);
-  noTint();//Takes off the tint
-  frameRate(60);
-  imageNotTaken = true;
-  boolean intersects = false;
-  int index = 0;
-
-  if (!gameEnded) {
-    timer.updateTime();
-    player.update();
-
-    //Display Score
-    textSize(30);
-    textAlign(LEFT);
-    text("SCORE:", 10, 40);
-    score = (uavsDestroyed * 50)+(3*timer.gameTime/1000);
-    if (score>99999)//high score limit
-      score = 99999;
-    text(score, 125, 40);
-
-    //Display Timer
-    text("Time: " + timer.toString(), 780, 40);
-
-    //Fire on ground
-    image(fire, 0, height - 40, width, 40);
-
-    if (player.getY() == height - player.h)
-    {
-      gameEnded =true;
-      if (imageNotTaken) {//If an image of the current screen was not taken yet
-        pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
-        imageNotTaken = false;
-      }
-      screen =13;
-    }
-
-    for (UAV uav : uavs) {
-      uav.show();
-      uav.update();
-
-      if (uav.getSpeed() > 0)
-        uav.setImg(planeImg2);
-      else
-        uav.setImg(planeImg);
-
-      if (uav.equals(player)) {
-        gameEnded =true;
-        if (imageNotTaken) {//If an image of the current screen was not taken yet
-          pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
-          imageNotTaken = false;
-        }
-        screen =13;
-        break;
-      }
-      for (Laser laser : lasers) {
-        if ( laser.equals(uav, player) && laser.getShot() ) {
-          laser.setShot(false);
-          uav.setX(width+random(100, 1000));//respawn location
-          uavsDestroyed+=1;
-          laser.setX(0);
-        }
-      }
-    }
-
-    for (Fireball fireball : fireballs) {
-      fireball.show();
-      fireball.update();
-
-      if (fireball.equals(player)) {
-        gameEnded =true;
-        if (imageNotTaken) {//If an image of the current screen was not taken yet
-          pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
-          imageNotTaken = false;
-        }
-        screen =13;
-        break;
-      }
-
-      for (Laser laser : lasers) {
-        if (laser.equals(fireball, player) && laser.getShot() ) {
-          laser.setShot(false);
-          laser.setX(0);
-        }
-      }
-    }
-
-    for (int i = 0; i < platforms.length; i ++) {
-      //platforms[i].colorRect1();
-      switch(player.intersection(platforms[i])) {
-      case 1: //Intersect from top
-        player.setyVelocity(0);
-        intersects = true;
-        player.inAir = false;
-        player.y = platforms[i].y - player.h;
-        break;  
-
-      case 2: //Intersect from below
-        if (player.yVelocity < 0) // If still rising
-          player.setyVelocity(2);
-        break; 
-
-      case 4: //No intersection
-        if (player.y < height - player.w && intersects == false)
-          player.inAir = true;
-        break;
-      }
-    }
+//Procedure to play the music passed on as a parameter
+void playMusic (AudioPlayer m) {
+  if (!m.isPlaying()) {//if the music is not playing, rewind it
+    m.rewind();
   }
-
-  //Lasers
-  do {
-    for (int j=0; j<platforms.length; j++) {
-      if (lasers[index].intersection(platforms[j]) ==1)
-        lasers[index].setShot(false);
-    }
-    if (lasers[index].shot==true) {
-      lasers[index].show();
-      lasers[index].move();
-    } 
-    index++;
-    // }
-  } while (index<lasers.length);
-
-
-  if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
-    if (counter >= 5)
-      counter = 0;
-    if (counter%1 == 0) //every increment of +1
-      player.img = playerImgL[(int)counter]; //Alternate between each image in array every loop
-
-    counter = counter + 0.5; //0.5 increment
-  } else if (player.xVelocity > 0 && !player.inAir) { //Moving right and not in the air
-    if (counter >= 5)
-      counter = 0;
-    if (counter%1 == 0)
-      player.img = playerImgR[(int)counter]; //Alternate between each image in array every loop
-
-    counter = counter + 0.5;
-  } else if (player.right) { //Facing right
-    if (player.inAir)
-      player.img = jumpR; //jumping image
-    else player.img = imgR; //If not in air display standing image
-  } else if (player.right == false) { //Facing right
-    if (player.inAir)
-      player.img = jumpL; // jumping image
-    else player.img = imgL; //standing image
+  if (musicON.getActive()) {//If the music on button is activated, play the music
+    m.play();
   }
 }
 
@@ -363,12 +210,7 @@ void draw() {
   switch (screen) {
   case 1://Start screen
     menuBM.rewind();//rewinds the menu music
-    if (!startBM.isPlaying()) {//if the start screen music is not playing, rewind it
-      startBM.rewind();
-    }
-    if (musicON.getActive()) {//If the music on button is activated, play start screen music
-      startBM.play();
-    }
+    playMusic(startBM);//plays start screen music
     startScreen();//Call startScreen() to show the start screen 
     if (startB.getClick()) {//If the start button is clicked
       if (soundON.getActive()) {//if the sound on button is activated, play the 'start' sound effect
@@ -385,22 +227,16 @@ void draw() {
     gameBM.pause();//Stops the game music 
     deathBM.rewind(); //Rewinds the death music
     deathBM.pause(); //Stops the death music 
-
-    if (!menuBM.isPlaying()) {//if the menu music is not playing, rewind it
-      menuBM.rewind();
-    }
-    if (musicON.getActive()) {//If the music on button is activated, play menu music
-      menuBM.play();
-    }
+    playMusic(menuBM);//plays the menu music
     mainMenu();//Call mainMenu() to show the main menu 
     if (playB.getClick()) {//IF the play button gets clicked
       if (soundON.getActive()) {//If the sound on button is activated, play the 'confirm' sound effect
         sConfirm.play();
       }
       screen = 3;//set screen to 3 so that it can go to the play game screen (case 3)
-      gameEnded =false;
+      gameEnded =false;//sets game ended to false before starting the game
       playB.setClick(false);
-    } else if (howToPlayB.getClick()) {//controls button
+    } else if (howToPlayB.getClick()) {//howToPlay button
       if (soundON.getActive()) {
         sConfirm.play();
       }
@@ -430,7 +266,7 @@ void draw() {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen=10;//sets screen to 7 (extras menu screen)
+      screen=10;//sets screen to 10 (extras menu screen)
       extrasB.setClick(false);
     } else if (quitB.getClick()) {//quit button
       if (soundON.getActive()) {
@@ -449,18 +285,12 @@ void draw() {
   case 3://play game screen
     menuBM.rewind();//Rewinds the menu music
     menuBM.pause();//Stops the menu music 
-    if (!gameBM.isPlaying()) {//if the game music is not playing, rewind it
-      gameBM.rewind();
-    }
-    if (musicON.getActive()) {//If the music on button is activated, play menu music
-      gameBM.play();
-    }
-
+    playMusic(gameBM);//plays the background music for the game
     switch (gameState) {
-    case 1: 
-      playGame();
+    case 1: //runs the game
+      playGame();//calls method playGame to play the game
       break;
-    case 2:
+    case 2://pause state
       if (imageNotTaken) {//If an image of the current screen was not taken yet
         pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
         imageNotTaken = false;
@@ -489,7 +319,7 @@ void draw() {
           sConfirm.play();
         }
         screen=2;//sets screen to 2 (main menu screen)
-        initializeGame();
+        initializeGame();//resets all data for the game
         gameState=1;
         pQuitB.setClick(false);
       }
@@ -499,31 +329,22 @@ void draw() {
   case 4://How to play screen
     if (gameBM.isPlaying())
       gameBM.pause();//Stops the game music 
-    if (!menuBM.isPlaying()) {
-      menuBM.rewind();
-    }
-    if (musicON.getActive()) {
-      menuBM.play();
-    }
+    playMusic(menuBM);//plays menu music
     howToPlay();//calls howToPlay() to show the controls screen
     if (backB.getClick()) {//goes back to main menu if back is clicked
       if (soundON.getActive()) {
         sDeny.play();
       }
-      if (gameState == 2)//goes back to pause menu
+      if (gameState == 2) {//goes back to pause menu
         screen =3;
-      else
+        gameBM.play();
+      } else
         screen=2;//goes back to main menu
       backB.setClick(false);
     }
     break;
   case 5://scoreboard screen
-    if (!menuBM.isPlaying()) {
-      menuBM.rewind();
-    }
-    if (musicON.getActive()) {
-      menuBM.play();
-    }
+    playMusic(menuBM);
     scoreboardMenu(page);//calls scoreboardMenu() to show the scoreboard and passes on page to let the program know which page of the scoreboard to show 
     if (sortName.getClick()) {//If the sort by name button is clicked
       if (soundON.getActive()) {
@@ -568,12 +389,7 @@ void draw() {
   case 6://options menu screen
     if (gameBM.isPlaying())
       gameBM.pause();//Stops the game music 
-    if (!menuBM.isPlaying()) {
-      menuBM.rewind();
-    }
-    if (musicON.getActive()) {
-      menuBM.play();
-    }
+    playMusic(menuBM);//plays menu music
     options();//calls options() to show the options menu
     if (soundON.getClick()) {// If the sound on button gets clicked, it is activated (see mousePressed method), which means that sound effects are on
       sConfirm.play();
@@ -597,20 +413,16 @@ void draw() {
       if (soundON.getActive()) {
         sDeny.play();
       }
-      if (gameState ==2)//Goes back to pause menu
+      if (gameState ==2) {//Goes back to pause menu
         screen =3;
-      else
+        gameBM.play();
+      } else
         screen=2;//goes back to main menu
       backB.setClick(false);
     }
     break;
   case 7://credits screen
-    if (!menuBM.isPlaying()) {
-      menuBM.rewind();
-    }
-    if (musicON.getActive()) {
-      menuBM.play();
-    }
+    playMusic(menuBM);//plays menu music
     credits();//Calls credits() and shows the credits screen
     if (backB.getClick()) {//goes back to main menu if back is clicked
       if (soundON.getActive()) {
@@ -621,12 +433,7 @@ void draw() {
     }
     break;
   case 8://quit game screen
-    if (!menuBM.isPlaying()) {
-      menuBM.rewind();
-    }
-    if (musicON.getActive()) {
-      menuBM.play();
-    }
+    playMusic(menuBM);//plays menu music
     quitGame();//Calls quitGame() and shows the quit menu
     if (yesB.getClick()) {//exits the program if yes is clicked
       exit();
@@ -639,12 +446,7 @@ void draw() {
     }
     break;
   case 9://update scoreboard menu
-    if (!deathBM.isPlaying()) {//if the game music is not playing, rewind it
-      deathBM.rewind();
-    }
-    if (musicON.getActive()) {//If the music on button is activated, play menu music
-      deathBM.play();
-    }
+    playMusic(deathBM);//plays menu music
     promptUser();//gets user's name
     if (returnB.getClick()) {//If the "return to main menu" button is clicked
       modScoreboard();//Updates the scoreboard
@@ -657,24 +459,19 @@ void draw() {
     }
     break;
   case 10://extras menu
-    if (!menuBM.isPlaying()) {
-      menuBM.rewind();
-    }
-    if (musicON.getActive()) {
-      menuBM.play();
-    }
+    playMusic(menuBM);//plays menu music
     extrasMenu();//Calls extrasMenu() and shows the extras menu
     if (oneB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen = 11;
+      screen = 11;//goes to screen 11 to show recursive design 1
       oneB.setClick(false);
     } else if (twoB.getClick()) {
       if (soundON.getActive()) {
         sConfirm.play();
       }
-      screen = 12;
+      screen = 12;//goes to screen 12 to show recursive design 2
       twoB.setClick(false);
     } else if (backB.getClick()) {//goes back to main menu if back is clicked
       if (soundON.getActive()) {
@@ -684,13 +481,8 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 11:
-    if (!menuBM.isPlaying()) {
-      menuBM.rewind();
-    }
-    if (musicON.getActive()) {
-      menuBM.play();
-    }
+  case 11://recursive design 1
+    playMusic(menuBM);//plays menu music
     fractal1.showFractal();
     backB.showButton();
     if (backB.getClick()) {//goes back to main menu if back is clicked
@@ -701,13 +493,8 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 12:
-    if (!menuBM.isPlaying()) {
-      menuBM.rewind();
-    }
-    if (musicON.getActive()) {
-      menuBM.play();
-    }
+  case 12://recursive design 2
+    playMusic(menuBM);//plays menu music
     fractal2.showFractal();
     backB.showButton();
     if (backB.getClick()) {//goes back to main menu if back is clicked
@@ -718,16 +505,11 @@ void draw() {
       backB.setClick(false);
     }
     break;
-  case 13:    
+  case 13://post game screen
     gameBM.rewind();//Rewinds the game music
     gameBM.pause();//Stops the game music 
-    if (!deathBM.isPlaying()) {//if the game music is not playing, rewind it
-      deathBM.rewind();
-    }
-    if (musicON.getActive()) {//If the music on button is activated, play menu music
-      deathBM.play();
-    }
-    gameOver();
+    playMusic(deathBM);//plays menu music
+    gameOver();//calls method gameOver to show post game results
     nameEntered = false;//sets nameEntered to false
     cName = "";// initializes current user's name
     if (continueB.getClick()) {//if the continue button is clicked
@@ -755,6 +537,7 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (playB.isInside() && screen == 2) {//if mouse is within play button and screen is 2
     playB.setClick(true);//set playB's click to true
     buttonClicked=true;
+    //resets timer
     timer.timeElapsed=millis();
     timer.pausedTime = 0;
     timer.notPaused=true;
@@ -789,10 +572,10 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
     sortScore.setActive(true);//Activates the sortScore switch
     sortName.setActive(false);//Deactivates the sortName switch
     buttonClicked=true;
-  } else if (nextB.isInside() && screen ==5 && page<40 && !searchingName && !searchingRank) {//if mouse is within next button and screen is 5 and it isn't the last page of the scoreboard and user is not searching a name in the scoreboard
+  } else if (nextB.isInside() && screen ==5 && page<40 && !searchingName && !searchingRank) {//if mouse is within next button and screen is 5 and it isn't the last page of the scoreboard and user is not searching a name/rank in the scoreboard
     nextB.setClick(true);
     buttonClicked=true;
-  } else if (previousB.isInside() && screen ==5 && page>0 && !searchingName && !searchingRank) {//if mouse is within previous button and screen is 5 and it isn't the first page of the scoreboard and user is not searching a name in the scoreboard
+  } else if (previousB.isInside() && screen ==5 && page>0 && !searchingName && !searchingRank) {//if mouse is within previous button and screen is 5 and it isn't the first page of the scoreboard and user is not searching a name/rank in the scoreboard
     previousB.setClick(true);
     buttonClicked=true;
   } else if (musicON.isInside() && screen==6) {//if mouse is within musicON switch and screen is 6
@@ -829,20 +612,21 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (twoB.isInside() && screen == 10) {//If mouse is within two button and screen is 10
     twoB.setClick(true);
     buttonClicked = true;
-  } else if (resumeB.isInside() && gameState == 2 && screen==3) {
+  } else if (resumeB.isInside() && gameState == 2 && screen==3) {//If mouse within resume button and game is paused and screen is 3 
     resumeB.setClick(true);
     buttonClicked = true;
+    //resumes the timer
     if (!timer.notPaused) {
       timer.timeElapsed=millis();
       timer.notPaused = true;
     }
-  } else if (controlsB.isInside() && gameState == 2 && screen==3) {
+  } else if (controlsB.isInside() && gameState == 2 && screen==3) {//if mouse within controls button and game is paused and screen is 3
     controlsB.setClick(true);
     buttonClicked = true;
-  } else if (pOptionsB.isInside() && gameState ==2 && screen==3) {
+  } else if (pOptionsB.isInside() && gameState ==2 && screen==3) {//if mouse within options button and game is paused and screen is 3
     pOptionsB.setClick(true);
     buttonClicked = true;
-  } else if (pQuitB.isInside() && gameState == 2  && screen==3) {
+  } else if (pQuitB.isInside() && gameState == 2  && screen==3) {//if mouse within quit button and game is paused and screen is 3
     pQuitB.setClick(true);
     buttonClicked = true;
   }
@@ -912,7 +696,7 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
         }
       }
     }
-  } else if (screen == 3 && gameState ==1) {
+  } else if (screen == 3 && gameState ==1) {//player movements
     if (keyCode == 'W' || keyCode == UP) {
       while (player.inAir == false)
       {
@@ -928,6 +712,7 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
       player.moving = true;
       player.setxVelocity(-6);
     } else if (keyCode == 'P') {
+      //pauses timer
       if (timer.notPaused) {
         timer.pausedTime+=millis()-timer.timeElapsed;
         timer.notPaused = false;
@@ -940,8 +725,8 @@ void keyPressed() {//code to run if keys are pressed on a specific screen
   }
 }
 
-void keyReleased() {
-  if (gameState ==1) {
+void keyReleased() {//code to run if keys are pressed and released on a specific screen
+  if (gameState ==1) {//player movements
     if (keyCode == 'D' || keyCode == RIGHT) {
       player.setxVelocity(0);
       player.moving = false;
@@ -969,21 +754,6 @@ void keyReleased() {
   }
 }
 
-void pauseMenu() {
-  background(0);
-  tint(255, 100);
-  image(pausedImage, 0, 0);
-  fill(255);
-  textSize(60);
-  text("PAUSE MENU", 225, 50);
-  textSize(30);
-  strip.colorRect1();
-  resumeB.showButton();
-  controlsB.showButton();
-  pOptionsB.showButton();
-  pQuitB.showButton();
-}
-
 //Displays the start screen when called upon
 void startScreen() {
   image(background1, 0, 0);//draws the first image
@@ -1002,7 +772,7 @@ void mainMenu() {
   textSize(50);
   textAlign(LEFT);
   strip.colorRect1();//Draws a white rectangular strip near the top of the screen
-  playB.showButton();//Draw 7 buttons 
+  playB.showButton();//Draw 8 buttons 
   howToPlayB.showButton();
   scoreboardB.showButton();
   optionsB.showButton();
@@ -1010,6 +780,190 @@ void mainMenu() {
   extrasB.showButton();
   quitB.showButton();
   backB.showButton();
+}
+
+//Procedure to play the game
+void playGame() {
+  image(gameStage, 0, 0);//background image for game
+  noTint();//Takes off the tint
+  frameRate(60);
+  imageNotTaken = true;
+  boolean intersects = false;
+  int index = 0;
+
+  if (!gameEnded) {//if the game has not ended
+    timer.updateTime();
+    player.update();
+
+    //Display Score
+    textSize(30);
+    textAlign(LEFT);
+    text("SCORE:", 10, 40);
+    score = (uavsDestroyed * 50)+(3*timer.gameTime/1000);
+    if (score>99999)//high score limit
+      score = 99999;
+    text(score, 125, 40);
+
+    //Display Timer
+    text("Time: " + timer.toString(), 780, 40);
+
+    //Fire on ground
+    image(fire, 0, height - 40, width, 40);
+
+    if (player.getY() == height - player.h)
+    {
+      gameEnded =true;
+      if (imageNotTaken) {//If an image of the current screen was not taken yet
+        pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
+        imageNotTaken = false;
+      }
+      screen =13;
+    }
+
+    for (UAV uav : uavs) {
+      uav.show();
+      uav.update();
+
+      if (uav.getSpeed() > 0)//flips image of plane depending on the direction its moving
+        uav.setImg(planeImg2);
+      else
+        uav.setImg(planeImg);
+
+      if (uav.equals(player)) {//if the uav intersects with the player 
+        gameEnded =true;
+        if (imageNotTaken) {//If an image of the current screen was not taken yet
+          pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
+          imageNotTaken = false;
+        }
+        screen =13;
+        break;
+      }
+      for (Laser laser : lasers) {
+        if ( laser.equals(uav, player) && laser.getShot() ) {//if the laser intersects with a uav
+          laser.setShot(false);
+          uav.setX(width+random(100, 1000));//respawn location
+          uavsDestroyed+=1;
+          laser.setX(0);
+        }
+      }
+    }
+
+    for (Fireball fireball : fireballs) {
+      fireball.show();
+      fireball.update();
+
+      if (fireball.equals(player)) {//if the fireball intersects the player
+        gameEnded =true;
+        if (imageNotTaken) {//If an image of the current screen was not taken yet
+          pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
+          imageNotTaken = false;
+        }
+        screen =13;
+        break;
+      }
+
+      for (Laser laser : lasers) {
+        if (laser.equals(fireball, player) && laser.getShot() ) {//if laser intersects with a fireball
+          laser.setShot(false);
+          laser.setX(0);
+        }
+      }
+    }
+
+    for (int i = 0; i < platforms.length; i ++) {
+      //platforms[i].colorRect1();
+      switch(player.intersection(platforms[i])) {
+      case 1: //Intersect from top
+        player.setyVelocity(0);
+        intersects = true;
+        player.inAir = false;
+        player.y = platforms[i].y - player.h;
+        break;  
+
+      case 2: //Intersect from below
+        if (player.yVelocity < 0) // If still rising
+          player.setyVelocity(2);
+        break; 
+
+      case 3: //No intersection
+        if (player.y < height - player.w && intersects == false)
+          player.inAir = true;
+        break;
+      }
+    }
+  }
+
+  //Lasers
+  do {
+    for (int j=0; j<platforms.length; j++) {
+      if (lasers[index].intersection(platforms[j]) ==1)
+        lasers[index].setShot(false);
+    }
+    if (lasers[index].shot==true) {
+      lasers[index].show();
+      lasers[index].move();
+    } 
+    index++;
+    // }
+  } while (index<lasers.length);
+
+
+  if (player.xVelocity < 0 && !player.inAir) {  //Moving left and not in the air
+    if (counter >= 5)
+      counter = 0;
+    if (counter%1 == 0) //every increment of +1
+      player.img = playerImgL[(int)counter]; //Alternate between each image in array every loop
+
+    counter = counter + 0.5; //0.5 increment
+  } else if (player.xVelocity > 0 && !player.inAir) { //Moving right and not in the air
+    if (counter >= 5)
+      counter = 0;
+    if (counter%1 == 0)
+      player.img = playerImgR[(int)counter]; //Alternate between each image in array every loop
+
+    counter = counter + 0.5;
+  } else if (player.right) { //Facing right
+    if (player.inAir)
+      player.img = jumpR; //jumping image
+    else player.img = imgR; //If not in air display standing image
+  } else if (player.right == false) { //Facing right
+    if (player.inAir)
+      player.img = jumpL; // jumping image
+    else player.img = imgL; //standing image
+  }
+}
+
+//Procedure to display the pause menu
+void pauseMenu() {
+  background(0);
+  tint(255, 100);
+  image(pausedImage, 0, 0);//shows a tinted image of the game as a background
+  fill(255);
+  textSize(60);
+  text("PAUSE MENU", 225, 50);
+  textSize(30);
+  strip.colorRect1();
+  resumeB.showButton();
+  controlsB.showButton();
+  pOptionsB.showButton();
+  pQuitB.showButton();
+}
+
+//Procedure to display post game results aftet the user dies 
+void gameOver() {
+  background(0);
+  tint(255, 100);
+  image(pausedImage, 0, 0);
+  fill(255);
+  textSize(60);
+  text("GAME OVER", width/2, height/2-200);
+  textSize(30);
+  strScore = String.valueOf(score);//converts user's score to a string
+  gameEnded = false;
+  text("UAVS DESTROYED: " + uavsDestroyed, width/2, height/2-100);
+  text("TIME SURVIVED: " + timer, width/2, height/2-50);
+  text("FINAL SCORE: " + score, width/2, height/2);
+  continueB.showButton();
 }
 
 //Displays the controls screen
