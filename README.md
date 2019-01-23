@@ -52,7 +52,7 @@ Remaining:
 Tom's Planner (4%)
 Daily Notes (1%)
 Method Summary(3%)
-Skills Deduct (2%)
+Skills (2%)
 
 Grade: 15/15 for both the same
 
