@@ -37,7 +37,22 @@ The Purpose of this spot check is to determine if your team is on track and has 
 
 Items to be considered for next spot check
 -------------------------
+Planning Grade:
+Tom's Planner Gantt Chart 5%
+Daily Notes 2%
+Flow Chart 1%
+Overview 1%
+Psuedocode 1%
+Method Summary/Hierarchy 3%
+Skills 2%
 
-* All of the above
-* Mindomo - Classes Hierarchy
+_____ Spot Check(5%)
+
+Remaining:
+Tom's Planner (4%)
+Daily Notes (1%)
+Method Summary(3%)
+Skills Deduct (2%)
+
+Grade: 15/15 for both the same
 
