@@ -58,6 +58,8 @@ Method Summary | 3 |
 Summary of Skills | 2 | 
 **Total Planning (incl. Spot Check)** | **15** | 15
 
+*The above goes towards the term mark (whereas the portions below here make up 15% of the final overall course grade
+
 
 Grading of Code: Total 85% of summative
 
