@@ -1,5 +1,4 @@
 /* Names: Safwan Wadud & Hamza Osman
- Course: ICS4U
  Date: Jan 21, 2019
  Brief Description: This program is the main class for a single player game where the user will control a character and attempt avoid obstacles and enemies, 
  for as long as they can. Player scores are kept track of on a leader board.
@@ -43,11 +42,9 @@ boolean gameEnded, nameEntered, buttonClicked;//determines if the game has ended
 boolean nSearchClicked, rSearchClicked; //determines if the user clicked on the name search bar/rank search bar
 boolean tBoxClicked, imageNotTaken;//determines if the user clicked on the textBox in the prompt user screen; determines if a screenshot of the canvas was taken or not
 String [][] sbParts;//2d array to hold parts of the scoreboard (names and scores)
-Button startB, playB, howToPlayB, scoreboardB, optionsB, creditsB, extrasB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB, oneB, twoB, resumeB, controlsB, pOptionsB, pQuitB;//buttons
+Button startB, playB, howToPlayB, scoreboardB, optionsB, creditsB, quitB, backB, yesB, noB, returnB, continueB, nextB, previousB, resumeB, controlsB, pOptionsB, pQuitB;//buttons
 Switch musicON, musicOFF, soundON, soundOFF, sortName, sortScore;//switches
 Rectangle strip, textBox, searchBar1, searchBar2;//white strip for menu design; textBox to get user's name; searchBar to get a name/rank entered by user in scoreboard
-Recursion1 fractal1;//recursive fractal design
-Recursion2 fractal2;
 
 void setup() {
   size(1000, 700);//canvas size
@@ -107,15 +104,12 @@ void setup() {
   scoreboardB = new Button("SCOREBOARD", 50, 50, 270, textWidth("SCOREBOARD"), 50);
   optionsB = new Button("OPTIONS", 50, 50, 330, textWidth("OPTIONS"), 50);
   creditsB = new Button("CREDITS", 50, 50, 390, textWidth("CREDITS"), 50);
-  extrasB = new Button("EXTRAS", 50, 50, 450, textWidth("EXTRAS"), 50);
-  quitB = new Button("QUIT GAME", 50, 50, 510, textWidth("QUIT GAME"), 50);
+  quitB = new Button("QUIT GAME", 50, 50, 450, textWidth("QUIT GAME"), 50);
   textSize(40);
   startB = new Button("START", 40, width/2-(textWidth("START")/2), height/2-20, textWidth("START"), 40);
   yesB = new Button("YES", 40, width/2-(textWidth("YES")/2), (height/2)+25, textWidth("YES"), 40 );
   noB = new Button("NO", 40, width/2-(textWidth("NO")/2), (height/2)+100, textWidth("NO"), 40 );
   continueB = new Button("CONTINUE", 40, width/2-(textWidth("CONTINUE")/2), height/2+100, textWidth("CONTINUE"), 40);
-  oneB = new Button("ONE", 40, width/2-(textWidth("ONE")/2), (height/2)+25, textWidth("ONE"), 40 );
-  twoB = new Button("TWO", 40, width/2-(textWidth("TWO")/2), (height/2)+100, textWidth("TWO"), 40 );
   resumeB = new Button("RESUME", 40, width/2-(textWidth("RESUME")/2), (height/2)-100, textWidth("RESUME"), 40 );
   controlsB = new Button("CONTROLS", 40, width/2-(textWidth("CONTROLS")/2), (height/2)-25, textWidth("CONTROLS"), 40 );
   pOptionsB = new Button("OPTIONS", 40, width/2-(textWidth("OPTIONS")/2), (height/2)+50, textWidth("OPTIONS"), 40 );
@@ -139,10 +133,6 @@ void setup() {
   textBox = new Rectangle((width/2)-88, (height/2)-20, 195, 40);//creates a small rectangle with a white outline representing a text box
   searchBar1 = new Rectangle(517, 117, 140, 30);//Creates a rectangle with a white outline and grey fill to represent searchbars
   searchBar2 = new Rectangle(222, 117, 65, 30);
-
-  //Recursion
-  fractal1 = new Recursion1();
-  fractal2 = new Recursion2();
 
   //import images
   background1 = loadImage("MegamanSSB.jpg"); //background for startscreen
@@ -263,12 +253,6 @@ void draw() {
       }
       screen=7;//sets screen to 7 (credits screen)
       creditsB.setClick(false);
-    } else if (extrasB.getClick()) {//extras button
-      if (soundON.getActive()) {
-        sConfirm.play();
-      }
-      screen=10;//sets screen to 10 (extras menu screen)
-      extrasB.setClick(false);
     } else if (quitB.getClick()) {//quit button
       if (soundON.getActive()) {
         sConfirm.play();
@@ -461,54 +445,7 @@ void draw() {
       returnB.setClick(false);
     }
     break;
-  case 10://extras menu
-    playMusic(menuBM);//plays menu music
-    extrasMenu();//Calls extrasMenu() and shows the extras menu
-    if (oneB.getClick()) {
-      if (soundON.getActive()) {
-        sConfirm.play();
-      }
-      screen = 11;//goes to screen 11 to show recursive design 1
-      oneB.setClick(false);
-    } else if (twoB.getClick()) {
-      if (soundON.getActive()) {
-        sConfirm.play();
-      }
-      screen = 12;//goes to screen 12 to show recursive design 2
-      twoB.setClick(false);
-    } else if (backB.getClick()) {//goes back to main menu if back is clicked
-      if (soundON.getActive()) {
-        sDeny.play();
-      }
-      screen=2;
-      backB.setClick(false);
-    }
-    break;
-  case 11://recursive design 1
-    playMusic(menuBM);//plays menu music
-    fractal1.showFractal();
-    backB.showButton();
-    if (backB.getClick()) {//goes back to main menu if back is clicked
-      if (soundON.getActive()) {
-        sDeny.play();
-      }
-      screen=10;
-      backB.setClick(false);
-    }
-    break;
-  case 12://recursive design 2
-    playMusic(menuBM);//plays menu music
-    fractal2.showFractal();
-    backB.showButton();
-    if (backB.getClick()) {//goes back to main menu if back is clicked
-      if (soundON.getActive()) {
-        sDeny.play();
-      }
-      screen=10;
-      backB.setClick(false);
-    }
-    break;
-  case 13://post game screen
+  case 10://post game screen
     gameBM.rewind();//Rewinds the game music
     gameBM.pause();//Stops the game music 
     playMusic(deathBM);//plays menu music
@@ -556,13 +493,10 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (creditsB.isInside() && screen ==2) {//if mouse is within credits button and screen is 2
     creditsB.setClick(true);
     buttonClicked=true;
-  } else if (extrasB.isInside() && screen ==2) {//if mouse is within extras button and screen is 2
-    extrasB.setClick(true);
-    buttonClicked=true;
   } else if (quitB.isInside() && screen ==2) {//if mouse is within quit button and screen is 2
     quitB.setClick(true);
     buttonClicked=true;
-  } else if (continueB.isInside() && screen ==13) {//if mouse is within continue button and screen is 3
+  } else if (continueB.isInside() && screen ==10) {//if mouse is within continue button and screen is 3
     continueB.setClick(true);
     buttonClicked=true;
   } else if (sortName.isInside() && screen==5) {//if mouse is within sortName switch and screen is 5
@@ -609,12 +543,6 @@ void mousePressed() {//code to run if the mouse is pressed at specific locations
   } else if (returnB.isInside() && screen == 9 && nameEntered) {//if mouse is within return button and screen is 9 and user has entered a name
     returnB.setClick(true);
     buttonClicked=true;
-  } else if (oneB.isInside() && screen == 10) {//If mouse is within one button and screen is 10
-    oneB.setClick(true);
-    buttonClicked = true;
-  } else if (twoB.isInside() && screen == 10) {//If mouse is within two button and screen is 10
-    twoB.setClick(true);
-    buttonClicked = true;
   } else if (resumeB.isInside() && gameState == 2 && screen==3) {//If mouse within resume button and game is paused and screen is 3 
     resumeB.setClick(true);
     buttonClicked = true;
@@ -782,7 +710,6 @@ void mainMenu() {
   scoreboardB.showButton();
   optionsB.showButton();
   creditsB.showButton();
-  extrasB.showButton();
   quitB.showButton();
   backB.showButton();
 }
@@ -822,7 +749,7 @@ void playGame() {
         pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
         imageNotTaken = false;
       }
-      screen =13;
+      screen =10;
     }
 
     for (UAV uav : uavs) {
@@ -840,7 +767,7 @@ void playGame() {
           pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
           imageNotTaken = false;
         }
-        screen =13;
+        screen =10;
         break;
       }
       for (Laser laser : lasers) {
@@ -863,7 +790,7 @@ void playGame() {
           pausedImage = get(); //Take a screenshot of the canvas and set it to pausedImage
           imageNotTaken = false;
         }
-        screen =13;
+        screen =10;
         break;
       }
 
@@ -1086,15 +1013,36 @@ void credits() {
   textSize(60);
   text("CREDITS", 150, 50);
   textSize(20);
-  text("MADE BY SAFWAN WADUD & HAMZA OSMAN", width/2, 200);
-  text("ICS4U SUMMATIVE PROJECT", width/2, 250);
+  text("MADE BY SAFWAN WADUD & HAMZA OSMAN", width/2, 250);
   text("JAN 21, 2019", width/2, 300);
   strip.colorRect1();
   backB.showButton();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //Displays the extras menu
-void extrasMenu() {
+/*void extrasMenu() {
   background(0);
   tint(255, 100);
   image(background2, 0, 0);
@@ -1107,7 +1055,7 @@ void extrasMenu() {
   oneB.showButton();
   twoB.showButton();
   backB.showButton();
-}
+}*/
 
 //Displays the quit game menu
 void quitGame() {
