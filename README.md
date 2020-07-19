@@ -1,7 +1,7 @@
 # Notes:
 - All files must be placed within a new folder named "GreatEscapeMain"
 - Minim library by *D. Di Fede & A. Mills* and Sound library by *The Processing Foundation* must be imported 
-- To import a library go to Sketch>Import Library>Add Library>Search for a desired library>Install
+- To import a library, run processing and go to Sketch>Import Library>Add Library>Search for a desired library>Install
 
 
 # ICS-Summative
