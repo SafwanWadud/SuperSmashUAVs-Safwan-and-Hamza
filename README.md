@@ -1,6 +1,6 @@
 # Notes:
 - All files must be placed within a new folder named "GreatEscapeMain"
-- Minim library by *D. Di Fede & A. Mills* and Sound library by *The Processing Foundation* must be imported 
+- Minim library by *D. Di Fede & A. Mills* and Sound library by *The Processing Foundation* must both be imported 
 - To import a library, run Processing and go to Sketch>Import Library>Add Library and then search for a desired library to install
 
 
